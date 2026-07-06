@@ -38,15 +38,5 @@ export function Breadcrumbs({ items, className }: { items: Crumb[]; className?: 
   );
 }
 
-export function breadcrumbSchema(items: { name: string; item: string }[]) {
-  return {
-    "@context": "https://schema.org",
-    "@type": "BreadcrumbList",
-    itemListElement: items.map((it, i) => ({
-      "@type": "ListItem",
-      position: i + 1,
-      name: it.name,
-      item: it.item,
-    })),
-  };
-}
+// Re-exported from seo.ts for convenience — pages can import from either location
+export { breadcrumbSchema } from "@/lib/seo";

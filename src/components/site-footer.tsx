@@ -1,6 +1,9 @@
 import { Link } from "@tanstack/react-router";
-import { Mail, MapPin, Phone, Linkedin, Instagram, Facebook } from "lucide-react";
+import { useState } from "react";
+import { Mail, MapPin, Phone, Linkedin, Instagram, Facebook, Loader2 } from "lucide-react";
+import { toast } from "sonner";
 import { COMPANY, FOOTER_LINKS } from "@/data/site";
+import { api, ApiError } from "@/lib/api";
 
 export function SiteFooter() {
   return (
@@ -8,6 +11,14 @@ export function SiteFooter() {
       <div className="container-lux py-16">
         <div className="grid gap-12 lg:grid-cols-[1.4fr_repeat(4,1fr)]">
           <div>
+            {/* Newsletter subscription */}
+            <div className="mb-8">
+              <h4 className="font-serif text-lg text-white">Stay in touch</h4>
+              <p className="mt-1 text-sm text-[oklch(0.72_0.01_85)]">
+                Receive project inspiration, new arrivals, and industry insights.
+              </p>
+              <NewsletterForm />
+            </div>
             <div className="flex items-center gap-3">
               <span className="grid h-10 w-10 place-items-center rounded-sm bg-gold text-[var(--gold-foreground)] font-serif text-xl">
                 S
@@ -76,5 +87,59 @@ export function SiteFooter() {
         </div>
       </div>
     </footer>
+  );
+}
+
+/* ── Newsletter Form ── */
+function NewsletterForm() {
+  const [email, setEmail] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [subscribed, setSubscribed] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      toast.error("Please enter a valid email address.");
+      return;
+    }
+    setLoading(true);
+    try {
+      await api.post("/api/subscribers", { email: email.trim() });
+      setSubscribed(true);
+      setEmail("");
+      toast.success("Subscribed!", { description: "You'll receive updates from Stone India Heritage." });
+    } catch (err) {
+      const msg = err instanceof ApiError ? err.message : "Subscription failed. Please try again.";
+      toast.error(msg);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className="mt-3 flex gap-2">
+      <input
+        type="email"
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
+        placeholder="Your email"
+        disabled={subscribed}
+        className="h-9 flex-1 rounded-md border border-white/20 bg-white/5 px-3 text-xs text-white outline-none placeholder:text-white/40 focus:border-gold/50 focus:ring-1 focus:ring-gold/30 disabled:opacity-50"
+        aria-label="Email for newsletter"
+      />
+      <button
+        type="submit"
+        disabled={loading || subscribed}
+        className="flex h-9 items-center gap-1.5 rounded-md bg-gold px-3 text-xs font-medium text-[var(--gold-foreground)] transition-all hover:opacity-90 disabled:opacity-50 shrink-0"
+      >
+        {loading ? (
+          <Loader2 className="h-3.5 w-3.5 animate-spin" />
+        ) : subscribed ? (
+          "✓"
+        ) : (
+          "Subscribe"
+        )}
+      </button>
+    </form>
   );
 }

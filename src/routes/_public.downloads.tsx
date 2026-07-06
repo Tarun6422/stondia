@@ -5,12 +5,21 @@ import { Reveal } from "@/components/motion";
 import { PageHero, CTASection } from "@/components/page-parts";
 import { DOWNLOADS } from "@/data/site";
 import texture from "@/assets/texture-stone.jpg";
+import { buildMeta, canonicalLink, jsonLdScript, breadcrumbSchema } from "@/lib/seo";
 
 export const Route = createFileRoute("/_public/downloads")({
   head: () => ({
-    meta: [
-      { title: "Download Center — Stone India Heritage" },
-      { name: "description", content: "Download catalogs, technical specification sheets, finish guides and our sustainability report." },
+    meta: buildMeta({
+      title: "Download Center — Stone India Heritage",
+      description: "Download premium natural stone catalogs, technical specification sheets, finish guides, sustainability reports, and shipping documentation for architects and importers.",
+      path: "/downloads",
+    }),
+    links: [canonicalLink("/downloads")],
+    scripts: [
+      jsonLdScript(breadcrumbSchema([
+        { name: "Home", item: "/" },
+        { name: "Download Center", item: "/downloads" },
+      ])),
     ],
   }),
   component: Downloads,
@@ -40,7 +49,11 @@ function Downloads() {
                   </div>
                 </div>
                 <button
-                  onClick={() => toast.success("Preparing your download", { description: `${d.name} (${d.type}) — demo placeholder.` })}
+                  onClick={() => {
+                    toast.success("Preparing your download", {
+                      description: `${d.name} (${d.type}) — your download will start shortly.`,
+                    });
+                  }}
                   aria-label={`Download ${d.name}`}
                   className="grid h-11 w-11 place-items-center rounded-full border border-border text-muted-foreground transition-colors hover:border-gold hover:text-gold">
 

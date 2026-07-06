@@ -4,12 +4,21 @@ import { Reveal } from "@/components/motion";
 import { PageHero, CTASection } from "@/components/page-parts";
 import { POSTS } from "@/data/site";
 import villa from "@/assets/project-villa.jpg";
+import { buildMeta, canonicalLink, jsonLdScript, breadcrumbSchema } from "@/lib/seo";
 
 export const Route = createFileRoute("/_public/blog/")({
   head: () => ({
-    meta: [
-      { title: "Journal — Stone India Heritage" },
-      { name: "description", content: "Insights on sandstone architecture, sustainable quarrying and heritage craftsmanship." },
+    meta: buildMeta({
+      title: "Journal — Stone India Heritage",
+      description: "Insights on sandstone architecture, sustainable quarrying, heritage craftsmanship and natural stone project guides from India's premier sandstone exporter.",
+      path: "/blog",
+    }),
+    links: [canonicalLink("/blog")],
+    scripts: [
+      jsonLdScript(breadcrumbSchema([
+        { name: "Home", item: "/" },
+        { name: "Journal", item: "/blog" },
+      ])),
     ],
   }),
   component: Blog,

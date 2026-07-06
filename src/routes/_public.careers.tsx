@@ -4,12 +4,21 @@ import { Button } from "@/components/ui/button";
 import { Reveal } from "@/components/motion";
 import { PageHero, CTASection } from "@/components/page-parts";
 import factory from "@/assets/factory.jpg";
+import { buildMeta, canonicalLink, jsonLdScript, breadcrumbSchema } from "@/lib/seo";
 
 export const Route = createFileRoute("/_public/careers")({
   head: () => ({
-    meta: [
-      { title: "Careers — Stone India Heritage" },
-      { name: "description", content: "Join a global stone brand blending heritage craftsmanship with modern manufacturing." },
+    meta: buildMeta({
+      title: "Careers — Stone India Heritage",
+      description: "Join a global stone brand blending heritage craftsmanship with modern manufacturing. Explore careers in sales, manufacturing, quality, logistics, and artisan crafts.",
+      path: "/careers",
+    }),
+    links: [canonicalLink("/careers")],
+    scripts: [
+      jsonLdScript(breadcrumbSchema([
+        { name: "Home", item: "/" },
+        { name: "Careers", item: "/careers" },
+      ])),
     ],
   }),
   component: Careers,

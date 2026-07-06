@@ -3,14 +3,21 @@ import { Reveal } from "@/components/motion";
 import { PageHero, SectionHeading, CTASection } from "@/components/page-parts";
 import hero from "@/assets/hero-sandstone.jpg";
 import jali from "@/assets/product-jali.jpg";
+import { buildMeta, canonicalLink, jsonLdScript, breadcrumbSchema } from "@/lib/seo";
 
 export const Route = createFileRoute("/_public/heritage")({
   head: () => ({
-    meta: [
-      { title: "Our Heritage — Stone India Heritage" },
-      { name: "description", content: "The living craft of Rajasthani stone — centuries of carving tradition, preserved and evolved." },
-      { property: "og:title", content: "Our Heritage — Stone India Heritage" },
-      { property: "og:description", content: "Centuries of Rajasthani stone craftsmanship." },
+    meta: buildMeta({
+      title: "Our Heritage — Stone India Heritage",
+      description: "The living craft of Rajasthani stone — centuries of carving tradition preserved and evolved by master artisans in Jodhpur, India.",
+      path: "/heritage",
+    }),
+    links: [canonicalLink("/heritage")],
+    scripts: [
+      jsonLdScript(breadcrumbSchema([
+        { name: "Home", item: "/" },
+        { name: "Our Heritage", item: "/heritage" },
+      ])),
     ],
   }),
   component: Heritage,

@@ -5,12 +5,22 @@ import { Reveal } from "@/components/motion";
 import { PageHero, CTASection } from "@/components/page-parts";
 import { FAQS } from "@/data/site";
 import texture from "@/assets/texture-stone.jpg";
+import { buildMeta, canonicalLink, jsonLdScript, faqSchema, breadcrumbSchema } from "@/lib/seo";
 
 export const Route = createFileRoute("/_public/faq")({
   head: () => ({
-    meta: [
-      { title: "FAQ — Stone India Heritage" },
-      { name: "description", content: "Answers to common questions about ordering, shipping, custom work and technical documentation." },
+    meta: buildMeta({
+      title: "FAQ — Stone India Heritage",
+      description: "Answers to common questions about ordering natural stone, shipping, custom work, samples, and technical documentation from India's premier sandstone exporter.",
+      path: "/faq",
+    }),
+    links: [canonicalLink("/faq")],
+    scripts: [
+      jsonLdScript(faqSchema(FAQS.map((f) => ({ question: f.q, answer: f.a })))),
+      jsonLdScript(breadcrumbSchema([
+        { name: "Home", item: "/" },
+        { name: "FAQ", item: "/faq" },
+      ])),
     ],
   }),
   component: FAQ,

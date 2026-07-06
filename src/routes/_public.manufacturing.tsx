@@ -3,14 +3,21 @@ import { Reveal } from "@/components/motion";
 import { PageHero, CTASection } from "@/components/page-parts";
 import { PROCESS_STEPS } from "@/data/site";
 import factory from "@/assets/factory.jpg";
+import { buildMeta, canonicalLink, jsonLdScript, breadcrumbSchema } from "@/lib/seo";
 
 export const Route = createFileRoute("/_public/manufacturing")({
   head: () => ({
-    meta: [
-      { title: "Manufacturing Process — Stone India Heritage" },
-      { name: "description", content: "From responsible quarrying to global export — our seven-stage stone manufacturing process." },
-      { property: "og:title", content: "Manufacturing Process — Stone India Heritage" },
-      { property: "og:description", content: "Our seven-stage stone manufacturing process." },
+    meta: buildMeta({
+      title: "Manufacturing Process — Stone India Heritage",
+      description: "From responsible quarrying to global export — our seven-stage stone manufacturing process featuring multi-wire sawing, CNC calibration, hand carving, and quality control.",
+      path: "/manufacturing",
+    }),
+    links: [canonicalLink("/manufacturing")],
+    scripts: [
+      jsonLdScript(breadcrumbSchema([
+        { name: "Home", item: "/" },
+        { name: "Manufacturing Process", item: "/manufacturing" },
+      ])),
     ],
   }),
   component: Manufacturing,

@@ -4,12 +4,21 @@ import { Reveal } from "@/components/motion";
 import { PageHero, CTASection } from "@/components/page-parts";
 import { CERTIFICATIONS } from "@/data/site";
 import factory from "@/assets/factory.jpg";
+import { buildMeta, canonicalLink, jsonLdScript, breadcrumbSchema } from "@/lib/seo";
 
 export const Route = createFileRoute("/_public/certifications")({
   head: () => ({
-    meta: [
-      { title: "Certifications — Stone India Heritage" },
-      { name: "description", content: "ISO, CE, SGS and ethical labour certifications backing our export-grade quality standards." },
+    meta: buildMeta({
+      title: "Certifications — Stone India Heritage",
+      description: "ISO 9001, ISO 14001, CE Marking, SGS Verified and ethical labour certifications backing our export-grade natural stone quality standards.",
+      path: "/certifications",
+    }),
+    links: [canonicalLink("/certifications")],
+    scripts: [
+      jsonLdScript(breadcrumbSchema([
+        { name: "Home", item: "/" },
+        { name: "Certifications", item: "/certifications" },
+      ])),
     ],
   }),
   component: Certifications,

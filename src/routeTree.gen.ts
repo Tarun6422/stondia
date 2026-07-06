@@ -16,14 +16,20 @@ import { Route as PublicVideosRouteImport } from './routes/_public.videos'
 import { Route as PublicTrackOrderRouteImport } from './routes/_public.track-order'
 import { Route as PublicTermsRouteImport } from './routes/_public.terms'
 import { Route as PublicSustainabilityRouteImport } from './routes/_public.sustainability'
+import { Route as PublicResetPasswordRouteImport } from './routes/_public.reset-password'
+import { Route as PublicRegisterRouteImport } from './routes/_public.register'
 import { Route as PublicQuoteRouteImport } from './routes/_public.quote'
+import { Route as PublicProfileRouteImport } from './routes/_public.profile'
 import { Route as PublicPrivacyRouteImport } from './routes/_public.privacy'
 import { Route as PublicManufacturingRouteImport } from './routes/_public.manufacturing'
+import { Route as PublicLoginRouteImport } from './routes/_public.login'
 import { Route as PublicHeritageRouteImport } from './routes/_public.heritage'
 import { Route as PublicGalleryRouteImport } from './routes/_public.gallery'
+import { Route as PublicForgotPasswordRouteImport } from './routes/_public.forgot-password'
 import { Route as PublicFaqRouteImport } from './routes/_public.faq'
 import { Route as PublicFactoryRouteImport } from './routes/_public.factory'
 import { Route as PublicDownloadsRouteImport } from './routes/_public.downloads'
+import { Route as PublicDashboardRouteImport } from './routes/_public.dashboard'
 import { Route as PublicContactRouteImport } from './routes/_public.contact'
 import { Route as PublicCertificationsRouteImport } from './routes/_public.certifications'
 import { Route as PublicCategoriesRouteImport } from './routes/_public.categories'
@@ -71,9 +77,24 @@ const PublicSustainabilityRoute = PublicSustainabilityRouteImport.update({
   path: '/sustainability',
   getParentRoute: () => PublicRoute,
 } as any)
+const PublicResetPasswordRoute = PublicResetPasswordRouteImport.update({
+  id: '/reset-password',
+  path: '/reset-password',
+  getParentRoute: () => PublicRoute,
+} as any)
+const PublicRegisterRoute = PublicRegisterRouteImport.update({
+  id: '/register',
+  path: '/register',
+  getParentRoute: () => PublicRoute,
+} as any)
 const PublicQuoteRoute = PublicQuoteRouteImport.update({
   id: '/quote',
   path: '/quote',
+  getParentRoute: () => PublicRoute,
+} as any)
+const PublicProfileRoute = PublicProfileRouteImport.update({
+  id: '/profile',
+  path: '/profile',
   getParentRoute: () => PublicRoute,
 } as any)
 const PublicPrivacyRoute = PublicPrivacyRouteImport.update({
@@ -86,6 +107,11 @@ const PublicManufacturingRoute = PublicManufacturingRouteImport.update({
   path: '/manufacturing',
   getParentRoute: () => PublicRoute,
 } as any)
+const PublicLoginRoute = PublicLoginRouteImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => PublicRoute,
+} as any)
 const PublicHeritageRoute = PublicHeritageRouteImport.update({
   id: '/heritage',
   path: '/heritage',
@@ -94,6 +120,11 @@ const PublicHeritageRoute = PublicHeritageRouteImport.update({
 const PublicGalleryRoute = PublicGalleryRouteImport.update({
   id: '/gallery',
   path: '/gallery',
+  getParentRoute: () => PublicRoute,
+} as any)
+const PublicForgotPasswordRoute = PublicForgotPasswordRouteImport.update({
+  id: '/forgot-password',
+  path: '/forgot-password',
   getParentRoute: () => PublicRoute,
 } as any)
 const PublicFaqRoute = PublicFaqRouteImport.update({
@@ -109,6 +140,11 @@ const PublicFactoryRoute = PublicFactoryRouteImport.update({
 const PublicDownloadsRoute = PublicDownloadsRouteImport.update({
   id: '/downloads',
   path: '/downloads',
+  getParentRoute: () => PublicRoute,
+} as any)
+const PublicDashboardRoute = PublicDashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
   getParentRoute: () => PublicRoute,
 } as any)
 const PublicContactRoute = PublicContactRouteImport.update({
@@ -181,14 +217,20 @@ export interface FileRoutesByFullPath {
   '/categories': typeof PublicCategoriesRoute
   '/certifications': typeof PublicCertificationsRoute
   '/contact': typeof PublicContactRoute
+  '/dashboard': typeof PublicDashboardRoute
   '/downloads': typeof PublicDownloadsRoute
   '/factory': typeof PublicFactoryRoute
   '/faq': typeof PublicFaqRoute
+  '/forgot-password': typeof PublicForgotPasswordRoute
   '/gallery': typeof PublicGalleryRoute
   '/heritage': typeof PublicHeritageRoute
+  '/login': typeof PublicLoginRoute
   '/manufacturing': typeof PublicManufacturingRoute
   '/privacy': typeof PublicPrivacyRoute
+  '/profile': typeof PublicProfileRoute
   '/quote': typeof PublicQuoteRoute
+  '/register': typeof PublicRegisterRoute
+  '/reset-password': typeof PublicResetPasswordRoute
   '/sustainability': typeof PublicSustainabilityRoute
   '/terms': typeof PublicTermsRoute
   '/track-order': typeof PublicTrackOrderRoute
@@ -208,14 +250,20 @@ export interface FileRoutesByTo {
   '/categories': typeof PublicCategoriesRoute
   '/certifications': typeof PublicCertificationsRoute
   '/contact': typeof PublicContactRoute
+  '/dashboard': typeof PublicDashboardRoute
   '/downloads': typeof PublicDownloadsRoute
   '/factory': typeof PublicFactoryRoute
   '/faq': typeof PublicFaqRoute
+  '/forgot-password': typeof PublicForgotPasswordRoute
   '/gallery': typeof PublicGalleryRoute
   '/heritage': typeof PublicHeritageRoute
+  '/login': typeof PublicLoginRoute
   '/manufacturing': typeof PublicManufacturingRoute
   '/privacy': typeof PublicPrivacyRoute
+  '/profile': typeof PublicProfileRoute
   '/quote': typeof PublicQuoteRoute
+  '/register': typeof PublicRegisterRoute
+  '/reset-password': typeof PublicResetPasswordRoute
   '/sustainability': typeof PublicSustainabilityRoute
   '/terms': typeof PublicTermsRoute
   '/track-order': typeof PublicTrackOrderRoute
@@ -238,14 +286,20 @@ export interface FileRoutesById {
   '/_public/categories': typeof PublicCategoriesRoute
   '/_public/certifications': typeof PublicCertificationsRoute
   '/_public/contact': typeof PublicContactRoute
+  '/_public/dashboard': typeof PublicDashboardRoute
   '/_public/downloads': typeof PublicDownloadsRoute
   '/_public/factory': typeof PublicFactoryRoute
   '/_public/faq': typeof PublicFaqRoute
+  '/_public/forgot-password': typeof PublicForgotPasswordRoute
   '/_public/gallery': typeof PublicGalleryRoute
   '/_public/heritage': typeof PublicHeritageRoute
+  '/_public/login': typeof PublicLoginRoute
   '/_public/manufacturing': typeof PublicManufacturingRoute
   '/_public/privacy': typeof PublicPrivacyRoute
+  '/_public/profile': typeof PublicProfileRoute
   '/_public/quote': typeof PublicQuoteRoute
+  '/_public/register': typeof PublicRegisterRoute
+  '/_public/reset-password': typeof PublicResetPasswordRoute
   '/_public/sustainability': typeof PublicSustainabilityRoute
   '/_public/terms': typeof PublicTermsRoute
   '/_public/track-order': typeof PublicTrackOrderRoute
@@ -269,14 +323,20 @@ export interface FileRouteTypes {
     | '/categories'
     | '/certifications'
     | '/contact'
+    | '/dashboard'
     | '/downloads'
     | '/factory'
     | '/faq'
+    | '/forgot-password'
     | '/gallery'
     | '/heritage'
+    | '/login'
     | '/manufacturing'
     | '/privacy'
+    | '/profile'
     | '/quote'
+    | '/register'
+    | '/reset-password'
     | '/sustainability'
     | '/terms'
     | '/track-order'
@@ -296,14 +356,20 @@ export interface FileRouteTypes {
     | '/categories'
     | '/certifications'
     | '/contact'
+    | '/dashboard'
     | '/downloads'
     | '/factory'
     | '/faq'
+    | '/forgot-password'
     | '/gallery'
     | '/heritage'
+    | '/login'
     | '/manufacturing'
     | '/privacy'
+    | '/profile'
     | '/quote'
+    | '/register'
+    | '/reset-password'
     | '/sustainability'
     | '/terms'
     | '/track-order'
@@ -325,14 +391,20 @@ export interface FileRouteTypes {
     | '/_public/categories'
     | '/_public/certifications'
     | '/_public/contact'
+    | '/_public/dashboard'
     | '/_public/downloads'
     | '/_public/factory'
     | '/_public/faq'
+    | '/_public/forgot-password'
     | '/_public/gallery'
     | '/_public/heritage'
+    | '/_public/login'
     | '/_public/manufacturing'
     | '/_public/privacy'
+    | '/_public/profile'
     | '/_public/quote'
+    | '/_public/register'
+    | '/_public/reset-password'
     | '/_public/sustainability'
     | '/_public/terms'
     | '/_public/track-order'
@@ -402,11 +474,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PublicSustainabilityRouteImport
       parentRoute: typeof PublicRoute
     }
+    '/_public/reset-password': {
+      id: '/_public/reset-password'
+      path: '/reset-password'
+      fullPath: '/reset-password'
+      preLoaderRoute: typeof PublicResetPasswordRouteImport
+      parentRoute: typeof PublicRoute
+    }
+    '/_public/register': {
+      id: '/_public/register'
+      path: '/register'
+      fullPath: '/register'
+      preLoaderRoute: typeof PublicRegisterRouteImport
+      parentRoute: typeof PublicRoute
+    }
     '/_public/quote': {
       id: '/_public/quote'
       path: '/quote'
       fullPath: '/quote'
       preLoaderRoute: typeof PublicQuoteRouteImport
+      parentRoute: typeof PublicRoute
+    }
+    '/_public/profile': {
+      id: '/_public/profile'
+      path: '/profile'
+      fullPath: '/profile'
+      preLoaderRoute: typeof PublicProfileRouteImport
       parentRoute: typeof PublicRoute
     }
     '/_public/privacy': {
@@ -423,6 +516,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PublicManufacturingRouteImport
       parentRoute: typeof PublicRoute
     }
+    '/_public/login': {
+      id: '/_public/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof PublicLoginRouteImport
+      parentRoute: typeof PublicRoute
+    }
     '/_public/heritage': {
       id: '/_public/heritage'
       path: '/heritage'
@@ -435,6 +535,13 @@ declare module '@tanstack/react-router' {
       path: '/gallery'
       fullPath: '/gallery'
       preLoaderRoute: typeof PublicGalleryRouteImport
+      parentRoute: typeof PublicRoute
+    }
+    '/_public/forgot-password': {
+      id: '/_public/forgot-password'
+      path: '/forgot-password'
+      fullPath: '/forgot-password'
+      preLoaderRoute: typeof PublicForgotPasswordRouteImport
       parentRoute: typeof PublicRoute
     }
     '/_public/faq': {
@@ -456,6 +563,13 @@ declare module '@tanstack/react-router' {
       path: '/downloads'
       fullPath: '/downloads'
       preLoaderRoute: typeof PublicDownloadsRouteImport
+      parentRoute: typeof PublicRoute
+    }
+    '/_public/dashboard': {
+      id: '/_public/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof PublicDashboardRouteImport
       parentRoute: typeof PublicRoute
     }
     '/_public/contact': {
@@ -552,14 +666,20 @@ interface PublicRouteChildren {
   PublicCategoriesRoute: typeof PublicCategoriesRoute
   PublicCertificationsRoute: typeof PublicCertificationsRoute
   PublicContactRoute: typeof PublicContactRoute
+  PublicDashboardRoute: typeof PublicDashboardRoute
   PublicDownloadsRoute: typeof PublicDownloadsRoute
   PublicFactoryRoute: typeof PublicFactoryRoute
   PublicFaqRoute: typeof PublicFaqRoute
+  PublicForgotPasswordRoute: typeof PublicForgotPasswordRoute
   PublicGalleryRoute: typeof PublicGalleryRoute
   PublicHeritageRoute: typeof PublicHeritageRoute
+  PublicLoginRoute: typeof PublicLoginRoute
   PublicManufacturingRoute: typeof PublicManufacturingRoute
   PublicPrivacyRoute: typeof PublicPrivacyRoute
+  PublicProfileRoute: typeof PublicProfileRoute
   PublicQuoteRoute: typeof PublicQuoteRoute
+  PublicRegisterRoute: typeof PublicRegisterRoute
+  PublicResetPasswordRoute: typeof PublicResetPasswordRoute
   PublicSustainabilityRoute: typeof PublicSustainabilityRoute
   PublicTermsRoute: typeof PublicTermsRoute
   PublicTrackOrderRoute: typeof PublicTrackOrderRoute
@@ -580,14 +700,20 @@ const PublicRouteChildren: PublicRouteChildren = {
   PublicCategoriesRoute: PublicCategoriesRoute,
   PublicCertificationsRoute: PublicCertificationsRoute,
   PublicContactRoute: PublicContactRoute,
+  PublicDashboardRoute: PublicDashboardRoute,
   PublicDownloadsRoute: PublicDownloadsRoute,
   PublicFactoryRoute: PublicFactoryRoute,
   PublicFaqRoute: PublicFaqRoute,
+  PublicForgotPasswordRoute: PublicForgotPasswordRoute,
   PublicGalleryRoute: PublicGalleryRoute,
   PublicHeritageRoute: PublicHeritageRoute,
+  PublicLoginRoute: PublicLoginRoute,
   PublicManufacturingRoute: PublicManufacturingRoute,
   PublicPrivacyRoute: PublicPrivacyRoute,
+  PublicProfileRoute: PublicProfileRoute,
   PublicQuoteRoute: PublicQuoteRoute,
+  PublicRegisterRoute: PublicRegisterRoute,
+  PublicResetPasswordRoute: PublicResetPasswordRoute,
   PublicSustainabilityRoute: PublicSustainabilityRoute,
   PublicTermsRoute: PublicTermsRoute,
   PublicTrackOrderRoute: PublicTrackOrderRoute,

@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Reveal } from "@/components/motion";
 import { CTASection } from "@/components/page-parts";
 import { PROJECTS } from "@/data/site";
+import { buildMeta, canonicalLink, jsonLdScript, breadcrumbSchema } from "@/lib/seo";
 
 export const Route = createFileRoute("/_public/projects/$slug")({
   loader: ({ params }) => {
@@ -11,14 +12,23 @@ export const Route = createFileRoute("/_public/projects/$slug")({
     if (!project) throw notFound();
     return { project };
   },
-  head: ({ loaderData }) => ({
+  head: ({ loaderData, params }) => ({
     meta: loaderData
+      ? buildMeta({
+          title: `${loaderData.project.name} — Stone India Heritage`,
+          description: loaderData.project.summary,
+          path: `/projects/${params.slug}`,
+          ogImage: loaderData.project.image,
+        })
+      : [{ title: "Project not found — Stone India Heritage" }, { name: "robots", content: "noindex" }],
+    links: loaderData ? [canonicalLink(`/projects/${params.slug}`)] : [],
+    scripts: loaderData
       ? [
-          { title: `${loaderData.project.name} — Stone India Heritage` },
-          { name: "description", content: loaderData.project.summary },
-          { property: "og:title", content: loaderData.project.name },
-          { property: "og:description", content: loaderData.project.summary },
-          { property: "og:image", content: loaderData.project.image },
+          jsonLdScript(breadcrumbSchema([
+            { name: "Home", item: "/" },
+            { name: "Projects", item: "/projects" },
+            { name: loaderData.project.name, item: `/projects/${params.slug}` },
+          ])),
         ]
       : [],
   }),

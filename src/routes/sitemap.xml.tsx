@@ -1,0 +1,1 @@
+// Sitemap served from /public/sitemap.xml

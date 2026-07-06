@@ -6,16 +6,23 @@ import { PageHero, CTASection } from "@/components/page-parts";
 import { Breadcrumbs } from "@/components/breadcrumbs";
 import { PRODUCTS, CATEGORIES } from "@/data/site";
 import texture from "@/assets/texture-stone.jpg";
+import { buildMeta, canonicalLink, jsonLdScript, breadcrumbSchema } from "@/lib/seo";
 
 type SortKey = "latest" | "popular" | "az";
 
 export const Route = createFileRoute("/_public/products/")({
   head: () => ({
-    meta: [
-      { title: "Products — Stone India Heritage" },
-      { name: "description", content: "Explore our full range of Rajasthan sandstone products — cladding, flooring, cobbles, jali, columns, carvings and more." },
-      { property: "og:title", content: "Products — Stone India Heritage" },
-      { property: "og:description", content: "Premium sandstone products for architecture and landscaping." },
+    meta: buildMeta({
+      title: "Products — Stone India Heritage",
+      description: "Explore our full range of premium Rajasthan sandstone products — wall cladding, flooring, cobbles, jali screens, columns, carvings, paving, and architectural stone for global projects.",
+      path: "/products",
+    }),
+    links: [canonicalLink("/products")],
+    scripts: [
+      jsonLdScript(breadcrumbSchema([
+        { name: "Home", item: "/" },
+        { name: "Products", item: "/products" },
+      ])),
     ],
   }),
   component: Products,

@@ -5,14 +5,21 @@ import { PageHero, SectionHeading, CTASection } from "@/components/page-parts";
 import { COMPANY } from "@/data/site";
 import factory from "@/assets/factory.jpg";
 import texture from "@/assets/texture-stone.jpg";
+import { buildMeta, canonicalLink, jsonLdScript, breadcrumbSchema } from "@/lib/seo";
 
 export const Route = createFileRoute("/_public/about")({
   head: () => ({
-    meta: [
-      { title: "About — Stone India Heritage" },
-      { name: "description", content: "Learn about Stone India Heritage — our vision, mission and values as a premium Rajasthan sandstone exporter." },
-      { property: "og:title", content: "About — Stone India Heritage" },
-      { property: "og:description", content: "Our vision, mission and values." },
+    meta: buildMeta({
+      title: "About — Stone India Heritage",
+      description: "Learn about Stone India Heritage — our vision, mission and values as a premium Rajasthan sandstone manufacturer and global exporter serving 35+ countries.",
+      path: "/about",
+    }),
+    links: [canonicalLink("/about")],
+    scripts: [
+      jsonLdScript(breadcrumbSchema([
+        { name: "Home", item: "/" },
+        { name: "About", item: "/about" },
+      ])),
     ],
   }),
   component: About,

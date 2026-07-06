@@ -1,0 +1,30 @@
+import { config } from "dotenv";
+config();
+
+export const CONFIG = {
+  PORT: parseInt(process.env.PORT || "4000", 10),
+  NODE_ENV: process.env.NODE_ENV || "development",
+  DATABASE_URL: process.env.DATABASE_URL!,
+  JWT_SECRET: process.env.JWT_SECRET || "fallback-secret-change-me",
+  JWT_REFRESH_SECRET: process.env.JWT_REFRESH_SECRET || "fallback-refresh-secret",
+  JWT_EXPIRES_IN: process.env.JWT_EXPIRES_IN || "15m",
+  JWT_REFRESH_EXPIRES_IN: process.env.JWT_REFRESH_EXPIRES_IN || "7d",
+  FRONTEND_URL: process.env.FRONTEND_URL || "http://localhost:3000",
+  SUPABASE_URL: process.env.SUPABASE_URL || "",
+  SUPABASE_SERVICE_KEY: process.env.SUPABASE_SERVICE_KEY || "",
+  SUPABASE_STORAGE_BUCKET: process.env.SUPABASE_STORAGE_BUCKET || "stone-india-assets",
+  CLOUDINARY_CLOUD_NAME: process.env.CLOUDINARY_CLOUD_NAME || "",
+  CLOUDINARY_API_KEY: process.env.CLOUDINARY_API_KEY || "",
+  CLOUDINARY_API_SECRET: process.env.CLOUDINARY_API_SECRET || "",
+  SMTP_HOST: process.env.SMTP_HOST || "smtp.gmail.com",
+  SMTP_PORT: parseInt(process.env.SMTP_PORT || "587", 10),
+  SMTP_USER: process.env.SMTP_USER || "",
+  SMTP_PASS: process.env.SMTP_PASS || "",
+  SUPABASE_SMTP_HOST: process.env.SUPABASE_SMTP_HOST || "",
+  SUPABASE_SMTP_PORT: parseInt(process.env.SUPABASE_SMTP_PORT || "465", 10),
+  SUPABASE_SMTP_USER: process.env.SUPABASE_SMTP_USER || "",
+  SUPABASE_SMTP_PASS: process.env.SUPABASE_SMTP_PASS || "",
+  EMAIL_FROM: process.env.EMAIL_FROM || "noreply@stoneindiaheritage.com",
+  EMAIL_TO: process.env.EMAIL_TO || "exports@stoneindiaheritage.com",
+  COMPANY_PHONE: process.env.COMPANY_PHONE || "+91 98290 00000",
+} as const;

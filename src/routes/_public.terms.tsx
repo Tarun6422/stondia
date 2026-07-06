@@ -1,11 +1,21 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { LegalPage } from "./_public.privacy";
 
+import { buildMeta, canonicalLink, jsonLdScript, breadcrumbSchema } from "@/lib/seo";
+
 export const Route = createFileRoute("/_public/terms")({
   head: () => ({
-    meta: [
-      { title: "Terms & Conditions — Stone India Heritage" },
-      { name: "description", content: "The terms governing use of our website and the sale of our natural stone products." },
+    meta: buildMeta({
+      title: "Terms & Conditions — Stone India Heritage",
+      description: "The terms governing use of our website and the sale of our natural stone products, including quotations, pricing, shipping, and warranty.",
+      path: "/terms",
+    }),
+    links: [canonicalLink("/terms")],
+    scripts: [
+      jsonLdScript(breadcrumbSchema([
+        { name: "Home", item: "/" },
+        { name: "Terms & Conditions", item: "/terms" },
+      ])),
     ],
   }),
   component: Terms,

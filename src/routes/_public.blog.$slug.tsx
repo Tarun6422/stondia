@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Reveal } from "@/components/motion";
 import { CTASection } from "@/components/page-parts";
 import { POSTS } from "@/data/site";
+import { buildMeta, canonicalLink, jsonLdScript, articleSchema, breadcrumbSchema } from "@/lib/seo";
 
 export const Route = createFileRoute("/_public/blog/$slug")({
   loader: ({ params }) => {
@@ -11,14 +12,32 @@ export const Route = createFileRoute("/_public/blog/$slug")({
     if (!post) throw notFound();
     return { post };
   },
-  head: ({ loaderData }) => ({
+  head: ({ loaderData, params }) => ({
     meta: loaderData
+      ? buildMeta({
+          title: `${loaderData.post.title} — Stone India Heritage`,
+          description: loaderData.post.excerpt,
+          path: `/blog/${params.slug}`,
+          ogImage: loaderData.post.image,
+          ogType: "article",
+        })
+      : [{ title: "Post not found — Stone India Heritage" }, { name: "robots", content: "noindex" }],
+    links: loaderData ? [canonicalLink(`/blog/${params.slug}`)] : [],
+    scripts: loaderData
       ? [
-          { title: `${loaderData.post.title} — Stone India Heritage` },
-          { name: "description", content: loaderData.post.excerpt },
-          { property: "og:title", content: loaderData.post.title },
-          { property: "og:description", content: loaderData.post.excerpt },
-          { property: "og:image", content: loaderData.post.image },
+          jsonLdScript(articleSchema({
+            headline: loaderData.post.title,
+            description: loaderData.post.excerpt,
+            image: loaderData.post.image,
+            datePublished: loaderData.post.date,
+            category: loaderData.post.category,
+            path: `/blog/${params.slug}`,
+          })),
+          jsonLdScript(breadcrumbSchema([
+            { name: "Home", item: "/" },
+            { name: "Journal", item: "/blog" },
+            { name: loaderData.post.title, item: `/blog/${params.slug}` },
+          ])),
         ]
       : [],
   }),

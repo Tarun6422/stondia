@@ -4,14 +4,21 @@ import { Reveal } from "@/components/motion";
 import { PageHero, SectionHeading, CTASection } from "@/components/page-parts";
 import { SUSTAINABILITY_POINTS } from "@/data/site";
 import sustainability from "@/assets/sustainability.jpg";
+import { buildMeta, canonicalLink, jsonLdScript, breadcrumbSchema } from "@/lib/seo";
 
 export const Route = createFileRoute("/_public/sustainability")({
   head: () => ({
-    meta: [
-      { title: "Sustainability — Stone India Heritage" },
-      { name: "description", content: "Responsible quarrying, water recycling, waste reduction and eco-friendly manufacturing at Stone India Heritage." },
-      { property: "og:title", content: "Sustainability — Stone India Heritage" },
-      { property: "og:description", content: "Responsible, low-impact natural stone." },
+    meta: buildMeta({
+      title: "Sustainability — Stone India Heritage",
+      description: "Responsible quarrying, water recycling, waste reduction and eco-friendly manufacturing at Stone India Heritage — sustainable natural stone for global architecture.",
+      path: "/sustainability",
+    }),
+    links: [canonicalLink("/sustainability")],
+    scripts: [
+      jsonLdScript(breadcrumbSchema([
+        { name: "Home", item: "/" },
+        { name: "Sustainability", item: "/sustainability" },
+      ])),
     ],
   }),
   component: Sustainability,

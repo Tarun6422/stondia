@@ -3,14 +3,21 @@ import { Reveal } from "@/components/motion";
 import { PageHero, CTASection } from "@/components/page-parts";
 import { PROJECTS } from "@/data/site";
 import villa from "@/assets/project-villa.jpg";
+import { buildMeta, canonicalLink, jsonLdScript, breadcrumbSchema } from "@/lib/seo";
 
 export const Route = createFileRoute("/_public/projects/")({
   head: () => ({
-    meta: [
-      { title: "Projects — Stone India Heritage" },
-      { name: "description", content: "Explore villas, hotels, temples and government projects delivered with Stone India Heritage sandstone worldwide." },
-      { property: "og:title", content: "Projects — Stone India Heritage" },
-      { property: "og:description", content: "Global projects built with our stone." },
+    meta: buildMeta({
+      title: "Projects — Stone India Heritage",
+      description: "Explore luxury villas, hotels, temples, and government projects delivered worldwide with premium Rajasthan sandstone from Stone India Heritage.",
+      path: "/projects",
+    }),
+    links: [canonicalLink("/projects")],
+    scripts: [
+      jsonLdScript(breadcrumbSchema([
+        { name: "Home", item: "/" },
+        { name: "Projects", item: "/projects" },
+      ])),
     ],
   }),
   component: Projects,

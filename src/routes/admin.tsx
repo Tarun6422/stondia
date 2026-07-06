@@ -1,13 +1,20 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
-import { useState } from "react";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { useState, useEffect, useRef } from "react";
+import { AnimatePresence, motion } from "framer-motion";
 import {
-  LayoutDashboard, Package, FolderTree, BookOpen, Building2, Images,
-  Award, Download, Newspaper, Users, FileText, ShoppingCart, UserCog,
-  Shield, BarChart3, Settings, Library, TrendingUp, TrendingDown,
-  ArrowUpRight, Search, Bell, Menu, X,
+  LayoutDashboard, Package, FolderTree, Building2, Newspaper, Video,
+  Download, MessageSquare, FileText, Users, Settings, Mail, Star,
+  LogOut, Search, Bell, Moon, Sun, Menu, X, ChevronDown,
+  Loader2,
 } from "lucide-react";
-import { motion } from "framer-motion";
-import { PRODUCTS, PROJECTS, COMPANY } from "@/data/site";
+import { useAuth } from "@/lib/auth-context";
+import { ThemeToggle } from "@/components/theme-toggle";
+import { DashboardOverview } from "@/components/admin/dashboard";
+import {
+  ProductsModule, CategoriesModule, ProjectsModule, BlogsModule,
+  VideosModule, DownloadsModule, TestimonialsModule, ContactModule,
+  RFQModule, SubscribersModule, UsersModule, SettingsModule,
+} from "@/components/admin/modules";
 
 export const Route = createFileRoute("/admin")({
   head: () => ({
@@ -19,247 +26,332 @@ export const Route = createFileRoute("/admin")({
   component: Admin,
 });
 
-const NAV = [
-  { label: "Dashboard", icon: LayoutDashboard },
-  { label: "Products", icon: Package },
-  { label: "Categories", icon: FolderTree },
-  { label: "Digital Catalog", icon: BookOpen },
-  { label: "Projects", icon: Building2 },
-  { label: "Gallery", icon: Images },
-  { label: "Certificates", icon: Award },
-  { label: "Downloads", icon: Download },
-  { label: "Blogs", icon: Newspaper },
-  { label: "Customers", icon: Users },
-  { label: "RFQs", icon: FileText },
-  { label: "Orders", icon: ShoppingCart },
-  { label: "Users", icon: UserCog },
-  { label: "Roles", icon: Shield },
-  { label: "Analytics", icon: BarChart3 },
-  { label: "Settings", icon: Settings },
-  { label: "Media Library", icon: Library },
+/* ── Sidebar Navigation Items ── */
+const NAV_ITEMS = [
+  { label: "Dashboard", icon: LayoutDashboard, section: "dashboard" },
+  { label: "Products", icon: Package, section: "products" },
+  { label: "Categories", icon: FolderTree, section: "categories" },
+  { label: "Projects", icon: Building2, section: "projects" },
+  { label: "Blogs", icon: Newspaper, section: "blogs" },
+  { label: "Videos", icon: Video, section: "videos" },
+  { label: "Downloads", icon: Download, section: "downloads" },
+  { label: "Testimonials", icon: Star, section: "testimonials" },
+  { label: "Contact Messages", icon: MessageSquare, section: "contacts" },
+  { label: "RFQs", icon: FileText, section: "rfqs" },
+  { label: "Subscribers", icon: Mail, section: "subscribers" },
+  { label: "Users", icon: Users, section: "users" },
+  { label: "Settings", icon: Settings, section: "settings" },
 ];
 
-const STATS = [
-  { label: "Total Revenue", value: "$2.84M", change: "+12.4%", up: true },
-  { label: "Open RFQs", value: "38", change: "+6", up: true },
-  { label: "Active Orders", value: "142", change: "+18.2%", up: true },
-  { label: "Products Listed", value: String(PRODUCTS.length * 14), change: "-2", up: false },
-];
-
-const RFQS = [
-  { id: "RFQ-04821", customer: "Whitmore Studio", country: "United Kingdom", product: "Wall Cladding", status: "New" },
-  { id: "RFQ-04820", customer: "Meridian Developers", country: "UAE", product: "Sandstone Cobbles", status: "Quoted" },
-  { id: "RFQ-04819", customer: "Bali Resort Group", country: "Indonesia", product: "Paving + Steps", status: "Won" },
-  { id: "RFQ-04818", customer: "Heritage Trust", country: "India", product: "Jali + Carvings", status: "Review" },
-  { id: "RFQ-04817", customer: "Southbank Council", country: "Australia", product: "Landscape Stone", status: "Quoted" },
-];
-
-const STATUS_STYLES: Record<string, string> = {
-  New: "bg-blue-500/15 text-blue-600",
-  Quoted: "bg-amber-500/15 text-amber-600",
-  Won: "bg-emerald-500/15 text-emerald-600",
-  Review: "bg-purple-500/15 text-purple-600",
+/* ── Section name map ── */
+const SECTION_LABELS: Record<string, string> = {
+  dashboard: "Dashboard",
+  products: "Products",
+  categories: "Categories",
+  projects: "Projects",
+  blogs: "Blogs",
+  videos: "Videos",
+  downloads: "Downloads",
+  testimonials: "Testimonials",
+  contacts: "Contact Messages",
+  rfqs: "RFQs",
+  subscribers: "Subscribers",
+  users: "Users",
+  settings: "Settings",
 };
 
+/* ── Admin Layout ── */
 function Admin() {
-  const [active, setActive] = useState("Dashboard");
-  const [openNav, setOpenNav] = useState(false);
+  const [section, setSection] = useState("dashboard");
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [profileOpen, setProfileOpen] = useState(false);
+  const { user, loading, logout } = useAuth();
+  const navigate = useNavigate();
+  const profileRef = useRef<HTMLDivElement>(null);
+
+  // Handle click outside for profile dropdown
+  useEffect(() => {
+    if (!profileOpen) return;
+    const onClick = (e: MouseEvent) => {
+      if (profileRef.current && !profileRef.current.contains(e.target as Node)) setProfileOpen(false);
+    };
+    document.addEventListener("mousedown", onClick);
+    return () => document.removeEventListener("mousedown", onClick);
+  }, [profileOpen]);
+
+  // Close sidebar on route change (section change)
+  useEffect(() => { setSidebarOpen(false); }, [section]);
+
+  // Search shortcut
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "/" && !/(input|textarea|select)/i.test((e.target as HTMLElement)?.tagName)) {
+        e.preventDefault();
+        setSearchOpen(true);
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, []);
+
+  // Protect admin route
+  if (!loading && !user) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-background">
+        <div className="max-w-sm text-center space-y-4">
+          <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-gold/10 text-gold mx-auto">
+            <LayoutDashboard className="h-8 w-8" />
+          </div>
+          <h2 className="font-serif text-2xl text-foreground">Access Restricted</h2>
+          <p className="text-sm text-muted-foreground">Please sign in to access the admin dashboard.</p>
+          <Link
+            to="/login"
+            className="inline-flex items-center justify-center rounded-md bg-gold px-6 py-2.5 text-sm font-medium text-[var(--gold-foreground)] transition-all hover:brightness-105"
+          >
+            Sign In
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
+  if (loading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-background">
+        <Loader2 className="h-8 w-8 animate-spin text-gold" />
+      </div>
+    );
+  }
+
+  const handleLogout = async () => {
+    await logout();
+    navigate({ to: "/" });
+  };
 
   return (
     <div className="min-h-screen bg-secondary/40">
-      {/* Sidebar */}
-      <aside className={`fixed inset-y-0 left-0 z-40 w-64 transform border-r border-border bg-[var(--charcoal)] text-white transition-transform lg:translate-x-0 ${openNav ? "translate-x-0" : "-translate-x-full"}`}>
-        <div className="flex h-16 items-center justify-between px-6">
-          <Link to="/" className="font-serif text-lg tracking-tight text-white">
-            Stone India
+      {/* ── Sidebar ── */}
+      <aside
+        className={`fixed inset-y-0 left-0 z-40 w-64 transform border-r border-border/60 bg-[var(--charcoal)] text-white transition-transform duration-300 lg:translate-x-0 ${
+          sidebarOpen ? "translate-x-0" : "-translate-x-full"
+        }`}
+      >
+        <div className="flex h-16 items-center justify-between px-5 border-b border-white/10">
+          <Link to="/" className="flex items-center gap-2.5">
+            <span className="grid h-9 w-9 place-items-center rounded-sm bg-gold text-[var(--gold-foreground)] font-serif text-lg leading-none">
+              S
+            </span>
+            <div className="flex flex-col leading-tight">
+              <span className="font-serif text-sm tracking-tight text-white">Stone India</span>
+              <span className="text-[0.55rem] uppercase tracking-[0.25em] text-white/40">Admin</span>
+            </div>
           </Link>
-          <button onClick={() => setOpenNav(false)} className="lg:hidden"><X className="h-5 w-5" /></button>
+          <button onClick={() => setSidebarOpen(false)} className="lg:hidden text-white/60 hover:text-white">
+            <X className="h-5 w-5" />
+          </button>
         </div>
-        <nav className="mt-2 flex flex-col gap-0.5 px-3 pb-6 overflow-y-auto max-h-[calc(100vh-4rem)]">
-          {NAV.map((n) => (
+
+        <nav className="mt-2 flex flex-col gap-0.5 px-3 pb-6 overflow-y-auto max-h-[calc(100vh-4rem-3rem)]">
+          {NAV_ITEMS.map((item) => (
             <button
-              key={n.label}
-              onClick={() => { setActive(n.label); setOpenNav(false); }}
-              className={`flex items-center gap-3 rounded-md px-3 py-2.5 text-sm transition-colors ${
-                active === n.label ? "bg-gold text-[var(--gold-foreground)]" : "text-white/70 hover:bg-white/5 hover:text-white"
+              key={item.section}
+              onClick={() => { setSection(item.section); setSidebarOpen(false); }}
+              className={`flex items-center gap-3 rounded-md px-3 py-2.5 text-sm transition-all duration-200 ${
+                section === item.section
+                  ? "bg-gold text-[var(--gold-foreground)] font-medium shadow-sm"
+                  : "text-white/60 hover:bg-white/5 hover:text-white"
               }`}
             >
-              <n.icon className="h-4 w-4" /> {n.label}
+              <item.icon className="h-4 w-4 shrink-0" />
+              <span>{item.label}</span>
             </button>
           ))}
         </nav>
+
+        {/* Logout at bottom */}
+        <div className="absolute bottom-0 left-0 right-0 border-t border-white/10 p-3">
+          <button
+            onClick={handleLogout}
+            className="flex w-full items-center gap-3 rounded-md px-3 py-2.5 text-sm text-white/50 transition-all hover:bg-white/5 hover:text-red-400"
+          >
+            <LogOut className="h-4 w-4" />
+            Logout
+          </button>
+        </div>
       </aside>
 
-      {/* Main */}
-      <div className="lg:pl-64">
-        <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-border bg-background/80 px-6 backdrop-blur">
+      {/* ── Main Content ── */}
+      <div className="lg:pl-64 transition-all duration-300">
+        {/* ── Topbar ── */}
+        <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-border/60 bg-background/90 px-4 sm:px-6 backdrop-blur-xl">
           <div className="flex items-center gap-3">
-            <button onClick={() => setOpenNav(true)} className="lg:hidden"><Menu className="h-5 w-5" /></button>
-            <h1 className="font-serif text-xl text-foreground">{active}</h1>
+            <button onClick={() => setSidebarOpen(true)} className="lg:hidden text-muted-foreground hover:text-foreground">
+              <Menu className="h-5 w-5" />
+            </button>
+            <h1 className="font-serif text-lg sm:text-xl text-foreground">
+              {SECTION_LABELS[section] || "Dashboard"}
+            </h1>
           </div>
-          <div className="flex items-center gap-4">
-            <div className="hidden items-center gap-2 rounded-md border border-border bg-card px-3 sm:flex">
-              <Search className="h-4 w-4 text-muted-foreground" />
-              <input placeholder="Search…" className="h-9 w-40 bg-transparent text-sm outline-none" />
+
+          <div className="flex items-center gap-2 sm:gap-3">
+            {/* Search */}
+            <button
+              onClick={() => setSearchOpen(true)}
+              className="hidden sm:flex items-center gap-2 rounded-md border border-border/60 bg-card px-3 py-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground"
+            >
+              <Search className="h-4 w-4" />
+              <span>Search…</span>
+              <kbd className="ml-4 rounded border border-border/40 bg-muted px-1.5 py-0.5 text-[0.65rem] text-muted-foreground">/</kbd>
+            </button>
+            <button
+              onClick={() => setSearchOpen(true)}
+              className="sm:hidden p-2 text-muted-foreground hover:text-foreground"
+            >
+              <Search className="h-4 w-4" />
+            </button>
+
+            {/* Notifications */}
+            <button className="relative p-2 text-muted-foreground hover:text-foreground transition-colors">
+              <Bell className="h-4.5 w-4.5" />
+              <span className="absolute right-1.5 top-1.5 h-2 w-2 rounded-full bg-gold" />
+            </button>
+
+            {/* Theme Toggle */}
+            <ThemeToggle />
+
+            {/* Profile */}
+            <div ref={profileRef} className="relative">
+              <button
+                onClick={() => setProfileOpen(!profileOpen)}
+                className="flex items-center gap-2 rounded-full p-1.5 text-muted-foreground transition-all hover:bg-muted/50"
+                aria-expanded={profileOpen}
+              >
+                <span className="grid h-7 w-7 place-items-center rounded-full bg-gold/20 text-xs font-semibold text-gold">
+                  {user?.name?.charAt(0)?.toUpperCase() || "A"}
+                </span>
+                <span className="hidden sm:block text-sm text-foreground/80 max-w-[100px] truncate">
+                  {user?.name}
+                </span>
+                <ChevronDown className="hidden sm:block h-3.5 w-3.5 text-muted-foreground" />
+              </button>
+
+              <AnimatePresence>
+                {profileOpen && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -6, scale: 0.95 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: -4, scale: 0.95 }}
+                    transition={{ duration: 0.15 }}
+                    className="absolute right-0 top-full mt-2 w-56 overflow-hidden rounded-xl border border-border/50 bg-card shadow-elegant"
+                  >
+                    <div className="border-b border-border/40 px-4 py-3">
+                      <p className="text-sm font-medium text-foreground truncate">{user?.name}</p>
+                      <p className="text-xs text-muted-foreground truncate">{user?.email}</p>
+                      <Badge className="mt-1.5 inline-block bg-gold/15 text-gold text-[0.6rem] border-0">
+                        {user?.role}
+                      </Badge>
+                    </div>
+                    <div className="p-1.5">
+                      <button
+                        onClick={handleLogout}
+                        className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-sm text-muted-foreground transition-colors hover:bg-muted/50 hover:text-red-500"
+                      >
+                        <LogOut className="h-4 w-4" />
+                        Sign out
+                      </button>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
-            <button className="relative text-muted-foreground"><Bell className="h-5 w-5" /><span className="absolute -right-0.5 -top-0.5 h-2 w-2 rounded-full bg-gold" /></button>
-            <div className="h-9 w-9 rounded-full bg-gold/20 grid place-items-center font-medium text-gold">SA</div>
           </div>
         </header>
 
-        <main className="p-6">
-          {active === "Dashboard" ? <Dashboard /> : <GenericSection title={active} />}
+        {/* ── Page Content ── */}
+        <main className="p-4 sm:p-6">
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={section}
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
+              transition={{ duration: 0.2 }}
+            >
+              {section === "dashboard" && <DashboardOverview />}
+              {section === "products" && <ProductsModule />}
+              {section === "categories" && <CategoriesModule />}
+              {section === "projects" && <ProjectsModule />}
+              {section === "blogs" && <BlogsModule />}
+              {section === "videos" && <VideosModule />}
+              {section === "downloads" && <DownloadsModule />}
+              {section === "testimonials" && <TestimonialsModule />}
+              {section === "contacts" && <ContactModule />}
+              {section === "rfqs" && <RFQModule />}
+              {section === "subscribers" && <SubscribersModule />}
+              {section === "users" && <UsersModule />}
+              {section === "settings" && <SettingsModule />}
+            </motion.div>
+          </AnimatePresence>
         </main>
       </div>
 
-      {openNav && <div onClick={() => setOpenNav(false)} className="fixed inset-0 z-30 bg-black/40 lg:hidden" />}
-    </div>
-  );
-}
+      {/* ── Mobile sidebar overlay ── */}
+      {sidebarOpen && (
+        <div
+          onClick={() => setSidebarOpen(false)}
+          className="fixed inset-0 z-30 bg-black/40 backdrop-blur-sm lg:hidden"
+        />
+      )}
 
-function Dashboard() {
-  return (
-    <div className="space-y-6">
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        {STATS.map((s, i) => (
+      {/* ── Search Overlay ── */}
+      <AnimatePresence>
+        {searchOpen && (
           <motion.div
-            key={s.label}
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: i * 0.06 }}
-            className="rounded-lg border border-border bg-card p-5"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-start justify-center bg-black/60 backdrop-blur-sm pt-[15vh]"
+            onClick={() => setSearchOpen(false)}
           >
-            <p className="text-sm text-muted-foreground">{s.label}</p>
-            <p className="mt-2 font-serif text-3xl text-foreground">{s.value}</p>
-            <p className={`mt-2 inline-flex items-center gap-1 text-sm ${s.up ? "text-emerald-600" : "text-red-500"}`}>
-              {s.up ? <TrendingUp className="h-4 w-4" /> : <TrendingDown className="h-4 w-4" />} {s.change}
-            </p>
-          </motion.div>
-        ))}
-      </div>
-
-      <div className="grid gap-6 lg:grid-cols-3">
-        <div className="rounded-lg border border-border bg-card p-6 lg:col-span-2">
-          <div className="flex items-center justify-between">
-            <h2 className="font-serif text-xl text-foreground">Export Revenue</h2>
-            <span className="text-sm text-muted-foreground">Last 12 months</span>
-          </div>
-          <div className="mt-6 flex h-56 items-end gap-2">
-            {[42, 55, 48, 62, 70, 58, 75, 82, 68, 90, 78, 95].map((h, i) => (
-              <motion.div
-                key={i}
-                initial={{ height: 0 }}
-                animate={{ height: `${h}%` }}
-                transition={{ delay: i * 0.04, duration: 0.5 }}
-                className="flex-1 rounded-t bg-gradient-to-t from-gold/40 to-gold"
-              />
-            ))}
-          </div>
-        </div>
-
-        <div className="rounded-lg border border-border bg-card p-6">
-          <h2 className="font-serif text-xl text-foreground">Top Categories</h2>
-          <div className="mt-5 space-y-4">
-            {[
-              { label: "Wall Cladding", pct: 84 },
-              { label: "Paving & Cobbles", pct: 71 },
-              { label: "Jali & Carvings", pct: 58 },
-              { label: "Flooring", pct: 46 },
-              { label: "Columns", pct: 33 },
-            ].map((c) => (
-              <div key={c.label}>
-                <div className="flex justify-between text-sm">
-                  <span className="text-foreground">{c.label}</span>
-                  <span className="text-muted-foreground">{c.pct}%</span>
+            <motion.div
+              initial={{ opacity: 0, y: -20, scale: 0.96 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: -20, scale: 0.96 }}
+              transition={{ duration: 0.2 }}
+              className="w-full max-w-xl mx-4"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="overflow-hidden rounded-2xl border border-border/60 bg-card shadow-elegant">
+                <div className="flex items-center gap-3 border-b border-border/40 px-5 py-4">
+                  <Search className="h-5 w-5 text-muted-foreground shrink-0" />
+                  <input
+                    autoFocus
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    placeholder="Type to search across all sections…"
+                    className="flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground"
+                  />
+                  <kbd className="rounded border border-border/40 bg-muted px-2 py-0.5 text-[0.6rem] text-muted-foreground">ESC</kbd>
                 </div>
-                <div className="mt-1.5 h-2 rounded-full bg-secondary">
-                  <motion.div initial={{ width: 0 }} animate={{ width: `${c.pct}%` }} transition={{ duration: 0.6 }} className="h-full rounded-full bg-gold" />
+                <div className="px-5 py-4 text-center text-sm text-muted-foreground">
+                  Search will query all products, projects, blogs, and categories.
                 </div>
               </div>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      <div className="rounded-lg border border-border bg-card">
-        <div className="flex items-center justify-between border-b border-border p-6">
-          <h2 className="font-serif text-xl text-foreground">Recent RFQs</h2>
-          <button className="inline-flex items-center gap-1 text-sm text-gold">View all <ArrowUpRight className="h-3.5 w-3.5" /></button>
-        </div>
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b border-border text-left text-muted-foreground">
-                <th className="px-6 py-3 font-medium">Reference</th>
-                <th className="px-6 py-3 font-medium">Customer</th>
-                <th className="px-6 py-3 font-medium">Country</th>
-                <th className="px-6 py-3 font-medium">Product</th>
-                <th className="px-6 py-3 font-medium">Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              {RFQS.map((r) => (
-                <tr key={r.id} className="border-b border-border last:border-0">
-                  <td className="px-6 py-4 font-medium text-foreground">{r.id}</td>
-                  <td className="px-6 py-4 text-foreground">{r.customer}</td>
-                  <td className="px-6 py-4 text-muted-foreground">{r.country}</td>
-                  <td className="px-6 py-4 text-muted-foreground">{r.product}</td>
-                  <td className="px-6 py-4">
-                    <span className={`rounded-full px-3 py-1 text-xs font-medium ${STATUS_STYLES[r.status]}`}>{r.status}</span>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
 
-function GenericSection({ title }: { title: string }) {
-  const rows =
-    title === "Projects"
-      ? PROJECTS.map((p) => ({ a: p.name, b: p.location, c: p.category, d: p.year }))
-      : PRODUCTS.map((p) => ({ a: p.name, b: p.category, c: p.thickness, d: p.weight }));
-
+/* ── Simple Badge component (inline to avoid circular deps) ── */
+function Badge({ children, className = "" }: { children: React.ReactNode; className?: string }) {
   return (
-    <div className="space-y-6">
-      <div className="flex flex-wrap items-center justify-between gap-4">
-        <p className="text-muted-foreground">Manage {title.toLowerCase()} for {COMPANY.short}.</p>
-        <button className="rounded-md bg-gold px-4 py-2 text-sm font-medium text-[var(--gold-foreground)]">+ Add New</button>
-      </div>
-      <div className="rounded-lg border border-border bg-card">
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b border-border text-left text-muted-foreground">
-                <th className="px-6 py-3 font-medium">Name</th>
-                <th className="px-6 py-3 font-medium">Detail</th>
-                <th className="px-6 py-3 font-medium">Type</th>
-                <th className="px-6 py-3 font-medium">Info</th>
-                <th className="px-6 py-3 font-medium">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {rows.map((r, i) => (
-                <tr key={i} className="border-b border-border last:border-0">
-                  <td className="px-6 py-4 font-medium text-foreground">{r.a}</td>
-                  <td className="px-6 py-4 text-muted-foreground">{r.b}</td>
-                  <td className="px-6 py-4 text-muted-foreground">{r.c}</td>
-                  <td className="px-6 py-4 text-muted-foreground">{r.d}</td>
-                  <td className="px-6 py-4">
-                    <div className="flex gap-3 text-sm">
-                      <button className="text-gold">Edit</button>
-                      <button className="text-muted-foreground hover:text-red-500">Delete</button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
+    <span className={`inline-flex items-center rounded-md px-2 py-0.5 text-xs font-medium ${className}`}>
+      {children}
+    </span>
   );
 }

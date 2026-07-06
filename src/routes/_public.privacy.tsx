@@ -2,11 +2,21 @@ import { createFileRoute } from "@tanstack/react-router";
 import { Reveal } from "@/components/motion";
 import { COMPANY } from "@/data/site";
 
+import { buildMeta, canonicalLink, jsonLdScript, breadcrumbSchema } from "@/lib/seo";
+
 export const Route = createFileRoute("/_public/privacy")({
   head: () => ({
-    meta: [
-      { title: "Privacy Policy — Stone India Heritage" },
-      { name: "description", content: "How Stone India Heritage collects, uses and protects your information." },
+    meta: buildMeta({
+      title: "Privacy Policy — Stone India Heritage",
+      description: "How Stone India Heritage collects, uses and protects your personal information when you request quotes, download resources or contact our export team.",
+      path: "/privacy",
+    }),
+    links: [canonicalLink("/privacy")],
+    scripts: [
+      jsonLdScript(breadcrumbSchema([
+        { name: "Home", item: "/" },
+        { name: "Privacy Policy", item: "/privacy" },
+      ])),
     ],
   }),
   component: Privacy,

@@ -224,3 +224,48 @@
 @utility ping-dot {
   animation: ping-slow 2.4s cubic-bezier(0, 0, 0.2, 1) infinite;
 }
+
+/* Button ripple on click — add to any element with data-ripple */
+@keyframes ripple {
+  to {
+    transform: scale(4);
+    opacity: 0;
+  }
+}
+
+[data-ripple] {
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+}
+
+[data-ripple]::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: currentColor;
+  transform: scale(0);
+  opacity: 0.2;
+  pointer-events: none;
+}
+
+[data-ripple]:active::after {
+  animation: ripple 0.5s ease-out;
+}
+
+/* Button magnet effect — used with ButtonMagnet component */
+.magnet-target {
+  transition: transform 0.15s ease-out;
+}
+
+.magnet-target:hover {
+  transition-duration: 0.08s;
+}
+
+/* Focus-visible ring for accessibility */
+.nav-link:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 2px;
+  border-radius: 6px;
+}

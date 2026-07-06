@@ -1,0 +1,247 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+enum Role {
+  ADMIN
+  DEALER
+  ARCHITECT
+  CUSTOMER
+}
+
+model User {
+  id            String   @id @default(cuid())
+  name          String
+  email         String   @unique
+  phone         String?
+  password      String
+  role          Role     @default(CUSTOMER)
+  isVerified    Boolean  @default(false)
+  avatar        String?
+  resetToken        String?
+  resetTokenExp     DateTime?
+  verificationToken String?
+  verificationTokenExp DateTime?
+
+  // OTP-based password reset fields
+  passwordResetOtp       String?
+  passwordResetOtpExpiry DateTime?
+  passwordResetAttempts  Int      @default(0)
+
+  createdAt         DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  rfqs      RFQ[]
+  contacts  Contact[]
+  blogs     Blog[]
+  testimonials Testimonial[]
+  passwordResetLogs PasswordResetLog[]
+
+  @@map("users")
+}
+
+model PasswordResetLog {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  ip        String?
+  userAgent String?
+  success   Boolean  @default(true)
+  method    String   @default("otp")
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([createdAt])
+  @@map("password_reset_logs")
+}
+
+model Category {
+  id       String  @id @default(cuid())
+  name     String  @unique
+  slug     String  @unique
+  image    String?
+  featured Boolean @default(false)
+  order    Int     @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  products Product[]
+
+  @@map("categories")
+}
+
+model Product {
+  id          String   @id @default(cuid())
+  slug        String   @unique
+  name        String
+  description String   @db.Text
+  categoryId  String
+  category    Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  subCategory String?
+  price       Float?
+  finish      String?
+  size        String?
+  thickness   String?
+  origin      String?
+  images      String[] @default([])
+  pdf         String?
+  featured    Boolean  @default(false)
+  stock       String   @default("In Stock")
+  tags        String[] @default([])
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([categoryId])
+  @@index([featured])
+  @@index([slug])
+  @@map("products")
+}
+
+model Project {
+  id          String   @id @default(cuid())
+  title       String
+  slug        String   @unique
+  location    String?
+  description String   @db.Text
+  gallery     String[] @default([])
+  scope       String[] @default([])
+  architect   String?
+  stoneUsed   String?
+  year        String?
+  status      String   @default("Completed")
+  featured    Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([slug])
+  @@map("projects")
+}
+
+model Blog {
+  id        String   @id @default(cuid())
+  title     String
+  slug      String   @unique
+  excerpt   String   @db.Text
+  content   String   @db.Text
+  cover     String?
+  authorId  String?
+  author    User?    @relation(fields: [authorId], references: [id], onDelete: SetNull)
+  category  String?
+  tags      String[] @default([])
+  published Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([slug])
+  @@index([published])
+  @@map("blogs")
+}
+
+model Video {
+  id          String   @id @default(cuid())
+  title       String
+  slug        String   @unique
+  description String?   
+  thumbnail   String?
+  youtubeUrl  String
+  category    String?
+  duration    String?
+  featured    Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([slug])
+  @@map("videos")
+}
+
+model Download {
+  id        String   @id @default(cuid())
+  title     String
+  slug      String   @unique
+description String?
+  pdf       String
+  fileSize  String?
+  category  String?
+  featured  Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([slug])
+  @@map("downloads")
+}
+
+model Testimonial {
+  id          String   @id @default(cuid())
+  client      String
+  designation String?
+  company     String?
+  review      String   @db.Text
+  rating      Int      @default(5)
+  photo       String?
+  authorId    String?
+  author      User?    @relation(fields: [authorId], references: [id], onDelete: SetNull)
+  featured    Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("testimonials")
+}
+
+model RFQ {
+  id          String   @id @default(cuid())
+  userId      String?
+  user        User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  company     String?
+  phone       String?
+  email       String
+  country     String?
+  message     String   @db.Text
+  products    String[] @default([])
+  attachments String[] @default([])
+  status      String   @default("Pending")
+  adminReply  String?  @db.Text
+  repliedAt   DateTime?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("rfqs")
+}
+
+model Contact {
+  id        String   @id @default(cuid())
+  userId    String?
+  user      User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  name      String
+  email     String
+  phone     String?
+  company   String?
+  message   String   @db.Text
+  status    String   @default("Unread")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("contacts")
+}
+
+model Subscriber {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+
+  @@map("subscribers")
+}
+
+model Setting {
+  id    String @id @default(cuid())
+  key   String @unique
+  value String @db.Text
+
+  @@map("settings")
+}

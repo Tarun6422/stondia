@@ -6,14 +6,21 @@ import { Reveal } from "@/components/motion";
 import { PageHero, CTASection } from "@/components/page-parts";
 import { PRODUCTS, CATEGORIES } from "@/data/site";
 import hero from "@/assets/hero-sandstone.jpg";
+import { buildMeta, canonicalLink, jsonLdScript, breadcrumbSchema } from "@/lib/seo";
 
 export const Route = createFileRoute("/_public/catalog")({
   head: () => ({
-    meta: [
-      { title: "Digital Stone Catalog — Stone India Heritage" },
-      { name: "description", content: "Browse our premium digital catalog of raw and finished Rajasthan sandstone with technical specifications and downloadable sheets." },
-      { property: "og:title", content: "Digital Stone Catalog — Stone India Heritage" },
-      { property: "og:description", content: "Raw and finished stone catalog with technical specs." },
+    meta: buildMeta({
+      title: "Digital Stone Catalog — Stone India Heritage",
+      description: "Browse our premium digital catalog of raw and finished Rajasthan sandstone with technical specifications, finishes, dimensions, and downloadable sheets for architects and importers.",
+      path: "/catalog",
+    }),
+    links: [canonicalLink("/catalog")],
+    scripts: [
+      jsonLdScript(breadcrumbSchema([
+        { name: "Home", item: "/" },
+        { name: "Digital Catalog", item: "/catalog" },
+      ])),
     ],
   }),
   component: Catalog,

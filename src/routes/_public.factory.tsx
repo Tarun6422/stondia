@@ -3,14 +3,21 @@ import { Reveal, Counter } from "@/components/motion";
 import { PageHero, SectionHeading, CTASection } from "@/components/page-parts";
 import factory from "@/assets/factory.jpg";
 import texture from "@/assets/texture-stone.jpg";
+import { buildMeta, canonicalLink, jsonLdScript, breadcrumbSchema } from "@/lib/seo";
 
 export const Route = createFileRoute("/_public/factory")({
   head: () => ({
-    meta: [
-      { title: "Factory — Stone India Heritage" },
-      { name: "description", content: "Inside our precision stone manufacturing facility — capacity, machinery and quality control." },
-      { property: "og:title", content: "Factory — Stone India Heritage" },
-      { property: "og:description", content: "Our precision stone manufacturing facility." },
+    meta: buildMeta({
+      title: "Factory — Stone India Heritage",
+      description: "Inside our precision stone manufacturing facility in Jodhpur — 250,000 ft² with multi-wire sawing, CNC finishing, hand carving studio, and quality control lab.",
+      path: "/factory",
+    }),
+    links: [canonicalLink("/factory")],
+    scripts: [
+      jsonLdScript(breadcrumbSchema([
+        { name: "Home", item: "/" },
+        { name: "Factory", item: "/factory" },
+      ])),
     ],
   }),
   component: Factory,

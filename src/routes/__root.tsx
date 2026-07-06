@@ -12,6 +12,10 @@ import { useEffect, type ReactNode } from "react";
 import appCss from "../styles.css?url";
 import { Toaster } from "@/components/ui/sonner";
 import { reportLovableError } from "../lib/lovable-error-reporting";
+import { LoadingScreen } from "@/components/loading-screen";
+import { CursorGlow } from "@/components/cursor-effects";
+import { AuthProvider } from "@/lib/auth-context";
+import { orgSchema, websiteSchema, jsonLdScript, SOCIAL_PREVIEW } from "@/lib/seo";
 
 function NotFoundComponent() {
   return (
@@ -87,6 +91,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
           "Premium manufacturer and global exporter of Rajasthan Sandstone and architectural natural stone. Heritage craftsmanship, sustainable quarrying and export-quality precision.",
       },
       { name: "author", content: "Stone India Heritage" },
+      { name: "keywords", content: "Rajasthan sandstone, natural stone manufacturer, sandstone exporter India, architectural stone, heritage stone, stone India, premium cladding" },
       { property: "og:title", content: "Stone India Heritage — Heritage Sandstone & Architecture" },
       {
         property: "og:description",
@@ -94,17 +99,31 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
           "Rajasthan Sandstone crafted for the world — premium natural stone for architects, developers and importers.",
       },
       { property: "og:type", content: "website" },
+      { property: "og:url", content: "https://stoneindiaheritage.com" },
+      { property: "og:image", content: SOCIAL_PREVIEW.ogImage },
+      { property: "og:image:width", content: "1200" },
+      { property: "og:image:height", content: "630" },
+      { property: "og:site_name", content: "Stone India Heritage" },
       { name: "twitter:card", content: "summary_large_image" },
       { name: "twitter:site", content: "@StoneIndia" },
+      { name: "twitter:title", content: "Stone India Heritage — Heritage Sandstone & Architecture" },
+      { name: "twitter:description", content: "Rajasthan Sandstone crafted for the world — premium natural stone for architects, developers and importers." },
+      { name: "twitter:image", content: SOCIAL_PREVIEW.ogImage },
     ],
     links: [
       { rel: "stylesheet", href: appCss },
       { rel: "icon", href: "/favicon.ico", type: "image/x-icon" },
+      { rel: "canonical", href: "https://stoneindiaheritage.com" },
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
       {
         rel: "preconnect",
         href: "https://fonts.gstatic.com",
         crossOrigin: "anonymous",
+      },
+      {
+        rel: "preload",
+        href: "https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Manrope:wght@300;400;500;600;700&display=swap",
+        as: "style",
       },
       {
         rel: "stylesheet",
@@ -116,25 +135,8 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         children:
           "try{var t=localStorage.getItem('theme');var d=t?t==='dark':window.matchMedia('(prefers-color-scheme: dark)').matches;document.documentElement.classList.toggle('dark',d);}catch(e){}",
       },
-      {
-        type: "application/ld+json",
-        children: JSON.stringify({
-          "@context": "https://schema.org",
-          "@type": "Organization",
-          name: "Stone India Heritage",
-          description:
-            "Premium manufacturer and global exporter of Rajasthan Sandstone and architectural natural stone.",
-          email: "exports@stoneindiaheritage.com",
-          telephone: "+91 98290 00000",
-          address: {
-            "@type": "PostalAddress",
-            addressLocality: "Jodhpur",
-            addressRegion: "Rajasthan",
-            postalCode: "342001",
-            addressCountry: "IN",
-          },
-        }),
-      },
+      jsonLdScript(orgSchema()),
+      jsonLdScript(websiteSchema()),
     ],
   }),
   shellComponent: RootShell,
@@ -162,9 +164,13 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-      <Outlet />
-      <Toaster position="top-center" richColors closeButton />
+      <AuthProvider>
+        <LoadingScreen />
+        <CursorGlow />
+        {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
+        <Outlet />
+        <Toaster position="top-center" richColors closeButton />
+      </AuthProvider>
     </QueryClientProvider>
   );
 }

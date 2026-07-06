@@ -1,0 +1,9 @@
+User-agent: *
+Allow: /
+Disallow: /admin
+
+# Sitemap
+Sitemap: https://stoneindiaheritage.com/sitemap.xml
+
+# Crawl rules
+Crawl-Delay: 10

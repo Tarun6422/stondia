@@ -6,11 +6,21 @@ import { Reveal } from "@/components/motion";
 import { PageHero } from "@/components/page-parts";
 import texture from "@/assets/texture-stone.jpg";
 
+import { buildMeta, canonicalLink, jsonLdScript, breadcrumbSchema } from "@/lib/seo";
+
 export const Route = createFileRoute("/_public/track-order")({
   head: () => ({
-    meta: [
-      { title: "Track Order — Stone India Heritage" },
-      { name: "description", content: "Track the status of your natural stone shipment from factory to destination port." },
+    meta: buildMeta({
+      title: "Track Order — Stone India Heritage",
+      description: "Track the status of your natural stone shipment from our factory in Jodhpur to your destination port. Enter your order reference for real-time updates.",
+      path: "/track-order",
+    }),
+    links: [canonicalLink("/track-order")],
+    scripts: [
+      jsonLdScript(breadcrumbSchema([
+        { name: "Home", item: "/" },
+        { name: "Track Order", item: "/track-order" },
+      ])),
     ],
   }),
   component: TrackOrder,

@@ -7,16 +7,22 @@ import { Breadcrumbs } from "@/components/breadcrumbs";
 import { Lightbox } from "@/components/lightbox";
 import { PRODUCTS, PROJECTS } from "@/data/site";
 import texture from "@/assets/texture-stone.jpg";
+import { buildMeta, canonicalLink, jsonLdScript, breadcrumbSchema } from "@/lib/seo";
 
 export const Route = createFileRoute("/_public/gallery")({
   head: () => ({
-    meta: [
-      { title: "Gallery — Stone India Heritage" },
-      { name: "description", content: "A visual gallery of Rajasthan sandstone products, finishes and completed architectural projects." },
-      { property: "og:title", content: "Gallery — Stone India Heritage" },
-      { property: "og:url", content: "/gallery" },
+    meta: buildMeta({
+      title: "Gallery — Stone India Heritage",
+      description: "A visual gallery of premium Rajasthan sandstone products, finishes, textures, and completed architectural projects across luxury villas, resorts, temples, and civic spaces.",
+      path: "/gallery",
+    }),
+    links: [canonicalLink("/gallery")],
+    scripts: [
+      jsonLdScript(breadcrumbSchema([
+        { name: "Home", item: "/" },
+        { name: "Gallery", item: "/gallery" },
+      ])),
     ],
-    links: [{ rel: "canonical", href: "/gallery" }],
   }),
   component: Gallery,
 });
