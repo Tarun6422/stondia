@@ -1,20 +1,31 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
 import {
-  ArrowRight, ArrowUpRight, Download, Search,
-  Gem, Mountain, Layers, Building2, Grid3x3, Columns2,
-  Leaf, Droplets, ShieldCheck, Ruler, Sparkles, HelpCircle,
+  ArrowRight,
+  ArrowUpRight,
+  Download,
+  Search,
+  Gem,
+  Mountain,
+  Layers,
+  Building2,
+  Grid3x3,
+  Columns2,
+  Leaf,
+  Droplets,
+  ShieldCheck,
+  Ruler,
+  Sparkles,
+  HelpCircle,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Reveal, Counter } from "@/components/motion";
 import { Breadcrumbs, breadcrumbSchema } from "@/components/breadcrumbs";
 import { CATEGORY_DATA, PROJECTS, PRODUCTS } from "@/data/site";
 import type { CategoryDetail } from "@/data/site";
-import hero from "@/assets/hero-sandstone.jpg";
-import texture from "@/assets/texture-stone.jpg";
-import jali from "@/assets/product-jali.jpg";
-import villa from "@/assets/project-villa.jpg";
+import { hero as heroImg, quarry01 } from "@/assets/media";
+import { api } from "@/lib/api";
 
 /* ------------------------------------------------------------------ */
 /*  Category icon mapping                                             */
@@ -100,13 +111,53 @@ export const Route = createFileRoute("/_public/categories")({
 /* ------------------------------------------------------------------ */
 /*  Page component                                                     */
 /* ------------------------------------------------------------------ */
+/* ── API-backed category images ── */
+type ApiCategory = {
+  id: string;
+  name: string;
+  slug: string;
+  image?: string;
+  featured: boolean;
+  order: number;
+};
+
 function Categories() {
   const [filter, setFilter] = useState("All Categories");
   const [query, setQuery] = useState("");
+  const [apiImages, setApiImages] = useState<Record<string, string>>({});
+
+  // Fetch category images from the backend API
+  useEffect(() => {
+    let cancelled = false;
+    api
+      .get("/api/categories")
+      .then((res: any) => {
+        if (!cancelled && res?.data) {
+          const imageMap: Record<string, string> = {};
+          res.data.forEach((cat: ApiCategory) => {
+            if (cat.image) imageMap[cat.name] = cat.image;
+          });
+          setApiImages(imageMap);
+        }
+      })
+      .catch(() => {
+        // Fall back to hardcoded images silently
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  // Merge API images into hardcoded CATEGORY_DATA
+  const categoryData = CATEGORY_DATA.map((cat) => ({
+    ...cat,
+    image: apiImages[cat.name] || cat.image,
+  }));
 
   // Compute product count per category from existing product data
   const productCounts = new Map<string, number>();
-  CATEGORY_DATA.forEach((cat) => {
+  categoryData.forEach((cat) => {
     const count = PRODUCTS.filter(
       (p) =>
         p.category.toLowerCase() === cat.name.toLowerCase() ||
@@ -116,9 +167,8 @@ function Categories() {
     productCounts.set(cat.name, count || Math.floor(Math.random() * 10) + 5);
   });
 
-  const filtered = CATEGORY_DATA.filter((c) => {
-    const matchFilter =
-      filter === "All Categories" || c.filterGroups.includes(filter);
+  const filtered = categoryData.filter((c) => {
+    const matchFilter = filter === "All Categories" || c.filterGroups.includes(filter);
     const matchQuery =
       !query ||
       c.name.toLowerCase().includes(query.toLowerCase()) ||
@@ -154,8 +204,8 @@ function Categories() {
               Browse by category
             </h2>
             <p className="mt-3 max-w-xl text-muted-foreground">
-              From natural stone types to finished architectural products — find
-              the perfect material for your project.
+              From natural stone types to finished architectural products — find the perfect
+              material for your project.
             </p>
           </Reveal>
 
@@ -212,7 +262,7 @@ function Categories() {
       {/* ================================================================ */}
       {/*  5. CATEGORY COMPARISON TABLE                                   */}
       {/* ================================================================ */}
-      <ComparisonTable data={filtered.length > 0 ? filtered : CATEGORY_DATA.slice(0, 6)} />
+      <ComparisonTable data={filtered.length > 0 ? filtered : categoryData.slice(0, 6)} />
 
       {/* ================================================================ */}
       {/*  6. ARCHITECTURE INSPIRATION GALLERY                           */}
@@ -255,7 +305,7 @@ function HeroSection() {
     <section ref={ref} className="relative flex min-h-[70vh] items-end overflow-hidden pt-28">
       <motion.div style={{ y, scale }} className="absolute inset-0">
         <img
-          src={hero}
+          src={heroImg}
           alt="Rajasthan natural stone categories"
           className="h-full w-full object-cover"
           width={1920}
@@ -287,8 +337,8 @@ function HeroSection() {
           transition={{ duration: 0.9, delay: 0.35 }}
           className="mt-5 max-w-xl text-base leading-relaxed text-white/80 md:text-lg"
         >
-          Discover Rajasthan's finest natural stones crafted for architecture,
-          landscape and global construction projects.
+          Discover Rajasthan's finest natural stones crafted for architecture, landscape and global
+          construction projects.
         </motion.p>
         <motion.div
           initial={{ opacity: 0, y: 24 }}
@@ -332,9 +382,7 @@ function StatsSection() {
                 <div className="font-serif text-3xl text-foreground md:text-4xl">
                   <Counter value={s.value} suffix={s.suffix} />
                 </div>
-                <p className="mt-1.5 text-xs text-muted-foreground md:text-sm">
-                  {s.label}
-                </p>
+                <p className="mt-1.5 text-xs text-muted-foreground md:text-sm">{s.label}</p>
               </div>
             </Reveal>
           ))}
@@ -347,7 +395,15 @@ function StatsSection() {
 /* ================================================================== */
 /*  CATEGORY CARD                                                     */
 /* ================================================================== */
-function CategoryCard({ cat, index, productCount }: { cat: CategoryDetail; index: number; productCount: number }) {
+function CategoryCard({
+  cat,
+  index,
+  productCount,
+}: {
+  cat: CategoryDetail;
+  index: number;
+  productCount: number;
+}) {
   const Icon = getCatIcon(cat.name);
 
   return (
@@ -420,8 +476,8 @@ function ComparisonTable({ data }: { data: CategoryDetail[] }) {
             Category comparison
           </h2>
           <p className="mt-3 max-w-xl text-muted-foreground">
-            Technical specifications across durability, water absorption, finishes
-            and more — helping you choose the right stone.
+            Technical specifications across durability, water absorption, finishes and more —
+            helping you choose the right stone.
           </p>
         </Reveal>
 
@@ -438,9 +494,7 @@ function ComparisonTable({ data }: { data: CategoryDetail[] }) {
                 <th className="px-5 py-4 text-left font-medium text-muted-foreground">
                   Water Absorption
                 </th>
-                <th className="px-5 py-4 text-left font-medium text-muted-foreground">
-                  Finishes
-                </th>
+                <th className="px-5 py-4 text-left font-medium text-muted-foreground">Finishes</th>
                 <th className="px-5 py-4 text-left font-medium text-muted-foreground">
                   Maintenance
                 </th>
@@ -465,18 +519,17 @@ function ComparisonTable({ data }: { data: CategoryDetail[] }) {
                   <td className="sticky left-0 bg-card px-5 py-4 font-medium text-foreground">
                     {cat.name}
                   </td>
-                  <td className="px-5 py-4 text-muted-foreground">
-                    {cat.comparison.durability}
-                  </td>
+                  <td className="px-5 py-4 text-muted-foreground">{cat.comparison.durability}</td>
                   <td className="px-5 py-4 text-muted-foreground">
                     {cat.comparison.waterAbsorption}
                   </td>
-                  <td className="px-5 py-4 text-muted-foreground max-w-[200px] truncate" title={cat.comparison.finishes}>
+                  <td
+                    className="px-5 py-4 text-muted-foreground max-w-[200px] truncate"
+                    title={cat.comparison.finishes}
+                  >
                     {cat.comparison.finishes}
                   </td>
-                  <td className="px-5 py-4 text-muted-foreground">
-                    {cat.comparison.maintenance}
-                  </td>
+                  <td className="px-5 py-4 text-muted-foreground">{cat.comparison.maintenance}</td>
                   <td className="px-5 py-4 text-muted-foreground">
                     {cat.comparison.weatherResistance}
                   </td>
@@ -493,13 +546,8 @@ function ComparisonTable({ data }: { data: CategoryDetail[] }) {
 
         {data.length > 6 && (
           <Reveal className="mt-6 text-center">
-            <Button
-              variant="outline"
-              onClick={() => setShowAll(!showAll)}
-            >
-              {showAll
-                ? "Show fewer"
-                : `View all ${data.length} categories`}
+            <Button variant="outline" onClick={() => setShowAll(!showAll)}>
+              {showAll ? "Show fewer" : `View all ${data.length} categories`}
             </Button>
           </Reveal>
         )}
@@ -529,8 +577,8 @@ function InspirationGallery() {
             Our stones in architecture
           </h2>
           <p className="mt-3 max-w-xl text-muted-foreground">
-            Completed projects showcasing natural stone across residential,
-            hospitality, civic, and heritage applications worldwide.
+            Completed projects showcasing natural stone across residential, hospitality, civic, and
+            heritage applications worldwide.
           </p>
         </Reveal>
 
@@ -627,8 +675,8 @@ function WhyChooseSection() {
             Built to perform. Designed to last.
           </h2>
           <p className="mt-3 text-muted-foreground">
-            Every stone we export meets rigorous standards for quality,
-            sustainability, and aesthetic excellence.
+            Every stone we export meets rigorous standards for quality, sustainability, and
+            aesthetic excellence.
           </p>
         </Reveal>
 
@@ -662,11 +710,7 @@ function DownloadCTASection() {
   return (
     <section className="relative overflow-hidden py-24">
       <div className="absolute inset-0">
-        <img
-          src={texture}
-          alt=""
-          className="h-full w-full object-cover"
-        />
+        <img src={quarry01} alt="" className="h-full w-full object-cover" />
         <div className="absolute inset-0 bg-[var(--charcoal)]/90 backdrop-blur-sm" />
       </div>
 
@@ -677,8 +721,8 @@ function DownloadCTASection() {
             Download Complete Digital Stone Catalogue
           </h2>
           <p className="mt-4 text-white/70">
-            Access our full product catalog with technical specifications,
-            finish guides, and project references — available for instant download.
+            Access our full product catalog with technical specifications, finish guides, and
+            project references — available for instant download.
           </p>
         </Reveal>
 
@@ -713,8 +757,8 @@ function FinalCTASection() {
             Need Help Choosing the Right Stone?
           </h2>
           <p className="mx-auto mt-4 max-w-xl text-white/70">
-            Our technical team can guide you through material selection,
-            samples, pricing, and international shipping.
+            Our technical team can guide you through material selection, samples, pricing, and
+            international shipping.
           </p>
         </Reveal>
         <Reveal delay={0.1} className="mt-2 flex flex-wrap justify-center gap-3">
@@ -731,5 +775,3 @@ function FinalCTASection() {
     </section>
   );
 }
-
-

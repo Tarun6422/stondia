@@ -32,7 +32,7 @@ export function CursorGlow() {
       const { x, y } = mouseRef.current;
       const el = document.elementFromPoint(x, y);
       const interactive = el?.closest(
-        "a, button, input, textarea, select, [role=button], [tabindex]:not([tabindex='-1'])"
+        "a, button, input, textarea, select, [role=button], [tabindex]:not([tabindex='-1'])",
       );
       isInteractiveRef.current = !!interactive;
     };

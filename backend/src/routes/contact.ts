@@ -23,7 +23,11 @@ router.post("/", validate(contactSchema), async (req: Request, res: Response) =>
   });
 
   // Send confirmation to submitter
-  try { await sendEmail(data.email, "Thank you for contacting us", contactConfirmationEmail(data.name)); } catch { /* ignore */ }
+  try {
+    await sendEmail(data.email, "Thank you for contacting us", contactConfirmationEmail(data.name));
+  } catch {
+    /* ignore */
+  }
 
   // Notify admin
   try {
@@ -38,14 +42,20 @@ router.post("/", validate(contactSchema), async (req: Request, res: Response) =>
         message: data.message.slice(0, 200),
       }),
     );
-  } catch { /* ignore */ }
+  } catch {
+    /* ignore */
+  }
 
   res.status(201).json({ message: "Message sent successfully", id: contact.id });
 });
 
 // GET /api/contact — admin list with pagination and status filter
 router.get("/", authenticate, authorize("ADMIN"), async (req: Request, res: Response) => {
-  const { status, page: pageStr, limit: limitStr } = req.query as Record<string, string | undefined>;
+  const {
+    status,
+    page: pageStr,
+    limit: limitStr,
+  } = req.query as Record<string, string | undefined>;
   const page = Math.max(1, parseInt(pageStr || "1", 10));
   const limit = Math.min(100, Math.max(1, parseInt(limitStr || "20", 10)));
   const skip = (page - 1) * limit;
@@ -70,12 +80,12 @@ router.get("/", authenticate, authorize("ADMIN"), async (req: Request, res: Resp
 
 // PUT /api/contact/:id — admin update status (New / Read / Archived)
 router.put("/:id", authenticate, authorize("ADMIN"), async (req: Request, res: Response) => {
-  const contact = await prisma.contact.findUnique({ where: { id: req.params.id } });
+  const contact = await prisma.contact.findUnique({ where: { id: req.params.id as string } });
   if (!contact) throw new NotFoundError("Contact");
   const allowedStatuses = ["Unread", "Read", "Archived"];
   const status = allowedStatuses.includes(req.body.status) ? req.body.status : "Read";
   const updated = await prisma.contact.update({
-    where: { id: req.params.id },
+    where: { id: req.params.id as string },
     data: { status },
   });
   res.json(updated);
@@ -83,9 +93,9 @@ router.put("/:id", authenticate, authorize("ADMIN"), async (req: Request, res: R
 
 // DELETE /api/contact/:id — admin delete
 router.delete("/:id", authenticate, authorize("ADMIN"), async (req: Request, res: Response) => {
-  const contact = await prisma.contact.findUnique({ where: { id: req.params.id } });
+  const contact = await prisma.contact.findUnique({ where: { id: req.params.id as string } });
   if (!contact) throw new NotFoundError("Contact");
-  await prisma.contact.delete({ where: { id: req.params.id } });
+  await prisma.contact.delete({ where: { id: req.params.id as string } });
   res.json({ message: "Contact deleted" });
 });
 

@@ -1,19 +1,24 @@
 import { Link } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { Menu, Search, ChevronDown, ArrowUpRight, ChevronRight, LogIn, User, LayoutDashboard } from "lucide-react";
+import {
+  Menu,
+  Search,
+  ChevronDown,
+  ArrowUpRight,
+  ChevronRight,
+  LogIn,
+  User,
+  LayoutDashboard,
+  ShieldCheck,
+} from "lucide-react";
 import { MEGA_MENU, COMPANY } from "@/data/site";
 import type { MegaMenuItem } from "@/data/site";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { SearchOverlay } from "@/components/search-overlay";
 import { useAuth } from "@/lib/auth-context";
-import {
-  Sheet,
-  SheetContent,
-  SheetTrigger,
-  SheetClose,
-} from "@/components/ui/sheet";
+import { Sheet, SheetContent, SheetTrigger, SheetClose } from "@/components/ui/sheet";
 
 /* ------------------------------------------------------------------ */
 /*  Hover-aware mega menu opener — manages open/close with delay      */
@@ -27,7 +32,7 @@ function useMegaMenu() {
     setOpenLabel(label);
   };
 
-  const close = (delay = 100) => {
+  const close = (delay = 250) => {
     timer.current = setTimeout(() => setOpenLabel(null), delay);
   };
 
@@ -63,19 +68,14 @@ function NavLink({
   const hasDropdown = !!item.groups;
 
   return (
-    <div
-      className="relative shrink-0"
-      onMouseEnter={onOpen}
-      onMouseLeave={onClose}
-    >
+    <div className="relative shrink-0" onMouseEnter={onOpen} onMouseLeave={onClose}>
       <Link
         to={item.to}
         role="menuitem"
         tabIndex={focusIndex === index ? 0 : focusIndex === -1 && index === 0 ? 0 : -1}
-        activeOptions={{ exact: item.to === "/" }}            className={`group relative inline-flex items-center gap-1.5 rounded-md px-5 py-2.5 text-sm font-semibold tracking-wide transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/50 focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--charcoal)] ${
-          isActive
-            ? "text-white"
-            : "text-white/65 hover:text-white"
+        activeOptions={{ exact: item.to === "/" }}
+        className={`group relative inline-flex items-center gap-1.5 rounded-md px-5 py-2.5 text-sm font-semibold tracking-wide transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/50 focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--charcoal)] ${
+          isActive ? "text-white" : "text-white/65 hover:text-white"
         }`}
         activeProps={{ className: "text-white" }}
         onMouseEnter={onCancelClose}
@@ -93,10 +93,7 @@ function NavLink({
           }`}
         />
         {hasDropdown && (
-          <motion.span
-            animate={{ rotate: isActive ? 180 : 0 }}
-            transition={{ duration: 0.2 }}
-          >
+          <motion.span animate={{ rotate: isActive ? 180 : 0 }} transition={{ duration: 0.2 }}>
             <ChevronDown className="h-3.5 w-3.5 text-white/60" />
           </motion.span>
         )}
@@ -111,9 +108,11 @@ function NavLink({
 function MegaPanel({
   item,
   onClose,
+  onCancelClose,
 }: {
   item: MegaMenuItem;
   onClose: () => void;
+  onCancelClose: () => void;
 }) {
   const columns = item.groups?.length ?? 1;
 
@@ -134,17 +133,12 @@ function MegaPanel({
       data-mega-panel
       role="menu"
       className="absolute left-0 top-full hidden w-screen lg:block"
-      onMouseEnter={() => {}}
+      onMouseEnter={onCancelClose}
       onMouseLeave={onClose}
     >
       <div className="container-lux pt-2">
-        <div      className="overflow-hidden rounded-2xl border border-gold/15 bg-background/95 backdrop-blur-2xl shadow-[0_24px_60px_-20px_oklch(0.3_0.05_65/0.45)]">
-          <div
-            className={`grid ${gridClass} ${
-              item.featured ? "lg:grid-cols-[1fr_340px]" : ""
-            }`}
-          >
-
+        <div className="overflow-hidden rounded-2xl border border-gold/15 bg-background/95 backdrop-blur-2xl shadow-[0_24px_60px_-20px_oklch(0.3_0.05_65/0.45)]">
+          <div className={`grid ${gridClass} ${item.featured ? "lg:grid-cols-[1fr_340px]" : ""}`}>
             {/* Link columns */}
             <div className={`grid ${gridClass} gap-6 p-8`}>
               {item.groups?.map((g) => (
@@ -186,12 +180,8 @@ function MegaPanel({
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
                 <div className="relative p-8">
-                  <p className="text-xs uppercase tracking-[0.18em] text-gold">
-                    Featured
-                  </p>
-                  <h3 className="mt-2 font-serif text-xl text-white">
-                    {item.featured.title}
-                  </h3>
+                  <p className="text-xs uppercase tracking-[0.18em] text-gold">Featured</p>
+                  <h3 className="mt-2 font-serif text-xl text-white">{item.featured.title}</h3>
                   <p className="mt-1.5 text-sm leading-relaxed text-white/70">
                     {item.featured.description}
                   </p>
@@ -212,13 +202,7 @@ function MegaPanel({
 /* ------------------------------------------------------------------ */
 /*  Mobile accordion item                                             */
 /* ------------------------------------------------------------------ */
-function MobileAccordionItem({
-  item,
-  onClose,
-}: {
-  item: MegaMenuItem;
-  onClose: () => void;
-}) {
+function MobileAccordionItem({ item, onClose }: { item: MegaMenuItem; onClose: () => void }) {
   const [open, setOpen] = useState(false);
   const hasGroups = !!item.groups && item.groups.length > 0;
 
@@ -231,10 +215,7 @@ function MobileAccordionItem({
           aria-expanded={open}
         >
           {item.label}
-          <motion.span
-            animate={{ rotate: open ? 90 : 0 }}
-            transition={{ duration: 0.2 }}
-          >
+          <motion.span animate={{ rotate: open ? 90 : 0 }} transition={{ duration: 0.2 }}>
             <ChevronRight className="h-4 w-4 text-muted-foreground" />
           </motion.span>
         </button>
@@ -291,6 +272,7 @@ function MobileAccordionItem({
 function MobileAuthenticatedLinks() {
   const { user, loading } = useAuth();
   if (loading || !user) return null;
+  const isAdmin = user.role === "admin" || user.role === "ADMIN";
   return (
     <>
       <SheetClose asChild>
@@ -311,6 +293,17 @@ function MobileAuthenticatedLinks() {
           Profile
         </Link>
       </SheetClose>
+      {isAdmin && (
+        <SheetClose asChild>
+          <Link
+            to="/admin"
+            className="flex items-center gap-2 rounded-lg px-4 py-3 text-sm font-medium text-gold transition-colors hover:bg-gold/10"
+          >
+            <ShieldCheck className="h-4 w-4" />
+            Admin Panel
+          </Link>
+        </SheetClose>
+      )}
     </>
   );
 }
@@ -331,7 +324,9 @@ function MobileAuth() {
             {user.name.charAt(0).toUpperCase()}
           </span>
           <div className="text-left">
-            <p className="text-sm font-medium text-foreground truncate max-w-[160px]">{user.name}</p>
+            <p className="text-sm font-medium text-foreground truncate max-w-[160px]">
+              {user.name}
+            </p>
             <p className="text-xs text-muted-foreground truncate max-w-[160px]">{user.email}</p>
           </div>
         </div>
@@ -420,9 +415,25 @@ function HeaderAuth() {
                   <User className="h-4 w-4" />
                   Profile
                 </Link>
+                {(user.role === "admin" || user.role === "ADMIN") && (
+                  <>
+                    <div className="my-1 border-t border-border/40" />
+                    <Link
+                      to="/admin"
+                      onClick={() => setOpen(false)}
+                      className="flex items-center gap-2 rounded-md px-3 py-2 text-sm font-semibold text-gold transition-colors hover:bg-gold/10"
+                    >
+                      <ShieldCheck className="h-4 w-4" />
+                      Admin Panel
+                    </Link>
+                  </>
+                )}
                 <div className="my-1 border-t border-border/40" />
                 <button
-                  onClick={() => { logout(); setOpen(false); }}
+                  onClick={() => {
+                    logout();
+                    setOpen(false);
+                  }}
                   className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-sm text-muted-foreground transition-colors hover:bg-muted/50 hover:text-red-500"
                 >
                   Sign out
@@ -438,7 +449,7 @@ function HeaderAuth() {
   return (
     <Link
       to="/login"
-      className="flex items-center gap-1.5 rounded-full border border-white/15 px-4 py-1.5 text-sm font-medium text-white/60 transition-all duration-300 hover:border-gold/40 hover:text-white hover:bg-white/[0.08] hover:shadow-[0_0_12px_-4px_var(--gold)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/50"
+      className="flex shrink-0 items-center gap-1.5 whitespace-nowrap min-w-max rounded-full border border-white/15 px-4 py-1.5 text-sm font-medium text-white/60 transition-all duration-300 hover:border-gold/40 hover:text-white hover:bg-white/[0.08] hover:shadow-[0_0_12px_-4px_var(--gold)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/50"
     >
       <LogIn className="h-4 w-4" />
       Sign In
@@ -465,9 +476,7 @@ export function SiteHeader() {
   const focusNavItem = (index: number) => {
     if (index < 0 || index >= navItemLabels.length) return;
     setFocusIndex(index);
-    const items = navRef.current?.querySelectorAll<HTMLAnchorElement>(
-      '[role="menuitem"]',
-    );
+    const items = navRef.current?.querySelectorAll<HTMLAnchorElement>('[role="menuitem"]');
     items?.[index]?.focus();
   };
 
@@ -492,9 +501,7 @@ export function SiteHeader() {
         if (menuItem?.groups) {
           open(label);
           setTimeout(() => {
-            const panel = navRef.current?.querySelector<HTMLAnchorElement>(
-              '[data-mega-panel] a',
-            );
+            const panel = navRef.current?.querySelector<HTMLAnchorElement>("[data-mega-panel] a");
             panel?.focus();
           }, 100);
         }
@@ -518,9 +525,7 @@ export function SiteHeader() {
       case "Escape": {
         close(0);
         if (focusIndex >= 0) {
-          const items = navRef.current?.querySelectorAll<HTMLAnchorElement>(
-            '[role="menuitem"]',
-          );
+          const items = navRef.current?.querySelectorAll<HTMLAnchorElement>('[role="menuitem"]');
           items?.[focusIndex]?.focus();
         }
         break;
@@ -570,12 +575,13 @@ export function SiteHeader() {
   return (
     <header
       className={`fixed inset-x-0 top-0 z-50 transition-all duration-500 ${
-        scrolled              ? "border-b border-gold/20 bg-[var(--charcoal)]/92 backdrop-blur-2xl shadow-elegant h-[64px] sm:h-[68px] lg:h-[72px]"
+        scrolled
+          ? "border-b border-gold/20 bg-[var(--charcoal)]/92 backdrop-blur-2xl shadow-elegant h-[64px] sm:h-[68px] lg:h-[72px]"
           : "border-b border-gold/[0.08] bg-[var(--charcoal)]/85 backdrop-blur-xl h-[64px] sm:h-[68px] lg:h-[72px]"
       }`}
       onMouseLeave={() => close()}
     >
-      <div className="container-lux flex h-full items-center justify-between gap-6">
+      <div className="container-lux flex h-full items-center justify-between gap-4">
         {/* Logo */}
         <motion.div
           initial={{ opacity: 0, x: -24 }}
@@ -612,7 +618,7 @@ export function SiteHeader() {
           className="hidden lg:flex lg:flex-1 lg:items-center"
         >
           <nav
-            className="flex items-center gap-4"
+            className="flex shrink-0 items-center gap-3"
             role="menubar"
             aria-label="Main navigation"
           >
@@ -633,7 +639,7 @@ export function SiteHeader() {
         </div>
 
         {/* Right actions */}
-        <div className="hidden items-center gap-3 lg:flex">
+        <div className="hidden shrink-0 items-center gap-3 lg:flex">
           <button
             aria-label="Search"
             onClick={() => setSearchOpen(true)}
@@ -646,9 +652,11 @@ export function SiteHeader() {
           <Button
             asChild
             variant="gold"
-            className="bg-[var(--gradient-gold)] rounded-full min-w-[150px] h-10 px-5 py-2 text-sm font-semibold shadow-[var(--shadow-gold)] transition-all duration-300 hover:shadow-[0_0_0_1px_var(--gold),var(--shadow-gold)] hover:-translate-y-0.5 hover:scale-[1.02] active:translate-y-0 active:scale-[0.98]"
+            className="bg-[var(--gradient-gold)] shrink-0 rounded-full min-w-[150px] h-10 px-5 py-2 text-sm font-semibold whitespace-nowrap text-white hover:text-white"
           >
-            <Link to="/quote">Request Quote</Link>
+            <Link to="/quote" className="text-white hover:text-white">
+              Request Quote
+            </Link>
           </Button>
         </div>
 
@@ -671,7 +679,10 @@ export function SiteHeader() {
                 <Menu className="h-5 w-5" />
               </button>
             </SheetTrigger>
-            <SheetContent side="right" className="w-[300px] overflow-y-auto border-l border-gold/15 bg-[var(--charcoal)] sm:w-[380px] [&>button]:text-white/60 [&>button]:hover:text-white">
+            <SheetContent
+              side="right"
+              className="w-[300px] overflow-y-auto border-l border-gold/15 bg-[var(--charcoal)] sm:w-[380px] [&>button]:text-white/60 [&>button]:hover:text-white"
+            >
               <div className="mt-8 flex flex-col gap-1">
                 {/* Mobile nav items */}
                 {MEGA_MENU.map((item) => (
@@ -712,7 +723,11 @@ export function SiteHeader() {
                 {/* Quote button */}
                 <div className="mt-4 px-4">
                   <SheetClose asChild>
-                    <Button asChild variant="gold" className="w-full rounded-full py-3 text-sm font-semibold">
+                    <Button
+                      asChild
+                      variant="gold"
+                      className="w-full rounded-full py-3 text-sm font-semibold"
+                    >
                       <Link to="/quote">Request Quote</Link>
                     </Button>
                   </SheetClose>
@@ -736,7 +751,12 @@ export function SiteHeader() {
             (item) =>
               item.label === openLabel &&
               item.groups && (
-                <MegaPanel key={item.label} item={item} onClose={() => close()} />
+                <MegaPanel
+                  key={item.label}
+                  item={item}
+                  onClose={() => close()}
+                  onCancelClose={cancelClose}
+                />
               ),
           )}
       </AnimatePresence>

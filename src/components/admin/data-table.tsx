@@ -3,7 +3,15 @@
 /* ------------------------------------------------------------------ */
 import { useState, useCallback, useMemo, useEffect, type ReactNode } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Search, ChevronUp, ChevronDown, ChevronLeft, ChevronRight, Loader2, AlertCircle } from "lucide-react";
+import {
+  Search,
+  ChevronUp,
+  ChevronDown,
+  ChevronLeft,
+  ChevronRight,
+  Loader2,
+  AlertCircle,
+} from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { EmptyState } from "@/components/empty-states";
@@ -65,12 +73,21 @@ export function AnimatedCount({ value, suffix = "" }: { value: number; suffix?: 
     }, 16);
     return () => clearInterval(timer);
   }, [value]);
-  return <span>{display.toLocaleString()}{suffix}</span>;
+  return (
+    <span>
+      {display.toLocaleString()}
+      {suffix}
+    </span>
+  );
 }
 
 /* ─── Stat Card ─── */
 export function StatCard({
-  label, value, icon, trend, trendUp,
+  label,
+  value,
+  icon,
+  trend,
+  trendUp,
 }: {
   label: string;
   value: ReactNode;
@@ -88,10 +105,17 @@ export function StatCard({
       <div className="absolute inset-x-0 top-0 h-0.5 bg-gradient-to-r from-transparent via-gold/60 to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
       <div className="flex items-start justify-between">
         <div className="space-y-2">
-          <p className="text-xs font-medium uppercase tracking-[0.15em] text-muted-foreground">{label}</p>
+          <p className="text-xs font-medium uppercase tracking-[0.15em] text-muted-foreground">
+            {label}
+          </p>
           <p className="font-serif text-3xl text-foreground">{value}</p>
           {trend && (
-            <p className={cn("flex items-center gap-1 text-xs font-medium", trendUp ? "text-emerald-600" : "text-red-500")}>
+            <p
+              className={cn(
+                "flex items-center gap-1 text-xs font-medium",
+                trendUp ? "text-emerald-600" : "text-red-500",
+              )}
+            >
               {trendUp ? "↑" : "↓"} {trend}
             </p>
           )}
@@ -132,31 +156,48 @@ function TableSkeleton({ rows = 5, cols = 5 }: { rows?: number; cols?: number })
 
 /* ─── DataTable ─── */
 export function DataTable<T>({
-  columns, data, keyExtractor, pagination,
-  isLoading, isError, errorMessage,
-  emptyTitle, emptyDescription,
-  searchPlaceholder = "Search…", searchValue, onSearchChange,
+  columns,
+  data,
+  keyExtractor,
+  pagination,
+  isLoading,
+  isError,
+  errorMessage,
+  emptyTitle,
+  emptyDescription,
+  searchPlaceholder = "Search…",
+  searchValue,
+  onSearchChange,
   onPageChange,
-  sortState, onSortChange,
-  filters, actions, onRowClick,
+  sortState,
+  onSortChange,
+  filters,
+  actions,
+  onRowClick,
 }: DataTableProps<T>) {
   const [localSearch, setLocalSearch] = useState("");
 
-  const handleSearch = useCallback((val: string) => {
-    setLocalSearch(val);
-    onSearchChange?.(val);
-  }, [onSearchChange]);
+  const handleSearch = useCallback(
+    (val: string) => {
+      setLocalSearch(val);
+      onSearchChange?.(val);
+    },
+    [onSearchChange],
+  );
 
   const searchVal = searchValue !== undefined ? searchValue : localSearch;
 
-  const handleSort = useCallback((key: string) => {
-    if (!onSortChange) return;
-    if (sortState?.key === key) {
-      onSortChange(sortState.dir === "asc" ? { key, dir: "desc" } : null);
-    } else {
-      onSortChange({ key, dir: "asc" });
-    }
-  }, [onSortChange, sortState]);
+  const handleSort = useCallback(
+    (key: string) => {
+      if (!onSortChange) return;
+      if (sortState?.key === key) {
+        onSortChange(sortState.dir === "asc" ? { key, dir: "desc" } : null);
+      } else {
+        onSortChange({ key, dir: "asc" });
+      }
+    },
+    [onSortChange, sortState],
+  );
 
   /* ── Error State ── */
   if (isError) {
@@ -213,9 +254,13 @@ export function DataTable<T>({
                   >
                     <span className="inline-flex items-center gap-1">
                       {col.label}
-                      {col.sortable && sortState?.key === col.key && (
-                        sortState.dir === "asc" ? <ChevronUp className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />
-                      )}
+                      {col.sortable &&
+                        sortState?.key === col.key &&
+                        (sortState.dir === "asc" ? (
+                          <ChevronUp className="h-3.5 w-3.5" />
+                        ) : (
+                          <ChevronDown className="h-3.5 w-3.5" />
+                        ))}
                     </span>
                   </th>
                 ))}
@@ -276,7 +321,8 @@ export function DataTable<T>({
       {pagination && pagination.totalPages > 1 && (
         <div className="flex flex-wrap items-center justify-between gap-3 text-sm">
           <p className="text-muted-foreground">
-            Showing {(pagination.page - 1) * pagination.limit + 1}–{Math.min(pagination.page * pagination.limit, pagination.total)} of {pagination.total}
+            Showing {(pagination.page - 1) * pagination.limit + 1}–
+            {Math.min(pagination.page * pagination.limit, pagination.total)} of {pagination.total}
           </p>
           <div className="flex items-center gap-1">
             <button

@@ -8,6 +8,9 @@ export type User = {
   role: "ADMIN" | "DEALER" | "ARCHITECT" | "CUSTOMER";
   phone?: string;
   avatar?: string;
+  address?: string;
+  company?: string;
+  designation?: string;
 };
 
 type AuthContextValue = {
@@ -41,15 +44,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     refresh();
   }, [refresh]);
 
-  const login = useCallback(async (email: string, password: string, rememberMe = false): Promise<User> => {
-    const data = await api.post<{ user: User; accessToken: string }>("/api/auth/login", {
-      email,
-      password,
-      rememberMe,
-    });
-    setUser(data.user);
-    return data.user;
-  }, []);
+  const login = useCallback(
+    async (email: string, password: string, rememberMe = false): Promise<User> => {
+      const data = await api.post<{ user: User; accessToken: string }>("/api/auth/login", {
+        email,
+        password,
+        rememberMe,
+      });
+      setUser(data.user);
+      return data.user;
+    },
+    [],
+  );
 
   const register = useCallback(
     async (name: string, email: string, password: string, phone?: string): Promise<User> => {

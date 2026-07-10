@@ -2,6 +2,7 @@ import { Router, Request, Response } from "express";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import crypto from "crypto";
+import type { Secret, SignOptions } from "jsonwebtoken";
 import { prisma } from "../db.js";
 import { CONFIG } from "../config.js";
 import { authenticate } from "../middleware/auth.js";
@@ -20,12 +21,20 @@ import type { JwtPayload } from "../middleware/auth.js";
 const router = Router();
 
 function generateTokens(payload: JwtPayload) {
-  const accessToken = jwt.sign(payload, CONFIG.JWT_SECRET, { expiresIn: CONFIG.JWT_EXPIRES_IN });
-  const refreshToken = jwt.sign(payload, CONFIG.JWT_REFRESH_SECRET, { expiresIn: CONFIG.JWT_REFRESH_EXPIRES_IN });
+  const accessToken = jwt.sign(payload, CONFIG.JWT_SECRET as Secret, {
+    expiresIn: CONFIG.JWT_EXPIRES_IN as SignOptions["expiresIn"],
+  });
+  const refreshToken = jwt.sign(payload, CONFIG.JWT_REFRESH_SECRET as Secret, {
+    expiresIn: CONFIG.JWT_REFRESH_EXPIRES_IN as SignOptions["expiresIn"],
+  });
   return { accessToken, refreshToken };
 }
 
-function setAuthCookies(res: Response, tokens: { accessToken: string; refreshToken: string }, rememberMe = false) {
+function setAuthCookies(
+  res: Response,
+  tokens: { accessToken: string; refreshToken: string },
+  rememberMe = false,
+) {
   const accessMaxAge = rememberMe ? 7 * 24 * 60 * 60 * 1000 : 15 * 60 * 1000; // 7 days or 15 min
   const refreshMaxAge = rememberMe ? 30 * 24 * 60 * 60 * 1000 : 7 * 24 * 60 * 60 * 1000; // 30 days or 7 days
 
@@ -91,10 +100,22 @@ router.post("/register", validate(registerSchema), async (req: Request, res: Res
         </p>
       </div>`,
     );
-  } catch { /* ignore email failures — user can still log in */ }
+  } catch {
+    /* ignore email failures — user can still log in */
+  }
 
   res.status(201).json({
-    user: { id: user.id, name: user.name, email: user.email, phone: user.phone, role: user.role, avatar: user.avatar },
+    user: {
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      phone: user.phone,
+      role: user.role,
+      avatar: user.avatar,
+      address: user.address,
+      company: user.company,
+      designation: user.designation,
+    },
     ...tokens,
   });
 });
@@ -139,7 +160,17 @@ router.post("/login", validate(loginSchema), async (req: Request, res: Response)
   setAuthCookies(res, tokens, rememberMe);
 
   res.json({
-    user: { id: user.id, name: user.name, email: user.email, role: user.role, avatar: user.avatar, phone: user.phone },
+    user: {
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+      avatar: user.avatar,
+      phone: user.phone,
+      address: user.address,
+      company: user.company,
+      designation: user.designation,
+    },
     ...tokens,
   });
 });
@@ -170,7 +201,20 @@ router.post("/refresh", async (req: Request, res: Response) => {
       maxAge: 15 * 60 * 1000,
     });
 
-    res.json({ ...tokens, user: { id: user.id, name: user.name, email: user.email, role: user.role } });
+    res.json({
+      ...tokens,
+      user: {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        phone: user.phone,
+        avatar: user.avatar,
+        address: user.address,
+        company: user.company,
+        designation: user.designation,
+      },
+    });
   } catch {
     throw new UnauthorizedError("Invalid refresh token");
   }
@@ -180,7 +224,18 @@ router.post("/refresh", async (req: Request, res: Response) => {
 router.get("/me", authenticate, async (req: Request, res: Response) => {
   const user = await prisma.user.findUnique({
     where: { id: req.user!.userId },
-    select: { id: true, name: true, email: true, phone: true, role: true, avatar: true, createdAt: true },
+    select: {
+      id: true,
+      name: true,
+      email: true,
+      phone: true,
+      role: true,
+      avatar: true,
+      address: true,
+      company: true,
+      designation: true,
+      createdAt: true,
+    },
   });
   if (!user) throw new UnauthorizedError("User not found");
   res.json(user);
@@ -189,165 +244,188 @@ router.get("/me", authenticate, async (req: Request, res: Response) => {
 // ── OTP-based Password Reset ──
 
 // POST /api/auth/send-reset-otp — Send 6-digit OTP to email
-router.post("/send-reset-otp", validate(sendResetOtpSchema), async (req: Request, res: Response) => {
-  const { email } = req.body;
+router.post(
+  "/send-reset-otp",
+  validate(sendResetOtpSchema),
+  async (req: Request, res: Response) => {
+    const { email } = req.body;
 
-  // Always return generic success — don't reveal whether email exists
-  const genericMessage = { message: "If the email exists, a verification code has been sent." };
+    // Always return generic success — don't reveal whether email exists
+    const genericMessage = { message: "If the email exists, a verification code has been sent." };
 
-  const user = await prisma.user.findUnique({ where: { email } });
-  if (!user) return res.json(genericMessage);
+    const user = await prisma.user.findUnique({ where: { email } });
+    if (!user) return res.json(genericMessage);
 
-  // Generate a random 6-digit OTP
-  const otp = String(Math.floor(100000 + Math.random() * 900000));
+    // Generate a random 6-digit OTP
+    const otp = String(Math.floor(100000 + Math.random() * 900000));
 
-  // Hash OTP before storing
-  const hashedOtp = await bcrypt.hash(otp, 10);
+    // Hash OTP before storing
+    const hashedOtp = await bcrypt.hash(otp, 10);
 
-  await prisma.user.update({
-    where: { id: user.id },
-    data: {
-      passwordResetOtp: hashedOtp,
-      passwordResetOtpExpiry: new Date(Date.now() + 10 * 60 * 1000), // 10 minutes
-      passwordResetAttempts: 0,
-    },
-  });
-
-  // Send OTP email
-  try {
-    await sendEmail(email, "Stone India Heritage Password Reset OTP", passwordResetOTPEmail(user.name, otp));
-  } catch {
-    // Log but don't reveal failure
-    console.error("[AUTH] Failed to send OTP email to:", email);
-  }
-
-  res.json(genericMessage);
-});
-
-// POST /api/auth/verify-reset-otp — Verify OTP code
-router.post("/verify-reset-otp", validate(verifyResetOtpSchema), async (req: Request, res: Response) => {
-  const { email, otp } = req.body;
-
-  const genericFail = { verified: false, message: "Invalid or expired verification code." };
-
-  const user = await prisma.user.findUnique({ where: { email } });
-  if (!user || !user.passwordResetOtp || !user.passwordResetOtpExpiry) {
-    return res.json(genericFail);
-  }
-
-  // Check expiry
-  if (user.passwordResetOtpExpiry < new Date()) {
     await prisma.user.update({
       where: { id: user.id },
-      data: { passwordResetOtp: null, passwordResetOtpExpiry: null, passwordResetAttempts: 0 },
-    });
-    return res.json({ verified: false, message: "Verification code has expired. Request a new one." });
-  }
-
-  // Check max attempts (5)
-  if (user.passwordResetAttempts >= 5) {
-    await prisma.user.update({
-      where: { id: user.id },
-      data: { passwordResetOtp: null, passwordResetOtpExpiry: null, passwordResetAttempts: 0 },
-    });
-    return res.json({ verified: false, message: "Too many attempts. Please request a new code." });
-  }
-
-  // Verify OTP
-  const valid = await bcrypt.compare(otp, user.passwordResetOtp);
-  if (!valid) {
-    await prisma.user.update({
-      where: { id: user.id },
-      data: { passwordResetAttempts: { increment: 1 } },
-    });
-    const remaining = 5 - (user.passwordResetAttempts + 1);
-    return res.json({
-      verified: false,
-      message: remaining > 0
-        ? `Invalid code. ${remaining} attempt${remaining === 1 ? "" : "s"} remaining.`
-        : "Too many attempts. Please request a new code.",
-    });
-  }
-
-  // OTP verified — save the verified flag by storing "verified" in passwordResetOtp
-  // We'll use a marker approach: set a short-lived verified flag in the OTP field
-  // Reset attempts count
-  await prisma.user.update({
-    where: { id: user.id },
-    data: { passwordResetAttempts: 0 },
-  });
-
-  res.json({ verified: true });
-});
-
-// POST /api/auth/reset-password — Reset password after OTP verification
-router.post("/reset-password", validate(resetPasswordWithOtpSchema), async (req: Request, res: Response) => {
-  const { email, otp, password } = req.body;
-
-  const user = await prisma.user.findUnique({ where: { email } });
-  if (!user || !user.passwordResetOtp || !user.passwordResetOtpExpiry) {
-    return res.status(400).json({ message: "Invalid or expired verification code." });
-  }
-
-  // Check expiry
-  if (user.passwordResetOtpExpiry < new Date()) {
-    await prisma.user.update({
-      where: { id: user.id },
-      data: { passwordResetOtp: null, passwordResetOtpExpiry: null, passwordResetAttempts: 0 },
-    });
-    return res.status(400).json({ message: "Verification code has expired. Request a new one." });
-  }
-
-  // Check max attempts
-  if (user.passwordResetAttempts >= 5) {
-    await prisma.user.update({
-      where: { id: user.id },
-      data: { passwordResetOtp: null, passwordResetOtpExpiry: null, passwordResetAttempts: 0 },
-    });
-    return res.status(400).json({ message: "Too many attempts. Please request a new code." });
-  }
-
-  // Verify OTP again before allowing password change
-  const valid = await bcrypt.compare(otp, user.passwordResetOtp);
-  if (!valid) {
-    await prisma.user.update({
-      where: { id: user.id },
-      data: { passwordResetAttempts: { increment: 1 } },
-    });
-    return res.status(400).json({ message: "Invalid verification code." });
-  }
-
-  // Hash new password and update
-  const hashedPassword = await bcrypt.hash(password, 12);
-  await prisma.user.update({
-    where: { id: user.id },
-    data: {
-      password: hashedPassword,
-      passwordResetOtp: null,
-      passwordResetOtpExpiry: null,
-      passwordResetAttempts: 0,
-    },
-  });
-
-  // Log the password reset event for admin auditing
-  try {
-    const ip = req.ip || req.headers["x-forwarded-for"] as string || "";
-    const userAgent = req.headers["user-agent"] || "";
-    await prisma.passwordResetLog.create({
       data: {
-        userId: user.id,
-        ip: ip.slice(0, 45),
-        userAgent: String(userAgent).slice(0, 500),
-        success: true,
-        method: "otp",
+        passwordResetOtp: hashedOtp,
+        passwordResetOtpExpiry: new Date(Date.now() + 10 * 60 * 1000), // 10 minutes
+        passwordResetAttempts: 0,
       },
     });
-  } catch {
-    // Logging failure shouldn't break password reset
-  }
 
-  res.json({ message: "Password reset successfully" });
-});
+    // Send OTP email
+    try {
+      await sendEmail(
+        email,
+        "Stone India Heritage Password Reset OTP",
+        passwordResetOTPEmail(user.name, otp),
+      );
+    } catch {
+      // Log but don't reveal failure
+      console.error("[AUTH] Failed to send OTP email to:", email);
+    }
+
+    res.json(genericMessage);
+  },
+);
+
+// POST /api/auth/verify-reset-otp — Verify OTP code
+router.post(
+  "/verify-reset-otp",
+  validate(verifyResetOtpSchema),
+  async (req: Request, res: Response) => {
+    const { email, otp } = req.body;
+
+    const genericFail = { verified: false, message: "Invalid or expired verification code." };
+
+    const user = await prisma.user.findUnique({ where: { email } });
+    if (!user || !user.passwordResetOtp || !user.passwordResetOtpExpiry) {
+      return res.json(genericFail);
+    }
+
+    // Check expiry
+    if (user.passwordResetOtpExpiry < new Date()) {
+      await prisma.user.update({
+        where: { id: user.id },
+        data: { passwordResetOtp: null, passwordResetOtpExpiry: null, passwordResetAttempts: 0 },
+      });
+      return res.json({
+        verified: false,
+        message: "Verification code has expired. Request a new one.",
+      });
+    }
+
+    // Check max attempts (5)
+    if (user.passwordResetAttempts >= 5) {
+      await prisma.user.update({
+        where: { id: user.id },
+        data: { passwordResetOtp: null, passwordResetOtpExpiry: null, passwordResetAttempts: 0 },
+      });
+      return res.json({
+        verified: false,
+        message: "Too many attempts. Please request a new code.",
+      });
+    }
+
+    // Verify OTP
+    const valid = await bcrypt.compare(otp, user.passwordResetOtp);
+    if (!valid) {
+      await prisma.user.update({
+        where: { id: user.id },
+        data: { passwordResetAttempts: { increment: 1 } },
+      });
+      const remaining = 5 - (user.passwordResetAttempts + 1);
+      return res.json({
+        verified: false,
+        message:
+          remaining > 0
+            ? `Invalid code. ${remaining} attempt${remaining === 1 ? "" : "s"} remaining.`
+            : "Too many attempts. Please request a new code.",
+      });
+    }
+
+    // OTP verified — save the verified flag by storing "verified" in passwordResetOtp
+    // We'll use a marker approach: set a short-lived verified flag in the OTP field
+    // Reset attempts count
+    await prisma.user.update({
+      where: { id: user.id },
+      data: { passwordResetAttempts: 0 },
+    });
+
+    res.json({ verified: true });
+  },
+);
+
+// POST /api/auth/reset-password — Reset password after OTP verification
+router.post(
+  "/reset-password",
+  validate(resetPasswordWithOtpSchema),
+  async (req: Request, res: Response) => {
+    const { email, otp, password } = req.body;
+
+    const user = await prisma.user.findUnique({ where: { email } });
+    if (!user || !user.passwordResetOtp || !user.passwordResetOtpExpiry) {
+      return res.status(400).json({ message: "Invalid or expired verification code." });
+    }
+
+    // Check expiry
+    if (user.passwordResetOtpExpiry < new Date()) {
+      await prisma.user.update({
+        where: { id: user.id },
+        data: { passwordResetOtp: null, passwordResetOtpExpiry: null, passwordResetAttempts: 0 },
+      });
+      return res.status(400).json({ message: "Verification code has expired. Request a new one." });
+    }
+
+    // Check max attempts
+    if (user.passwordResetAttempts >= 5) {
+      await prisma.user.update({
+        where: { id: user.id },
+        data: { passwordResetOtp: null, passwordResetOtpExpiry: null, passwordResetAttempts: 0 },
+      });
+      return res.status(400).json({ message: "Too many attempts. Please request a new code." });
+    }
+
+    // Verify OTP again before allowing password change
+    const valid = await bcrypt.compare(otp, user.passwordResetOtp);
+    if (!valid) {
+      await prisma.user.update({
+        where: { id: user.id },
+        data: { passwordResetAttempts: { increment: 1 } },
+      });
+      return res.status(400).json({ message: "Invalid verification code." });
+    }
+
+    // Hash new password and update
+    const hashedPassword = await bcrypt.hash(password, 12);
+    await prisma.user.update({
+      where: { id: user.id },
+      data: {
+        password: hashedPassword,
+        passwordResetOtp: null,
+        passwordResetOtpExpiry: null,
+        passwordResetAttempts: 0,
+      },
+    });
+
+    // Log the password reset event for admin auditing
+    try {
+      const ip = req.ip || (req.headers["x-forwarded-for"] as string) || "";
+      const userAgent = req.headers["user-agent"] || "";
+      await prisma.passwordResetLog.create({
+        data: {
+          userId: user.id,
+          ip: ip.slice(0, 45),
+          userAgent: String(userAgent).slice(0, 500),
+          success: true,
+          method: "otp",
+        },
+      });
+    } catch {
+      // Logging failure shouldn't break password reset
+    }
+
+    res.json({ message: "Password reset successfully" });
+  },
+);
 
 // POST /api/auth/forgot-password — @deprecated Legacy endpoint kept for backward compat.
 // Use POST /api/auth/send-reset-otp instead (same logic, clearer naming).
@@ -373,24 +451,43 @@ router.post("/forgot-password", async (req: Request, res: Response) => {
   });
 
   try {
-    await sendEmail(email, "Stone India Heritage Password Reset OTP", passwordResetOTPEmail(user.name, otp));
-  } catch { /* ignore */ }
+    await sendEmail(
+      email,
+      "Stone India Heritage Password Reset OTP",
+      passwordResetOTPEmail(user.name, otp),
+    );
+  } catch {
+    /* ignore */
+  }
 
   res.json({ message: "If the email exists, a verification code has been sent." });
 });
 
-// PUT /api/auth/profile — update name, phone, avatar
+// PUT /api/auth/profile — update name, phone, avatar, address, company, designation
 router.put("/profile", authenticate, async (req: Request, res: Response) => {
-  const { name, phone, avatar } = req.body;
+  const { name, phone, avatar, address, company, designation } = req.body;
   const data: Record<string, unknown> = {};
   if (name !== undefined) data.name = name;
   if (phone !== undefined) data.phone = phone;
   if (avatar !== undefined) data.avatar = avatar;
+  if (address !== undefined) data.address = address;
+  if (company !== undefined) data.company = company;
+  if (designation !== undefined) data.designation = designation;
 
   const user = await prisma.user.update({
     where: { id: req.user!.userId },
     data,
-    select: { id: true, name: true, email: true, phone: true, role: true, avatar: true },
+    select: {
+      id: true,
+      name: true,
+      email: true,
+      phone: true,
+      role: true,
+      avatar: true,
+      address: true,
+      company: true,
+      designation: true,
+    },
   });
   res.json(user);
 });

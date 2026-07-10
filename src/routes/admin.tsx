@@ -2,18 +2,49 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState, useEffect, useRef } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import {
-  LayoutDashboard, Package, FolderTree, Building2, Newspaper, Video,
-  Download, MessageSquare, FileText, Users, Settings, Mail, Star,
-  LogOut, Search, Bell, Moon, Sun, Menu, X, ChevronDown,
+  LayoutDashboard,
+  Package,
+  FolderTree,
+  Building2,
+  Newspaper,
+  Video,
+  Download,
+  MessageSquare,
+  FileText,
+  Users,
+  Settings,
+  Mail,
+  Star,
+  LogOut,
+  Search,
+  Bell,
+  Moon,
+  Sun,
+  Menu,
+  X,
+  ChevronDown,
   Loader2,
+  Images,
+  FilePlus,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { DashboardOverview } from "@/components/admin/dashboard";
 import {
-  ProductsModule, CategoriesModule, ProjectsModule, BlogsModule,
-  VideosModule, DownloadsModule, TestimonialsModule, ContactModule,
-  RFQModule, SubscribersModule, UsersModule, SettingsModule,
+  ProductsModule,
+  CategoriesModule,
+  ProjectsModule,
+  BlogsModule,
+  VideosModule,
+  DownloadsModule,
+  TestimonialsModule,
+  ContactModule,
+  RFQModule,
+  SubscribersModule,
+  UsersModule,
+  SettingsModule,
+  MediaLibraryModule,
+  CatalogGeneratorModule,
 } from "@/components/admin/modules";
 
 export const Route = createFileRoute("/admin")({
@@ -29,6 +60,8 @@ export const Route = createFileRoute("/admin")({
 /* ── Sidebar Navigation Items ── */
 const NAV_ITEMS = [
   { label: "Dashboard", icon: LayoutDashboard, section: "dashboard" },
+  { label: "Media Library", icon: Images, section: "media" },
+  { label: "Catalog Generator", icon: FilePlus, section: "catalog-generator" },
   { label: "Products", icon: Package, section: "products" },
   { label: "Categories", icon: FolderTree, section: "categories" },
   { label: "Projects", icon: Building2, section: "projects" },
@@ -46,6 +79,8 @@ const NAV_ITEMS = [
 /* ── Section name map ── */
 const SECTION_LABELS: Record<string, string> = {
   dashboard: "Dashboard",
+  media: "Media Library",
+  "catalog-generator": "Catalog Generator",
   products: "Products",
   categories: "Categories",
   projects: "Projects",
@@ -75,14 +110,17 @@ function Admin() {
   useEffect(() => {
     if (!profileOpen) return;
     const onClick = (e: MouseEvent) => {
-      if (profileRef.current && !profileRef.current.contains(e.target as Node)) setProfileOpen(false);
+      if (profileRef.current && !profileRef.current.contains(e.target as Node))
+        setProfileOpen(false);
     };
     document.addEventListener("mousedown", onClick);
     return () => document.removeEventListener("mousedown", onClick);
   }, [profileOpen]);
 
   // Close sidebar on route change (section change)
-  useEffect(() => { setSidebarOpen(false); }, [section]);
+  useEffect(() => {
+    setSidebarOpen(false);
+  }, [section]);
 
   // Search shortcut
   useEffect(() => {
@@ -105,7 +143,9 @@ function Admin() {
             <LayoutDashboard className="h-8 w-8" />
           </div>
           <h2 className="font-serif text-2xl text-foreground">Access Restricted</h2>
-          <p className="text-sm text-muted-foreground">Please sign in to access the admin dashboard.</p>
+          <p className="text-sm text-muted-foreground">
+            Please sign in to access the admin dashboard.
+          </p>
           <Link
             to="/login"
             className="inline-flex items-center justify-center rounded-md bg-gold px-6 py-2.5 text-sm font-medium text-[var(--gold-foreground)] transition-all hover:brightness-105"
@@ -145,10 +185,15 @@ function Admin() {
             </span>
             <div className="flex flex-col leading-tight">
               <span className="font-serif text-sm tracking-tight text-white">Stone India</span>
-              <span className="text-[0.55rem] uppercase tracking-[0.25em] text-white/40">Admin</span>
+              <span className="text-[0.55rem] uppercase tracking-[0.25em] text-white/40">
+                Admin
+              </span>
             </div>
           </Link>
-          <button onClick={() => setSidebarOpen(false)} className="lg:hidden text-white/60 hover:text-white">
+          <button
+            onClick={() => setSidebarOpen(false)}
+            className="lg:hidden text-white/60 hover:text-white"
+          >
             <X className="h-5 w-5" />
           </button>
         </div>
@@ -157,7 +202,10 @@ function Admin() {
           {NAV_ITEMS.map((item) => (
             <button
               key={item.section}
-              onClick={() => { setSection(item.section); setSidebarOpen(false); }}
+              onClick={() => {
+                setSection(item.section);
+                setSidebarOpen(false);
+              }}
               className={`flex items-center gap-3 rounded-md px-3 py-2.5 text-sm transition-all duration-200 ${
                 section === item.section
                   ? "bg-gold text-[var(--gold-foreground)] font-medium shadow-sm"
@@ -185,9 +233,12 @@ function Admin() {
       {/* ── Main Content ── */}
       <div className="lg:pl-64 transition-all duration-300">
         {/* ── Topbar ── */}
-        <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-border/60 bg-background/90 px-4 sm:px-6 backdrop-blur-xl">
+        <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-border/60 bg-background/90 px-4 sm:px-8 backdrop-blur-xl">
           <div className="flex items-center gap-3">
-            <button onClick={() => setSidebarOpen(true)} className="lg:hidden text-muted-foreground hover:text-foreground">
+            <button
+              onClick={() => setSidebarOpen(true)}
+              className="lg:hidden text-muted-foreground hover:text-foreground"
+            >
               <Menu className="h-5 w-5" />
             </button>
             <h1 className="font-serif text-lg sm:text-xl text-foreground">
@@ -203,7 +254,9 @@ function Admin() {
             >
               <Search className="h-4 w-4" />
               <span>Search…</span>
-              <kbd className="ml-4 rounded border border-border/40 bg-muted px-1.5 py-0.5 text-[0.65rem] text-muted-foreground">/</kbd>
+              <kbd className="ml-4 rounded border border-border/40 bg-muted px-1.5 py-0.5 text-[0.65rem] text-muted-foreground">
+                /
+              </kbd>
             </button>
             <button
               onClick={() => setSearchOpen(true)}
@@ -270,7 +323,7 @@ function Admin() {
         </header>
 
         {/* ── Page Content ── */}
-        <main className="p-4 sm:p-6">
+        <main className="p-4 sm:p-8">
           <AnimatePresence mode="wait">
             <motion.div
               key={section}
@@ -280,6 +333,8 @@ function Admin() {
               transition={{ duration: 0.2 }}
             >
               {section === "dashboard" && <DashboardOverview />}
+              {section === "media" && <MediaLibraryModule />}
+              {section === "catalog-generator" && <CatalogGeneratorModule />}
               {section === "products" && <ProductsModule />}
               {section === "categories" && <CategoriesModule />}
               {section === "projects" && <ProjectsModule />}
@@ -333,7 +388,9 @@ function Admin() {
                     placeholder="Type to search across all sections…"
                     className="flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground"
                   />
-                  <kbd className="rounded border border-border/40 bg-muted px-2 py-0.5 text-[0.6rem] text-muted-foreground">ESC</kbd>
+                  <kbd className="rounded border border-border/40 bg-muted px-2 py-0.5 text-[0.6rem] text-muted-foreground">
+                    ESC
+                  </kbd>
                 </div>
                 <div className="px-5 py-4 text-center text-sm text-muted-foreground">
                   Search will query all products, projects, blogs, and categories.
@@ -350,7 +407,9 @@ function Admin() {
 /* ── Simple Badge component (inline to avoid circular deps) ── */
 function Badge({ children, className = "" }: { children: React.ReactNode; className?: string }) {
   return (
-    <span className={`inline-flex items-center rounded-md px-2 py-0.5 text-xs font-medium ${className}`}>
+    <span
+      className={`inline-flex items-center rounded-md px-2 py-0.5 text-xs font-medium ${className}`}
+    >
       {children}
     </span>
   );

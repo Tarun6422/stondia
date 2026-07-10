@@ -8,8 +8,8 @@ const router = Router();
 // GET /api/users/:id — public profile
 router.get("/:id", async (req: Request, res: Response) => {
   const user = await prisma.user.findUnique({
-    where: { id: req.params.id },
-    select: { id: true, name: true, role: true, createdAt: true },
+    where: { id: req.params.id as string },
+    select: { id: true, name: true, role: true, avatar: true, createdAt: true },
   });
   if (!user) throw new NotFoundError("User");
   res.json(user);

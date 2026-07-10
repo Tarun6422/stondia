@@ -21,7 +21,9 @@ function NotFoundComponent() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
       <div className="max-w-md text-center">
-        <p className="text-xs uppercase tracking-[0.25em] text-muted-foreground">Stone India Heritage</p>
+        <p className="text-xs uppercase tracking-[0.25em] text-muted-foreground">
+          Stone India Heritage
+        </p>
         <h1 className="mt-4 font-serif text-8xl text-foreground">404</h1>
         <h2 className="mt-4 font-serif text-2xl text-foreground">Page not found</h2>
         <p className="mt-3 text-sm text-muted-foreground">
@@ -39,7 +41,6 @@ function NotFoundComponent() {
     </div>
   );
 }
-
 
 function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
   console.error(error);
@@ -91,7 +92,11 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
           "Premium manufacturer and global exporter of Rajasthan Sandstone and architectural natural stone. Heritage craftsmanship, sustainable quarrying and export-quality precision.",
       },
       { name: "author", content: "Stone India Heritage" },
-      { name: "keywords", content: "Rajasthan sandstone, natural stone manufacturer, sandstone exporter India, architectural stone, heritage stone, stone India, premium cladding" },
+      {
+        name: "keywords",
+        content:
+          "Rajasthan sandstone, natural stone manufacturer, sandstone exporter India, architectural stone, heritage stone, stone India, premium cladding",
+      },
       { property: "og:title", content: "Stone India Heritage — Heritage Sandstone & Architecture" },
       {
         property: "og:description",
@@ -106,8 +111,15 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { property: "og:site_name", content: "Stone India Heritage" },
       { name: "twitter:card", content: "summary_large_image" },
       { name: "twitter:site", content: "@StoneIndia" },
-      { name: "twitter:title", content: "Stone India Heritage — Heritage Sandstone & Architecture" },
-      { name: "twitter:description", content: "Rajasthan Sandstone crafted for the world — premium natural stone for architects, developers and importers." },
+      {
+        name: "twitter:title",
+        content: "Stone India Heritage — Heritage Sandstone & Architecture",
+      },
+      {
+        name: "twitter:description",
+        content:
+          "Rajasthan Sandstone crafted for the world — premium natural stone for architects, developers and importers.",
+      },
       { name: "twitter:image", content: SOCIAL_PREVIEW.ogImage },
     ],
     links: [

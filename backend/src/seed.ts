@@ -7,7 +7,7 @@ async function main() {
   console.log("Seeding database...");
 
   // ── Admin User ──
-  const adminPassword = await bcrypt.hash("admin123", 12);
+  const adminPassword = await bcrypt.hash("Admin@StoneIndia#2025!", 12);
   const admin = await prisma.user.upsert({
     where: { email: "admin@stoneindiaheritage.com" },
     update: {},
@@ -74,7 +74,8 @@ async function main() {
     {
       slug: "heritage-jali-panel",
       name: "Heritage Jali Panel",
-      description: "Each Heritage Jali Panel is hand-carved by master artisans in Jodhpur, continuing a tradition refined over generations. These lattice screens filter light and air with timeless geometric and floral patterns, specified for luxury residences, hotels, and temple architecture worldwide.",
+      description:
+        "Each Heritage Jali Panel is hand-carved by master artisans in Jodhpur, continuing a tradition refined over generations. These lattice screens filter light and air with timeless geometric and floral patterns, specified for luxury residences, hotels, and temple architecture worldwide.",
       categoryId: categories["Jali"],
       subCategory: "Architectural",
       finish: "Hand-Carved, Natural, Honed",
@@ -88,7 +89,8 @@ async function main() {
     {
       slug: "sandstone-cobbles",
       name: "Sandstone Cobbles",
-      description: "Premium tumbled sandstone cobbles for timeless landscape paving. Each piece delivers the character of authentic Rajasthan stone with dimensional consistency for modern landscape projects.",
+      description:
+        "Premium tumbled sandstone cobbles for timeless landscape paving. Each piece delivers the character of authentic Rajasthan stone with dimensional consistency for modern landscape projects.",
       categoryId: categories["Cobbles"],
       subCategory: "Landscaping",
       finish: "Tumbled, Natural Split",
@@ -102,7 +104,8 @@ async function main() {
     {
       slug: "carved-stone-column",
       name: "Carved Stone Column",
-      description: "Hand-sculpted stone columns by master artisans. Available in traditional and contemporary profiles for luxury villas, hotels, and temple architecture.",
+      description:
+        "Hand-sculpted stone columns by master artisans. Available in traditional and contemporary profiles for luxury villas, hotels, and temple architecture.",
       categoryId: categories["Columns"],
       subCategory: "Architectural",
       finish: "Hand-Carved, Polished, Honed",
@@ -116,7 +119,8 @@ async function main() {
     {
       slug: "sandstone-wall-cladding",
       name: "Sandstone Wall Cladding",
-      description: "Precision-calibrated sandstone cladding panels engineered for luxury facades worldwide. Cut to exact export tolerances with consistent colour and texture.",
+      description:
+        "Precision-calibrated sandstone cladding panels engineered for luxury facades worldwide. Cut to exact export tolerances with consistent colour and texture.",
       categoryId: categories["Wall Cladding"],
       subCategory: "Cladding",
       finish: "Natural, Honed, Brushed",
@@ -130,7 +134,8 @@ async function main() {
     {
       slug: "desert-gold-flooring",
       name: "Desert Gold Flooring",
-      description: "Warm honeyed tones of Rajasthan sandstone with precision calibration for flawless interior and exterior installations. Ideal for lobbies, terraces, and luxury residences.",
+      description:
+        "Warm honeyed tones of Rajasthan sandstone with precision calibration for flawless interior and exterior installations. Ideal for lobbies, terraces, and luxury residences.",
       categoryId: categories["Flooring"],
       subCategory: "Flooring",
       finish: "Honed, Polished, Leather",
@@ -144,7 +149,8 @@ async function main() {
     {
       slug: "heritage-carving",
       name: "Heritage Carving",
-      description: "Bespoke ornamental carvings hand-carved by master artisans for temple construction, palace restoration, and luxury residences. Each piece is a unique work of art.",
+      description:
+        "Bespoke ornamental carvings hand-carved by master artisans for temple construction, palace restoration, and luxury residences. Each piece is a unique work of art.",
       categoryId: categories["Carvings"],
       subCategory: "Architectural",
       finish: "Hand-Carved, Antique",
@@ -172,7 +178,8 @@ async function main() {
       slug: "desert-luxury-villa",
       title: "Desert Luxury Villa",
       location: "Dubai, UAE",
-      description: "A 1,200 m² sandstone facade and landscape package for a private desert estate, combining honed cladding with hand-carved detailing.",
+      description:
+        "A 1,200 m² sandstone facade and landscape package for a private desert estate, combining honed cladding with hand-carved detailing.",
       architect: "Foster + Partners",
       stoneUsed: "Sandstone Wall Cladding, Heritage Carving",
       year: "2024",
@@ -183,7 +190,8 @@ async function main() {
       slug: "heritage-temple-restoration",
       title: "Heritage Temple Restoration",
       location: "Jaipur, India",
-      description: "Museum-grade restoration of carved sandstone jali, columns and ornamentation for a 200-year-old temple complex.",
+      description:
+        "Museum-grade restoration of carved sandstone jali, columns and ornamentation for a 200-year-old temple complex.",
       architect: "Heritage Trust of India",
       stoneUsed: "Heritage Jali Panel, Carved Stone Column",
       year: "2023",
@@ -194,7 +202,8 @@ async function main() {
       slug: "coastal-resort-facade",
       title: "Coastal Resort & Spa",
       location: "Bali, Indonesia",
-      description: "Weather-resistant sandstone cladding and paving across a 5-star beachfront resort spanning multiple villas and public spaces.",
+      description:
+        "Weather-resistant sandstone cladding and paving across a 5-star beachfront resort spanning multiple villas and public spaces.",
       architect: "WOHA Architects",
       stoneUsed: "Sandstone Wall Cladding, Desert Gold Flooring",
       year: "2024",
@@ -205,7 +214,8 @@ async function main() {
       slug: "civic-plaza-paving",
       title: "Civic Plaza Paving",
       location: "Melbourne, Australia",
-      description: "8,500 m² of durable sandstone cobbles and paving for a public plaza engineered for heavy footfall and climate resilience.",
+      description:
+        "8,500 m² of durable sandstone cobbles and paving for a public plaza engineered for heavy footfall and climate resilience.",
       architect: "Hassell Studio",
       stoneUsed: "Sandstone Cobbles, Desert Gold Flooring",
       year: "2022",
@@ -228,8 +238,10 @@ async function main() {
     {
       slug: "choosing-sandstone-facades",
       title: "How to Choose Sandstone for Building Facades",
-      excerpt: "A practical guide to finishes, thickness and calibration for architectural facades.",
-      content: "Selecting the right sandstone for a building facade requires careful consideration of finish, thickness, and calibration. This guide walks architects and specifiers through the key decisions that affect both aesthetics and long-term performance.\n\n## Understanding Sandstone Grades\nSandstone varies significantly in density, porosity, and compressive strength depending on the quarry source and geological formation.\n\n## Finish Selection\nThe choice of finish dramatically affects the visual character of a facade. Natural split offers the most texture, while honed provides a refined, contemporary appearance.\n\n## Calibration Standards\nExport-grade sandstone must meet strict dimensional tolerances. CNC calibration ensures consistency across large facade installations.",
+      excerpt:
+        "A practical guide to finishes, thickness and calibration for architectural facades.",
+      content:
+        "Selecting the right sandstone for a building facade requires careful consideration of finish, thickness, and calibration. This guide walks architects and specifiers through the key decisions that affect both aesthetics and long-term performance.\n\n## Understanding Sandstone Grades\nSandstone varies significantly in density, porosity, and compressive strength depending on the quarry source and geological formation.\n\n## Finish Selection\nThe choice of finish dramatically affects the visual character of a facade. Natural split offers the most texture, while honed provides a refined, contemporary appearance.\n\n## Calibration Standards\nExport-grade sandstone must meet strict dimensional tolerances. CNC calibration ensures consistency across large facade installations.",
       category: "Architecture",
       published: true,
       cover: null,
@@ -240,7 +252,8 @@ async function main() {
       slug: "sustainable-quarrying-practices",
       title: "Inside Our Sustainable Quarrying Practices",
       excerpt: "How responsible extraction and water recycling shape every slab we produce.",
-      content: "Sustainability is at the heart of our operations. From responsible quarrying to water recycling and waste reduction, we are committed to minimizing our environmental footprint while maximizing the natural beauty of Rajasthan sandstone.\n\n## Water Conservation\nOur quarrying operations recycle over 80% of water used in the cutting and finishing process.\n\n## Waste Reduction\nStone offcuts are repurposed for landscaping, aggregates, and smaller architectural elements.\n\n## Land Rehabilitation\nAfter quarrying is complete, we rehabilitate the land for alternative use.",
+      content:
+        "Sustainability is at the heart of our operations. From responsible quarrying to water recycling and waste reduction, we are committed to minimizing our environmental footprint while maximizing the natural beauty of Rajasthan sandstone.\n\n## Water Conservation\nOur quarrying operations recycle over 80% of water used in the cutting and finishing process.\n\n## Waste Reduction\nStone offcuts are repurposed for landscaping, aggregates, and smaller architectural elements.\n\n## Land Rehabilitation\nAfter quarrying is complete, we rehabilitate the land for alternative use.",
       category: "Sustainability",
       published: true,
       authorId: admin.id,
@@ -250,7 +263,8 @@ async function main() {
       slug: "heritage-jali-craft",
       title: "The Living Craft of Rajasthani Jali",
       excerpt: "Meet the artisans keeping centuries-old lattice carving alive.",
-      content: "The art of jali carving has been passed down through generations of master artisans in Jodhpur. Each panel tells a story of precision, patience, and cultural heritage.\n\n## The Process\nFrom rough block to finished lattice, a single jali panel can take weeks to complete.\n\n## Patterns & Symbolism\nTraditional geometric and floral patterns carry deep symbolic meaning in Rajasthani architecture.\n\n## Modern Applications\nToday, jali panels are specified for luxury residences, hotels, and cultural buildings worldwide.",
+      content:
+        "The art of jali carving has been passed down through generations of master artisans in Jodhpur. Each panel tells a story of precision, patience, and cultural heritage.\n\n## The Process\nFrom rough block to finished lattice, a single jali panel can take weeks to complete.\n\n## Patterns & Symbolism\nTraditional geometric and floral patterns carry deep symbolic meaning in Rajasthani architecture.\n\n## Modern Applications\nToday, jali panels are specified for luxury residences, hotels, and cultural buildings worldwide.",
       category: "Heritage",
       published: true,
       authorId: admin.id,
@@ -269,8 +283,20 @@ async function main() {
 
   // ── Videos ──
   const videos = [
-    { slug: "inside-our-quarries", title: "Inside Our Quarries", youtubeUrl: "https://www.youtube.com/embed/ScMzIvxBSi4", category: "Factory", duration: "3:42", featured: true },
-    { slug: "precision-manufacturing", title: "Precision Manufacturing Tour", youtubeUrl: "https://www.youtube.com/embed/aqz-KE-bpKQ", category: "Factory", duration: "5:18", featured: true },
+    {
+      slug: "inside-our-quarries",
+      title: "Inside Our Quarries",
+      category: "Factory",
+      duration: "3:42",
+      featured: true,
+    },
+    {
+      slug: "precision-manufacturing",
+      title: "Precision Manufacturing Tour",
+      category: "Factory",
+      duration: "5:18",
+      featured: true,
+    },
   ];
 
   for (const video of videos) {
@@ -284,14 +310,38 @@ async function main() {
 
   // ── Testimonials ──
   const testimonials = [
-    { client: "Sarah Whitmore", designation: "Principal Architect", company: "Whitmore Studio", review: "The consistency of finish and precision of the calibrated cladding was flawless across every shipment. A true export-grade partner.", rating: 5, featured: true },
-    { client: "Rajeev Menon", designation: "Conservation Director", company: "Heritage Trust of India", review: "Their hand-carved jali brought our restoration to life. Craftsmanship you simply cannot find elsewhere at this scale.", rating: 5, featured: true, authorId: admin.id },
-    { client: "Lucas Meyer", designation: "Procurement Lead", company: "Meyer Developments", review: "From technical sheets to international packaging, everything was seamless. Stone India is our default sandstone supplier.", rating: 5, featured: true },
+    {
+      client: "Sarah Whitmore",
+      designation: "Principal Architect",
+      company: "Whitmore Studio",
+      review:
+        "The consistency of finish and precision of the calibrated cladding was flawless across every shipment. A true export-grade partner.",
+      rating: 5,
+      featured: true,
+    },
+    {
+      client: "Rajeev Menon",
+      designation: "Conservation Director",
+      company: "Heritage Trust of India",
+      review:
+        "Their hand-carved jali brought our restoration to life. Craftsmanship you simply cannot find elsewhere at this scale.",
+      rating: 5,
+      featured: true,
+      authorId: admin.id,
+    },
+    {
+      client: "Lucas Meyer",
+      designation: "Procurement Lead",
+      company: "Meyer Developments",
+      review:
+        "From technical sheets to international packaging, everything was seamless. Stone India is our default sandstone supplier.",
+      rating: 5,
+      featured: true,
+    },
   ];
 
   for (const t of testimonials) {
-    const data = { ...t, authorId: t.authorId || null };
-    if (data.authorId === null) delete data.authorId;
+    const data = { ...t, authorId: t.authorId || undefined };
     await prisma.testimonial.create({ data });
   }
   console.log(`✓ ${testimonials.length} testimonials`);
@@ -303,19 +353,21 @@ async function main() {
       email: "john@archstudio.com",
       phone: "+1 555 123 4567",
       company: "Arch Studio London",
-      message: "I'm interested in learning more about your Heritage Jali Panels for a hotel project in London. Could you share pricing and lead times for custom sizes?",
+      message:
+        "I'm interested in learning more about your Heritage Jali Panels for a hotel project in London. Could you share pricing and lead times for custom sizes?",
       status: "Unread",
     },
   });
 
   // ── Demo RFQ ──
-  await prisma.rfq.create({
+  await prisma.rFQ.create({
     data: {
       company: "Arch Studio London",
       phone: "+1 555 123 4567",
       email: "john@archstudio.com",
       country: "United Kingdom",
-      message: "We are looking for 200 m² of sandstone wall cladding in honed finish for a luxury residential project.",
+      message:
+        "We are looking for 200 m² of sandstone wall cladding in honed finish for a luxury residential project.",
       products: ["Sandstone Wall Cladding", "Heritage Jali Panel"],
       status: "Pending",
     },
@@ -333,7 +385,7 @@ async function main() {
   console.log("✓ Settings");
   console.log("\nSeed complete!");
   console.log("\nLogin credentials:");
-  console.log("  Admin:    admin@stoneindiaheritage.com / admin123");
+  console.log("  Admin:    admin@stoneindiaheritage.com / Admin@StoneIndia#2025!");
   console.log("  Customer: architect@example.com / customer123");
 }
 

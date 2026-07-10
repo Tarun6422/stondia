@@ -155,18 +155,29 @@ export function compressImage(
  * Validate a file before upload.
  * Returns error message or null if valid.
  */
-export function validateUploadFile(
-  file: File,
-): string | null {
-  const allowedTypes = ["image/jpeg", "image/png", "image/webp", "application/pdf"];
-  const maxSize = 10 * 1024 * 1024; // 10 MB
+export function validateUploadFile(file: File): string | null {
+  const allowedTypes = [
+    "image/jpeg",
+    "image/png",
+    "image/webp",
+    "image/avif",
+    "application/pdf",
+    "video/mp4",
+    "video/quicktime",
+    "video/webm",
+    "video/x-msvideo",
+    "video/x-matroska",
+  ];
+  const isVideo = file.type.startsWith("video/");
+  const maxSize = isVideo ? 500 * 1024 * 1024 : 10 * 1024 * 1024; // 500 MB for video, 10 MB for others
 
   if (!allowedTypes.includes(file.type)) {
-    return "Only JPG, PNG, WebP images and PDF files are allowed";
+    return "Only JPG, PNG, WebP images, PDF documents, and MP4/MOV/WebM videos are allowed";
   }
 
   if (file.size > maxSize) {
-    return `File too large (${(file.size / 1024 / 1024).toFixed(1)} MB). Maximum is 10 MB.`;
+    const sizeLimit = isVideo ? "500 MB" : "10 MB";
+    return `File too large (${(file.size / 1024 / 1024).toFixed(1)} MB). Maximum is ${sizeLimit}.`;
   }
 
   return null;

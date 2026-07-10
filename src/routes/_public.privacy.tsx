@@ -8,27 +8,48 @@ export const Route = createFileRoute("/_public/privacy")({
   head: () => ({
     meta: buildMeta({
       title: "Privacy Policy — Stone India Heritage",
-      description: "How Stone India Heritage collects, uses and protects your personal information when you request quotes, download resources or contact our export team.",
+      description:
+        "How Stone India Heritage collects, uses and protects your personal information when you request quotes, download resources or contact our export team.",
       path: "/privacy",
     }),
     links: [canonicalLink("/privacy")],
     scripts: [
-      jsonLdScript(breadcrumbSchema([
-        { name: "Home", item: "/" },
-        { name: "Privacy Policy", item: "/privacy" },
-      ])),
+      jsonLdScript(
+        breadcrumbSchema([
+          { name: "Home", item: "/" },
+          { name: "Privacy Policy", item: "/privacy" },
+        ]),
+      ),
     ],
   }),
   component: Privacy,
 });
 
 const SECTIONS = [
-  { h: "Information We Collect", p: "We collect information you provide directly — such as your name, company, email and project details — when you request a quote, download resources or contact us." },
-  { h: "How We Use Information", p: "Your information is used to respond to enquiries, prepare quotes, process orders and improve our services. We do not sell your personal data to third parties." },
-  { h: "Data Security", p: "We implement industry-standard measures to protect your information against unauthorised access, alteration or disclosure." },
-  { h: "Cookies", p: "Our website uses cookies to enhance your browsing experience and analyse site traffic. You can control cookies through your browser settings." },
-  { h: "Third-Party Services", p: "We may use trusted third-party providers for analytics and logistics. These providers are bound by confidentiality obligations." },
-  { h: "Your Rights", p: "You may request access to, correction of, or deletion of your personal data at any time by contacting us." },
+  {
+    h: "Information We Collect",
+    p: "We collect information you provide directly — such as your name, company, email and project details — when you request a quote, download resources or contact us.",
+  },
+  {
+    h: "How We Use Information",
+    p: "Your information is used to respond to enquiries, prepare quotes, process orders and improve our services. We do not sell your personal data to third parties.",
+  },
+  {
+    h: "Data Security",
+    p: "We implement industry-standard measures to protect your information against unauthorised access, alteration or disclosure.",
+  },
+  {
+    h: "Cookies",
+    p: "Our website uses cookies to enhance your browsing experience and analyse site traffic. You can control cookies through your browser settings.",
+  },
+  {
+    h: "Third-Party Services",
+    p: "We may use trusted third-party providers for analytics and logistics. These providers are bound by confidentiality obligations.",
+  },
+  {
+    h: "Your Rights",
+    p: "You may request access to, correction of, or deletion of your personal data at any time by contacting us.",
+  },
   { h: "Contact", p: `For privacy enquiries, email ${COMPANY.email}.` },
 ];
 
@@ -36,7 +57,13 @@ function Privacy() {
   return <LegalPage title="Privacy Policy" sections={SECTIONS} />;
 }
 
-export function LegalPage({ title, sections }: { title: string; sections: { h: string; p: string }[] }) {
+export function LegalPage({
+  title,
+  sections,
+}: {
+  title: string;
+  sections: { h: string; p: string }[];
+}) {
   return (
     <section className="pt-36 pb-24">
       <div className="container-lux max-w-3xl">

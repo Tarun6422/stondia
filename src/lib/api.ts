@@ -42,11 +42,7 @@ async function request<T>(
     const data = await res.json().catch(() => ({}));
 
     if (!res.ok) {
-      throw new ApiError(
-        data.message ?? `Request failed (${res.status})`,
-        res.status,
-        data.errors,
-      );
+      throw new ApiError(data.message ?? `Request failed (${res.status})`, res.status, data.errors);
     }
 
     return data as T;
@@ -58,7 +54,9 @@ async function request<T>(
     // Auto-refresh on 401 for non-auth routes
     if (err instanceof ApiError && err.status === 401 && !path.startsWith("/api/auth/")) {
       if (!refreshPromise) {
-        refreshPromise = refreshTokens().finally(() => { refreshPromise = null; });
+        refreshPromise = refreshTokens().finally(() => {
+          refreshPromise = null;
+        });
       }
 
       try {
@@ -78,11 +76,11 @@ export const api = {
   get: <T>(path: string, options?: { signal?: AbortSignal }) =>
     request<T>("GET", path, undefined, options),
 
-  post: <T>(path: string, body?: Record<string, unknown>) =>
-    request<T>("POST", path, body),
+  post: <T>(path: string, body?: Record<string, unknown>) => request<T>("POST", path, body),
 
-  put: <T>(path: string, body?: Record<string, unknown>) =>
-    request<T>("PUT", path, body),
+  put: <T>(path: string, body?: Record<string, unknown>) => request<T>("PUT", path, body),
+
+  patch: <T>(path: string, body?: Record<string, unknown>) => request<T>("PATCH", path, body),
 
   delete: <T>(path: string) => request<T>("DELETE", path),
 };

@@ -1,10 +1,4 @@
-import {
-  motion,
-  AnimatePresence,
-  useMotionValue,
-  useSpring,
-  useTransform,
-} from "framer-motion";
+import { motion, AnimatePresence, useMotionValue, useSpring, useTransform } from "framer-motion";
 import { Quote } from "lucide-react";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 

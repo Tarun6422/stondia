@@ -5,7 +5,7 @@ const router = Router();
 
 // GET /api/search?q=search+term
 router.get("/", async (req: Request, res: Response) => {
-  const q = (req.query.q as string || "").trim();
+  const q = ((req.query.q as string) || "").trim();
   if (!q) {
     // Return empty result set when no query
     return res.json({ results: [], total: 0, query: "" });
@@ -16,10 +16,16 @@ router.get("/", async (req: Request, res: Response) => {
     const searchQuery = q;
 
     // ── Products ──
-    const products = await prisma.$queryRaw<Array<{
-      id: string; title: string; slug: string; image: string | null;
-      subtitle: string | null; rank: number;
-    }>>`
+    const products = await prisma.$queryRaw<
+      Array<{
+        id: string;
+        title: string;
+        slug: string;
+        image: string | null;
+        subtitle: string | null;
+        rank: number;
+      }>
+    >`
       SELECT
         id,
         name AS title,
@@ -39,10 +45,16 @@ router.get("/", async (req: Request, res: Response) => {
     `;
 
     // ── Categories ──
-    const categories = await prisma.$queryRaw<Array<{
-      id: string; title: string; slug: string; image: string | null;
-      subtitle: string | null; rank: number;
-    }>>`
+    const categories = await prisma.$queryRaw<
+      Array<{
+        id: string;
+        title: string;
+        slug: string;
+        image: string | null;
+        subtitle: string | null;
+        rank: number;
+      }>
+    >`
       SELECT
         id,
         name AS title,
@@ -62,10 +74,16 @@ router.get("/", async (req: Request, res: Response) => {
     `;
 
     // ── Projects ──
-    const projects = await prisma.$queryRaw<Array<{
-      id: string; title: string; slug: string; image: string | null;
-      subtitle: string | null; rank: number;
-    }>>`
+    const projects = await prisma.$queryRaw<
+      Array<{
+        id: string;
+        title: string;
+        slug: string;
+        image: string | null;
+        subtitle: string | null;
+        rank: number;
+      }>
+    >`
       SELECT
         id,
         title,
@@ -85,10 +103,16 @@ router.get("/", async (req: Request, res: Response) => {
     `;
 
     // ── Blogs (published only) ──
-    const blogs = await prisma.$queryRaw<Array<{
-      id: string; title: string; slug: string; image: string | null;
-      subtitle: string | null; rank: number;
-    }>>`
+    const blogs = await prisma.$queryRaw<
+      Array<{
+        id: string;
+        title: string;
+        slug: string;
+        image: string | null;
+        subtitle: string | null;
+        rank: number;
+      }>
+    >`
       SELECT
         id,
         title,
@@ -109,10 +133,16 @@ router.get("/", async (req: Request, res: Response) => {
     `;
 
     // ── Videos ──
-    const videos = await prisma.$queryRaw<Array<{
-      id: string; title: string; slug: string; image: string | null;
-      subtitle: string | null; rank: number;
-    }>>`
+    const videos = await prisma.$queryRaw<
+      Array<{
+        id: string;
+        title: string;
+        slug: string;
+        image: string | null;
+        subtitle: string | null;
+        rank: number;
+      }>
+    >`
       SELECT
         id,
         title,
@@ -132,10 +162,16 @@ router.get("/", async (req: Request, res: Response) => {
     `;
 
     // ── Downloads ──
-    const downloads = await prisma.$queryRaw<Array<{
-      id: string; title: string; slug: string; image: string | null;
-      subtitle: string | null; rank: number;
-    }>>`
+    const downloads = await prisma.$queryRaw<
+      Array<{
+        id: string;
+        title: string;
+        slug: string;
+        image: string | null;
+        subtitle: string | null;
+        rank: number;
+      }>
+    >`
       SELECT
         id,
         title,
@@ -156,8 +192,13 @@ router.get("/", async (req: Request, res: Response) => {
 
     // ── Combine results with type markers ──
     const results: Array<{
-      type: string; id: string; title: string; slug: string;
-      image: string | null; subtitle: string | null; rank: number;
+      type: string;
+      id: string;
+      title: string;
+      slug: string;
+      image: string | null;
+      subtitle: string | null;
+      rank: number;
     }> = [
       ...products.map((p) => ({ ...p, type: "product" })),
       ...categories.map((c) => ({ ...c, type: "category" })),

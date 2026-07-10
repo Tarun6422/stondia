@@ -3,34 +3,61 @@ import { Droplets, Recycle, Leaf, Timer, Sprout, ShieldCheck } from "lucide-reac
 import { Reveal } from "@/components/motion";
 import { PageHero, SectionHeading, CTASection } from "@/components/page-parts";
 import { SUSTAINABILITY_POINTS } from "@/data/site";
-import sustainability from "@/assets/sustainability.jpg";
+import { quarry01 } from "@/assets/media";
 import { buildMeta, canonicalLink, jsonLdScript, breadcrumbSchema } from "@/lib/seo";
 
 export const Route = createFileRoute("/_public/sustainability")({
   head: () => ({
     meta: buildMeta({
       title: "Sustainability — Stone India Heritage",
-      description: "Responsible quarrying, water recycling, waste reduction and eco-friendly manufacturing at Stone India Heritage — sustainable natural stone for global architecture.",
+      description:
+        "Responsible quarrying, water recycling, waste reduction and eco-friendly manufacturing at Stone India Heritage — sustainable natural stone for global architecture.",
       path: "/sustainability",
     }),
     links: [canonicalLink("/sustainability")],
     scripts: [
-      jsonLdScript(breadcrumbSchema([
-        { name: "Home", item: "/" },
-        { name: "Sustainability", item: "/sustainability" },
-      ])),
+      jsonLdScript(
+        breadcrumbSchema([
+          { name: "Home", item: "/" },
+          { name: "Sustainability", item: "/sustainability" },
+        ]),
+      ),
     ],
   }),
   component: Sustainability,
 });
 
 const PILLARS = [
-  { icon: Sprout, title: "Responsible Quarrying", desc: "Selective extraction that minimises land disturbance and preserves surrounding ecosystems." },
-  { icon: Droplets, title: "Water Recycling", desc: "Closed-loop systems recover and reuse process water across cutting and finishing." },
-  { icon: Recycle, title: "Waste Reduction", desc: "Off-cuts and slurry are repurposed, keeping material out of landfill." },
-  { icon: Leaf, title: "Eco-Friendly Manufacturing", desc: "Energy-conscious operations and sustainable sourcing throughout." },
-  { icon: Timer, title: "Long Product Lifespan", desc: "Natural stone lasts generations — the ultimate low-maintenance, durable material." },
-  { icon: ShieldCheck, title: "Reduced Impact", desc: "A recyclable, natural material with a low lifecycle footprint." },
+  {
+    icon: Sprout,
+    title: "Responsible Quarrying",
+    desc: "Selective extraction that minimises land disturbance and preserves surrounding ecosystems.",
+  },
+  {
+    icon: Droplets,
+    title: "Water Recycling",
+    desc: "Closed-loop systems recover and reuse process water across cutting and finishing.",
+  },
+  {
+    icon: Recycle,
+    title: "Waste Reduction",
+    desc: "Off-cuts and slurry are repurposed, keeping material out of landfill.",
+  },
+  {
+    icon: Leaf,
+    title: "Eco-Friendly Manufacturing",
+    desc: "Energy-conscious operations and sustainable sourcing throughout.",
+  },
+  {
+    icon: Timer,
+    title: "Long Product Lifespan",
+    desc: "Natural stone lasts generations — the ultimate low-maintenance, durable material.",
+  },
+  {
+    icon: ShieldCheck,
+    title: "Reduced Impact",
+    desc: "A recyclable, natural material with a low lifecycle footprint.",
+  },
 ];
 
 function Sustainability() {
@@ -40,7 +67,7 @@ function Sustainability() {
         eyebrow="Sustainability"
         title="Built to last, quarried with care"
         intro="Natural stone is inherently durable and recyclable. We go further, embedding sustainability into every stage of our operations."
-        image={sustainability}
+        image={quarry01}
       />
 
       <section className="py-24">

@@ -16,7 +16,15 @@ router.post("/", validate(newsletterSchema), async (req: Request, res: Response)
     if (!existing.active) {
       await prisma.subscriber.update({ where: { email }, data: { active: true } });
       // Send welcome email on reactivation
-      try { await sendEmail(email, "You're Subscribed — Stone India Heritage", newsletterConfirmationEmail(name, email)); } catch { /* ignore */ }
+      try {
+        await sendEmail(
+          email,
+          "You're Subscribed — Stone India Heritage",
+          newsletterConfirmationEmail(name, email),
+        );
+      } catch {
+        /* ignore */
+      }
       return res.json({ message: "Subscription reactivated" });
     }
     return res.json({ message: "Already subscribed" });
@@ -25,7 +33,15 @@ router.post("/", validate(newsletterSchema), async (req: Request, res: Response)
   await prisma.subscriber.create({ data: { email } });
 
   // Send welcome email
-  try { await sendEmail(email, "You're Subscribed — Stone India Heritage", newsletterConfirmationEmail(name, email)); } catch { /* ignore */ }
+  try {
+    await sendEmail(
+      email,
+      "You're Subscribed — Stone India Heritage",
+      newsletterConfirmationEmail(name, email),
+    );
+  } catch {
+    /* ignore */
+  }
 
   res.status(201).json({ message: "Subscribed successfully" });
 });
@@ -42,7 +58,7 @@ router.get("/", authenticate, authorize("ADMIN"), async (_req: Request, res: Res
 // DELETE /api/subscribers/:id — admin remove
 router.delete("/:id", authenticate, authorize("ADMIN"), async (req: Request, res: Response) => {
   await prisma.subscriber.update({
-    where: { id: req.params.id },
+    where: { id: req.params.id as string },
     data: { active: false },
   });
   res.json({ message: "Subscriber removed" });

@@ -28,14 +28,21 @@ router.post("/", authenticate, authorize("ADMIN"), async (req: Request, res: Res
 });
 
 router.put("/:id", authenticate, authorize("ADMIN"), async (req: Request, res: Response) => {
-  const testimonial = await prisma.testimonial.findUnique({ where: { id: req.params.id } });
+  const testimonial = await prisma.testimonial.findUnique({
+    where: { id: req.params.id as string },
+  });
   if (!testimonial) throw new NotFoundError("Testimonial");
-  const updated = await prisma.testimonial.update({ where: { id: req.params.id }, data: req.body });
+  const updated = await prisma.testimonial.update({
+    where: { id: req.params.id as string },
+    data: req.body,
+  });
   res.json(updated);
 });
 
 router.delete("/:id", authenticate, authorize("ADMIN"), async (req: Request, res: Response) => {
-  const testimonial = await prisma.testimonial.findUnique({ where: { id: req.params.id } });
+  const testimonial = await prisma.testimonial.findUnique({
+    where: { id: req.params.id as string },
+  });
   if (!testimonial) throw new NotFoundError("Testimonial");
 
   // Delete photo from Supabase Storage
@@ -43,7 +50,7 @@ router.delete("/:id", authenticate, authorize("ADMIN"), async (req: Request, res
     await deleteFileByUrl(testimonial.photo).catch(() => {});
   }
 
-  await prisma.testimonial.delete({ where: { id: req.params.id } });
+  await prisma.testimonial.delete({ where: { id: req.params.id as string } });
   res.json({ message: "Testimonial deleted" });
 });
 

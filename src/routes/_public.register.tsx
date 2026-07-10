@@ -9,22 +9,24 @@ import { ApiError } from "@/lib/api";
 import { useAuth } from "@/lib/auth-context";
 import { COMPANY } from "@/data/site";
 
-const registerSchema = z.object({
-  name: z.string().trim().min(2, "Name must be at least 2 characters").max(100),
-  email: z.string().trim().min(1, "Email is required").email("Enter a valid email"),
-  phone: z
-    .string()
-    .trim()
-    .max(30)
-    .refine((v) => !v || /^[+\d\s\-().]{5,30}$/.test(v), "Enter a valid phone number")
-    .optional()
-    .default(""),
-  password: z.string().min(8, "Password must be at least 8 characters").max(100),
-  confirmPassword: z.string().min(1, "Please confirm your password"),
-}).refine((data) => data.password === data.confirmPassword, {
-  message: "Passwords do not match",
-  path: ["confirmPassword"],
-});
+const registerSchema = z
+  .object({
+    name: z.string().trim().min(2, "Name must be at least 2 characters").max(100),
+    email: z.string().trim().min(1, "Email is required").email("Enter a valid email"),
+    phone: z
+      .string()
+      .trim()
+      .max(30)
+      .refine((v) => !v || /^[+\d\s\-().]{5,30}$/.test(v), "Enter a valid phone number")
+      .optional()
+      .default(""),
+    password: z.string().min(8, "Password must be at least 8 characters").max(100),
+    confirmPassword: z.string().min(1, "Please confirm your password"),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Passwords do not match",
+    path: ["confirmPassword"],
+  });
 
 type RegisterData = z.infer<typeof registerSchema>;
 
@@ -34,7 +36,8 @@ export const Route = createFileRoute("/_public/register")({
       { title: "Create Account — Stone India Heritage" },
       {
         name: "description",
-        content: "Create a Stone India Heritage account to request quotes, track orders, and access technical resources.",
+        content:
+          "Create a Stone India Heritage account to request quotes, track orders, and access technical resources.",
       },
     ],
   }),
@@ -106,7 +109,8 @@ function Register() {
       });
       navigate({ to: "/" });
     } catch (err) {
-      const message = err instanceof ApiError ? err.message : "Something went wrong. Please try again.";
+      const message =
+        err instanceof ApiError ? err.message : "Something went wrong. Please try again.";
       setServerError(message);
     } finally {
       setLoading(false);
@@ -212,7 +216,8 @@ function Register() {
                     placeholder="At least 8 characters"
                     onBlur={() => handleBlur("password")}
                     onChange={() => {
-                      const v = (document.getElementsByName("password")[0] as HTMLInputElement).value;
+                      const v = (document.getElementsByName("password")[0] as HTMLInputElement)
+                        .value;
                       if (touched.password) validateField("password", v);
                     }}
                     className={`w-full rounded-lg border bg-background px-4 py-2.5 pr-10 text-sm outline-none transition-all focus:ring-1 ${
@@ -247,7 +252,9 @@ function Register() {
                     placeholder="Re-enter your password"
                     onBlur={() => handleBlur("confirmPassword")}
                     onChange={() => {
-                      const v = (document.getElementsByName("confirmPassword")[0] as HTMLInputElement).value;
+                      const v = (
+                        document.getElementsByName("confirmPassword")[0] as HTMLInputElement
+                      ).value;
                       if (touched.confirmPassword) validateField("confirmPassword", v);
                     }}
                     className={`w-full rounded-lg border bg-background px-4 py-2.5 pr-10 text-sm outline-none transition-all focus:ring-1 ${
@@ -273,7 +280,13 @@ function Register() {
                 )}
               </div>
 
-              <Button type="submit" variant="gold" size="lg" className="w-full group" disabled={loading}>
+              <Button
+                type="submit"
+                variant="gold"
+                size="lg"
+                className="w-full group"
+                disabled={loading}
+              >
                 {loading ? (
                   <>
                     <Loader2 className="h-4 w-4 animate-spin" />

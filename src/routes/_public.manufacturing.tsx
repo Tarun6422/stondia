@@ -2,22 +2,25 @@ import { createFileRoute } from "@tanstack/react-router";
 import { Reveal } from "@/components/motion";
 import { PageHero, CTASection } from "@/components/page-parts";
 import { PROCESS_STEPS } from "@/data/site";
-import factory from "@/assets/factory.jpg";
+import { process05 } from "@/assets/media";
 import { buildMeta, canonicalLink, jsonLdScript, breadcrumbSchema } from "@/lib/seo";
 
 export const Route = createFileRoute("/_public/manufacturing")({
   head: () => ({
     meta: buildMeta({
       title: "Manufacturing Process — Stone India Heritage",
-      description: "From responsible quarrying to global export — our seven-stage stone manufacturing process featuring multi-wire sawing, CNC calibration, hand carving, and quality control.",
+      description:
+        "From responsible quarrying to global export — our seven-stage stone manufacturing process featuring multi-wire sawing, CNC calibration, hand carving, and quality control.",
       path: "/manufacturing",
     }),
     links: [canonicalLink("/manufacturing")],
     scripts: [
-      jsonLdScript(breadcrumbSchema([
-        { name: "Home", item: "/" },
-        { name: "Manufacturing Process", item: "/manufacturing" },
-      ])),
+      jsonLdScript(
+        breadcrumbSchema([
+          { name: "Home", item: "/" },
+          { name: "Manufacturing Process", item: "/manufacturing" },
+        ]),
+      ),
     ],
   }),
   component: Manufacturing,
@@ -30,7 +33,7 @@ function Manufacturing() {
         eyebrow="Manufacturing Process"
         title="From quarry to your site, in seven stages"
         intro="A meticulous journey that transforms raw heritage blocks into export-ready architectural stone."
-        image={factory}
+        image={process05}
       />
 
       <section className="py-24">

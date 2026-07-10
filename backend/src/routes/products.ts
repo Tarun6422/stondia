@@ -21,11 +21,20 @@ router.get("/", optionalAuth, async (req: Request, res: Response) => {
 
   const orderBy: Record<string, unknown> = {};
   switch (sort) {
-    case "name_asc": orderBy.name = "asc"; break;
-    case "name_desc": orderBy.name = "desc"; break;
-    case "newest": orderBy.createdAt = "desc"; break;
-    case "oldest": orderBy.createdAt = "asc"; break;
-    default: orderBy.createdAt = "desc";
+    case "name_asc":
+      orderBy.name = "asc";
+      break;
+    case "name_desc":
+      orderBy.name = "desc";
+      break;
+    case "newest":
+      orderBy.createdAt = "desc";
+      break;
+    case "oldest":
+      orderBy.createdAt = "asc";
+      break;
+    default:
+      orderBy.createdAt = "desc";
   }
 
   const [products, total] = await Promise.all([
@@ -59,13 +68,13 @@ router.get("/featured", async (_req: Request, res: Response) => {
 // GET /api/products/related/:id
 router.get("/related/:id", async (req: Request, res: Response) => {
   const product = await prisma.product.findUnique({
-    where: { id: req.params.id },
+    where: { id: req.params.id as string },
     select: { categoryId: true },
   });
   if (!product) throw new NotFoundError("Product");
 
   const related = await prisma.product.findMany({
-    where: { categoryId: product.categoryId, id: { not: req.params.id } },
+    where: { categoryId: product.categoryId, id: { not: req.params.id as string } },
     take: 4,
     include: { category: { select: { id: true, name: true, slug: true } } },
     orderBy: { createdAt: "desc" },
@@ -76,7 +85,7 @@ router.get("/related/:id", async (req: Request, res: Response) => {
 // GET /api/products/:slug — single product by slug
 router.get("/:slug", async (req: Request, res: Response) => {
   const product = await prisma.product.findUnique({
-    where: { slug: req.params.slug },
+    where: { slug: req.params.slug as string },
     include: { category: { select: { id: true, name: true, slug: true } } },
   });
   if (!product) throw new NotFoundError("Product");
@@ -84,28 +93,34 @@ router.get("/:slug", async (req: Request, res: Response) => {
 });
 
 // POST /api/products — admin create
-router.post("/", authenticate, authorize("ADMIN"), validate(productSchema), async (req: Request, res: Response) => {
-  const data = req.body;
-  const slug = data.slug || slugify(data.name);
+router.post(
+  "/",
+  authenticate,
+  authorize("ADMIN"),
+  validate(productSchema),
+  async (req: Request, res: Response) => {
+    const data = req.body;
+    const slug = data.slug || slugify(data.name);
 
-  // Ensure unique slug
-  let finalSlug = slug;
-  let counter = 1;
-  while (await prisma.product.findUnique({ where: { slug: finalSlug } })) {
-    finalSlug = `${slug}-${counter}`;
-    counter++;
-  }
+    // Ensure unique slug
+    let finalSlug = slug;
+    let counter = 1;
+    while (await prisma.product.findUnique({ where: { slug: finalSlug } })) {
+      finalSlug = `${slug}-${counter}`;
+      counter++;
+    }
 
-  const product = await prisma.product.create({
-    data: { ...data, slug: finalSlug },
-    include: { category: { select: { id: true, name: true, slug: true } } },
-  });
-  res.status(201).json(product);
-});
+    const product = await prisma.product.create({
+      data: { ...data, slug: finalSlug },
+      include: { category: { select: { id: true, name: true, slug: true } } },
+    });
+    res.status(201).json(product);
+  },
+);
 
 // PUT /api/products/:id — admin update
 router.put("/:id", authenticate, authorize("ADMIN"), async (req: Request, res: Response) => {
-  const product = await prisma.product.findUnique({ where: { id: req.params.id } });
+  const product = await prisma.product.findUnique({ where: { id: req.params.id as string } });
   if (!product) throw new NotFoundError("Product");
 
   const data = req.body;
@@ -115,7 +130,7 @@ router.put("/:id", authenticate, authorize("ADMIN"), async (req: Request, res: R
   }
 
   const updated = await prisma.product.update({
-    where: { id: req.params.id },
+    where: { id: req.params.id as string },
     data,
     include: { category: { select: { id: true, name: true, slug: true } } },
   });
@@ -124,7 +139,7 @@ router.put("/:id", authenticate, authorize("ADMIN"), async (req: Request, res: R
 
 // DELETE /api/products/:id — admin delete
 router.delete("/:id", authenticate, authorize("ADMIN"), async (req: Request, res: Response) => {
-  const product = await prisma.product.findUnique({ where: { id: req.params.id } });
+  const product = await prisma.product.findUnique({ where: { id: req.params.id as string } });
   if (!product) throw new NotFoundError("Product");
 
   // Delete associated images from Supabase Storage
@@ -132,7 +147,7 @@ router.delete("/:id", authenticate, authorize("ADMIN"), async (req: Request, res
     await deleteFilesByUrls(product.images).catch(() => {});
   }
 
-  await prisma.product.delete({ where: { id: req.params.id } });
+  await prisma.product.delete({ where: { id: req.params.id as string } });
   res.json({ message: "Product deleted" });
 });
 

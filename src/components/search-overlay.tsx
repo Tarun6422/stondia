@@ -1,7 +1,21 @@
 import { useEffect, useMemo, useState, useCallback, useRef } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Link } from "@tanstack/react-router";
-import { Search, X, ArrowUpRight, Loader2, Clock, TrendingUp, AlertCircle, Package, Building2, Newspaper, Video, Download, FolderTree } from "lucide-react";
+import {
+  Search,
+  X,
+  ArrowUpRight,
+  Loader2,
+  Clock,
+  TrendingUp,
+  AlertCircle,
+  Package,
+  Building2,
+  Newspaper,
+  Video,
+  Download,
+  FolderTree,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 
 /* ── Types ── */
@@ -80,7 +94,9 @@ function getRecent(): string[] {
   try {
     const raw = localStorage.getItem(RECENT_KEY);
     return raw ? JSON.parse(raw) : [];
-  } catch { return []; }
+  } catch {
+    return [];
+  }
 }
 
 function addRecent(query: string) {
@@ -88,11 +104,17 @@ function addRecent(query: string) {
     const recent = getRecent().filter((r) => r !== query);
     recent.unshift(query);
     localStorage.setItem(RECENT_KEY, JSON.stringify(recent.slice(0, MAX_RECENT)));
-  } catch { /* ignore */ }
+  } catch {
+    /* ignore */
+  }
 }
 
 function clearRecent() {
-  try { localStorage.removeItem(RECENT_KEY); } catch { /* ignore */ }
+  try {
+    localStorage.removeItem(RECENT_KEY);
+  } catch {
+    /* ignore */
+  }
 }
 
 /* ── Highlight matched text ── */
@@ -179,10 +201,9 @@ export function SearchOverlay({ open, onClose }: { open: boolean; onClose: () =>
     debounceRef.current = setTimeout(async () => {
       try {
         const API_BASE = import.meta.env.VITE_API_URL ?? "";
-        const res = await fetch(
-          `${API_BASE}/api/search?q=${encodeURIComponent(value.trim())}`,
-          { credentials: "include" },
-        );
+        const res = await fetch(`${API_BASE}/api/search?q=${encodeURIComponent(value.trim())}`, {
+          credentials: "include",
+        });
 
         if (!res.ok) throw new Error("Search failed");
 
@@ -215,57 +236,68 @@ export function SearchOverlay({ open, onClose }: { open: boolean; onClose: () =>
   }, [groupedResults]);
 
   // Keyboard navigation
-  const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
-    const items = query.trim() ? results.length : recentSearches.length + (recentSearches.length > 0 ? 1 : 0);
-    if (items === 0) return;
+  const handleKeyDown = useCallback(
+    (e: React.KeyboardEvent) => {
+      const items = query.trim()
+        ? results.length
+        : recentSearches.length + (recentSearches.length > 0 ? 1 : 0);
+      if (items === 0) return;
 
-    switch (e.key) {
-      case "ArrowDown": {
-        e.preventDefault();
-        setFocusedIndex((prev) => (prev < items - 1 ? prev + 1 : 0));
-        break;
-      }
-      case "ArrowUp": {
-        e.preventDefault();
-        setFocusedIndex((prev) => (prev > 0 ? prev - 1 : items - 1));
-        break;
-      }
-      case "Enter": {
-        e.preventDefault();
-        if (focusedIndex >= 0) {
-          // Trigger click on focused element
-          const el = itemRefs.current[focusedIndex];
-          el?.click();
-        } else if (query.trim()) {
-          // Submit search (navigate to first result)
-          const first = results[0];
-          if (first) {
-            const route = ROUTE_MAP[first.type];
-            if (route) {
-              addRecent(query);
-              // Navigate via browser — the Link click will handle it
-              const el = itemRefs.current[0];
-              el?.click();
+      switch (e.key) {
+        case "ArrowDown": {
+          e.preventDefault();
+          setFocusedIndex((prev) => (prev < items - 1 ? prev + 1 : 0));
+          break;
+        }
+        case "ArrowUp": {
+          e.preventDefault();
+          setFocusedIndex((prev) => (prev > 0 ? prev - 1 : items - 1));
+          break;
+        }
+        case "Enter": {
+          e.preventDefault();
+          if (focusedIndex >= 0) {
+            // Trigger click on focused element
+            const el = itemRefs.current[focusedIndex];
+            el?.click();
+          } else if (query.trim()) {
+            // Submit search (navigate to first result)
+            const first = results[0];
+            if (first) {
+              const route = ROUTE_MAP[first.type];
+              if (route) {
+                addRecent(query);
+                // Navigate via browser — the Link click will handle it
+                const el = itemRefs.current[0];
+                el?.click();
+              }
             }
           }
+          break;
         }
-        break;
       }
-    }
-  }, [query, results, focusedIndex, recentSearches]);
+    },
+    [query, results, focusedIndex, recentSearches],
+  );
 
   // Handle result click -> save to recent
-  const handleResultClick = useCallback((searchQuery: string) => {
-    if (searchQuery.trim()) addRecent(searchQuery);
-    onClose();
-  }, [onClose]);
+  const handleResultClick = useCallback(
+    (searchQuery: string) => {
+      if (searchQuery.trim()) addRecent(searchQuery);
+      onClose();
+    },
+    [onClose],
+  );
 
   // Handle recent search click
-  const handleRecentClick = useCallback((term: string) => {
-    setQuery(term);
-    setFocusedIndex(-1);
-    handleInput(term);
-  }, [handleInput]);
+  const handleRecentClick = useCallback(
+    (term: string) => {
+      setQuery(term);
+      setFocusedIndex(-1);
+      handleInput(term);
+    },
+    [handleInput],
+  );
 
   // Scroll focused item into view
   useEffect(() => {
@@ -278,9 +310,12 @@ export function SearchOverlay({ open, onClose }: { open: boolean; onClose: () =>
   // Reset refs array length
   itemRefs.current = [];
 
-  const setItemRef = useCallback((index: number) => (el: HTMLAnchorElement | null) => {
-    itemRefs.current[index] = el;
-  }, []);
+  const setItemRef = useCallback(
+    (index: number) => (el: HTMLAnchorElement | null) => {
+      itemRefs.current[index] = el;
+    },
+    [],
+  );
 
   return (
     <AnimatePresence>
@@ -320,16 +355,17 @@ export function SearchOverlay({ open, onClose }: { open: boolean; onClose: () =>
                 aria-label="Search query"
                 autoComplete="off"
               />
-              <button onClick={onClose} aria-label="Close search" className="text-muted-foreground hover:text-foreground transition-colors">
+              <button
+                onClick={onClose}
+                aria-label="Close search"
+                className="text-muted-foreground hover:text-foreground transition-colors"
+              >
                 <X className="h-4 w-4" />
               </button>
             </div>
 
             {/* ── Results ── */}
-            <div
-              className="max-h-[55vh] overflow-y-auto"
-              onKeyDown={handleKeyDown}
-            >
+            <div className="max-h-[55vh] overflow-y-auto" onKeyDown={handleKeyDown}>
               {!query.trim() ? (
                 /* ── Idle state: Popular + Recent ── */
                 <div className="p-4">
@@ -341,7 +377,10 @@ export function SearchOverlay({ open, onClose }: { open: boolean; onClose: () =>
                           <Clock className="h-3 w-3" /> Recent
                         </p>
                         <button
-                          onClick={() => { clearRecent(); setRecentSearches([]); }}
+                          onClick={() => {
+                            clearRecent();
+                            setRecentSearches([]);
+                          }}
                           className="text-[0.6rem] text-muted-foreground hover:text-foreground transition-colors"
                         >
                           Clear all
@@ -375,9 +414,7 @@ export function SearchOverlay({ open, onClose }: { open: boolean; onClose: () =>
                           className="group flex items-center justify-between rounded-md px-3 py-2.5 text-sm text-foreground/80 transition-colors hover:bg-muted"
                         >
                           <span>{page.label}</span>
-                          <span className="text-xs text-muted-foreground">
-                            {page.description}
-                          </span>
+                          <span className="text-xs text-muted-foreground">{page.description}</span>
                         </Link>
                       ))}
                     </div>
@@ -436,7 +473,9 @@ export function SearchOverlay({ open, onClose }: { open: boolean; onClose: () =>
                             key={item.id}
                             ref={setItemRef(globalIdx)}
                             to={route?.to || "/"}
-                            params={route?.param ? ({ [route.param]: item.slug } as never) : undefined}
+                            params={
+                              route?.param ? ({ [route.param]: item.slug } as never) : undefined
+                            }
                             onClick={() => handleResultClick(query)}
                             className={cn(
                               "group flex items-center gap-3 rounded-md px-3 py-2.5 text-sm transition-colors",

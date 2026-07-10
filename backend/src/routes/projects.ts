@@ -12,10 +12,11 @@ router.get("/", async (req: Request, res: Response) => {
   const { search, featured } = req.query as Record<string, string | undefined>;
 
   const where: Record<string, unknown> = {};
-  if (search) where.OR = [
-    { title: { contains: search, mode: "insensitive" } },
-    { location: { contains: search, mode: "insensitive" } },
-  ];
+  if (search)
+    where.OR = [
+      { title: { contains: search, mode: "insensitive" } },
+      { location: { contains: search, mode: "insensitive" } },
+    ];
   if (featured === "true") where.featured = true;
 
   const [projects, total] = await Promise.all([
@@ -23,7 +24,10 @@ router.get("/", async (req: Request, res: Response) => {
     prisma.project.count({ where }),
   ]);
 
-  res.json({ data: projects, pagination: { page, limit, total, totalPages: Math.ceil(total / limit) } });
+  res.json({
+    data: projects,
+    pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
+  });
 });
 
 router.get("/featured", async (_req: Request, res: Response) => {
@@ -36,7 +40,7 @@ router.get("/featured", async (_req: Request, res: Response) => {
 });
 
 router.get("/:slug", async (req: Request, res: Response) => {
-  const project = await prisma.project.findUnique({ where: { slug: req.params.slug } });
+  const project = await prisma.project.findUnique({ where: { slug: req.params.slug as string } });
   if (!project) throw new NotFoundError("Project");
   res.json(project);
 });
@@ -54,14 +58,17 @@ router.post("/", authenticate, authorize("ADMIN"), async (req: Request, res: Res
 });
 
 router.put("/:id", authenticate, authorize("ADMIN"), async (req: Request, res: Response) => {
-  const project = await prisma.project.findUnique({ where: { id: req.params.id } });
+  const project = await prisma.project.findUnique({ where: { id: req.params.id as string } });
   if (!project) throw new NotFoundError("Project");
-  const updated = await prisma.project.update({ where: { id: req.params.id }, data: req.body });
+  const updated = await prisma.project.update({
+    where: { id: req.params.id as string },
+    data: req.body,
+  });
   res.json(updated);
 });
 
 router.delete("/:id", authenticate, authorize("ADMIN"), async (req: Request, res: Response) => {
-  const project = await prisma.project.findUnique({ where: { id: req.params.id } });
+  const project = await prisma.project.findUnique({ where: { id: req.params.id as string } });
   if (!project) throw new NotFoundError("Project");
 
   // Delete associated gallery images from Supabase Storage
@@ -69,7 +76,7 @@ router.delete("/:id", authenticate, authorize("ADMIN"), async (req: Request, res
     await deleteFilesByUrls(project.gallery).catch(() => {});
   }
 
-  await prisma.project.delete({ where: { id: req.params.id } });
+  await prisma.project.delete({ where: { id: req.params.id as string } });
   res.json({ message: "Project deleted" });
 });
 

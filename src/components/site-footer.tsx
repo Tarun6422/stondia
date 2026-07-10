@@ -26,9 +26,8 @@ export function SiteFooter() {
               <span className="font-serif text-xl">{COMPANY.name}</span>
             </div>
             <p className="mt-5 max-w-sm text-sm leading-relaxed text-[oklch(0.75_0.01_85)]">
-              Premium manufacturer and global exporter of Rajasthan Sandstone
-              and architectural natural stones — where heritage craftsmanship
-              meets modern precision.
+              Premium manufacturer and global exporter of Rajasthan Sandstone and architectural
+              natural stones — where heritage craftsmanship meets modern precision.
             </p>
             <ul className="mt-6 space-y-3 text-sm text-[oklch(0.8_0.01_85)]">
               <li className="flex items-start gap-3">
@@ -107,7 +106,9 @@ function NewsletterForm() {
       await api.post("/api/subscribers", { email: email.trim() });
       setSubscribed(true);
       setEmail("");
-      toast.success("Subscribed!", { description: "You'll receive updates from Stone India Heritage." });
+      toast.success("Subscribed!", {
+        description: "You'll receive updates from Stone India Heritage.",
+      });
     } catch (err) {
       const msg = err instanceof ApiError ? err.message : "Subscription failed. Please try again.";
       toast.error(msg);

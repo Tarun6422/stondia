@@ -22,7 +22,8 @@ export const Route = createFileRoute("/_public/login")({
       { title: "Sign In — Stone India Heritage" },
       {
         name: "description",
-        content: "Sign in to your Stone India Heritage account to manage quotes, track orders, and download resources.",
+        content:
+          "Sign in to your Stone India Heritage account to manage quotes, track orders, and download resources.",
       },
     ],
   }),
@@ -97,7 +98,8 @@ function Login() {
         navigate({ to: "/profile" });
       }
     } catch (err) {
-      const message = err instanceof ApiError ? err.message : "Something went wrong. Please try again.";
+      const message =
+        err instanceof ApiError ? err.message : "Something went wrong. Please try again.";
       setServerError(message);
     } finally {
       setLoading(false);
@@ -170,7 +172,8 @@ function Login() {
                     placeholder="Enter your password"
                     onBlur={() => handleBlur("password")}
                     onChange={() => {
-                      const v = (document.getElementsByName("password")[0] as HTMLInputElement).value;
+                      const v = (document.getElementsByName("password")[0] as HTMLInputElement)
+                        .value;
                       if (touched.password) validateField("password", v);
                     }}
                     className={`w-full rounded-lg border bg-background px-4 py-2.5 pr-10 text-sm outline-none transition-all focus:ring-1 ${
@@ -210,12 +213,21 @@ function Login() {
                   onChange={(e) => setRememberMe(e.target.checked)}
                   className="h-4 w-4 accent-[var(--gold)]"
                 />
-                <label htmlFor="rememberMe" className="text-sm text-muted-foreground cursor-pointer select-none">
+                <label
+                  htmlFor="rememberMe"
+                  className="text-sm text-muted-foreground cursor-pointer select-none"
+                >
                   Remember me for 30 days
                 </label>
               </div>
 
-              <Button type="submit" variant="gold" size="lg" className="w-full group" disabled={loading}>
+              <Button
+                type="submit"
+                variant="gold"
+                size="lg"
+                className="w-full group"
+                disabled={loading}
+              >
                 {loading ? (
                   <>
                     <Loader2 className="h-4 w-4 animate-spin" />

@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useRef, useState, useMemo } from "react";
+import { api } from "@/lib/api";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Play,
@@ -24,13 +25,48 @@ import { Button } from "@/components/ui/button";
 import { Reveal } from "@/components/motion";
 import { PageHero, CTASection } from "@/components/page-parts";
 import { Breadcrumbs } from "@/components/breadcrumbs";
-import factory from "@/assets/factory.jpg";
-import villa from "@/assets/project-villa.jpg";
-import sustainability from "@/assets/sustainability.jpg";
-import texture from "@/assets/texture-stone.jpg";
-import jali from "@/assets/product-jali.jpg";
-import column from "@/assets/product-column.jpg";
-import cobbles from "@/assets/product-cobbles.jpg";
+import {
+  factory01,
+  project01,
+  quarry01,
+  quarry03,
+  quarry07,
+  cobble01,
+  carving09,
+  carveDetail06,
+  carveDetail14,
+  arch05,
+  process03,
+  process12,
+  install01,
+  gallery08,
+  product23,
+  worksite01,
+  project11,
+  project13,
+  site01,
+  block05,
+  vid01,
+  vid02,
+  vid03,
+  vid04,
+  vid05,
+  vid06,
+  vid07,
+  vid08,
+  vid09,
+  vid10,
+  vid11,
+  vid12,
+  vid13,
+  vid14,
+  vid15,
+  vid16,
+  vid17,
+  vid18,
+  vid19,
+  vid20,
+} from "@/assets/media";
 
 import { buildMeta, canonicalLink, jsonLdScript, breadcrumbSchema } from "@/lib/seo";
 
@@ -38,15 +74,18 @@ export const Route = createFileRoute("/_public/videos")({
   head: () => ({
     meta: buildMeta({
       title: "Media Center — Videos & Documentary | Stone India Heritage",
-      description: "Explore our video library featuring quarry tours, manufacturing processes, craftsmanship stories, and the complete factory documentary about Rajasthan sandstone.",
+      description:
+        "Explore our video library featuring quarry tours, manufacturing processes, craftsmanship stories, and the complete factory documentary about Rajasthan sandstone.",
       path: "/videos",
     }),
     links: [canonicalLink("/videos")],
     scripts: [
-      jsonLdScript(breadcrumbSchema([
-        { name: "Home", item: "/" },
-        { name: "Media Center", item: "/videos" },
-      ])),
+      jsonLdScript(
+        breadcrumbSchema([
+          { name: "Home", item: "/" },
+          { name: "Media Center", item: "/videos" },
+        ]),
+      ),
     ],
   }),
   component: Videos,
@@ -63,7 +102,8 @@ type VideoEntry = {
   category: string;
   duration: string;
   image: string;
-  embed: string;
+  embed?: string;
+  videoUrl?: string;
   date: string;
   views: string;
   tab: "videos" | "documentary";
@@ -71,31 +111,280 @@ type VideoEntry = {
 
 const VIDEOS: VideoEntry[] = [
   // ── Videos tab ──
-  { id: "v1", title: "Inside Our Quarries", description: "Explore our heritage sandstone quarries in Jodhpur — where centuries-old deposits meet modern extraction techniques.", category: "Factory", duration: "3:42", image: sustainability, embed: "https://www.youtube.com/embed/ScMzIvxBSi4", date: "June 15, 2026", views: "2.4K", tab: "videos" },
-  { id: "v2", title: "Precision Manufacturing Tour", description: "A complete walkthrough of our CNC calibration, gang-saw cutting, and quality control processes.", category: "Factory", duration: "5:18", image: factory, embed: "https://www.youtube.com/embed/aqz-KE-bpKQ", date: "June 10, 2026", views: "3.1K", tab: "videos" },
-  { id: "v3", title: "The Art of Hand Carving", description: "Master artisans demonstrate the traditional hand-carving techniques passed down through generations.", category: "Products", duration: "4:05", image: texture, embed: "https://www.youtube.com/embed/ScMzIvxBSi4", date: "June 5, 2026", views: "4.8K", tab: "videos" },
-  { id: "v4", title: "Project Spotlight: Desert Villa", description: "See how our sandstone cladding and carved columns transformed a private Dubai estate into a architectural landmark.", category: "Projects", duration: "2:56", image: villa, embed: "https://www.youtube.com/embed/aqz-KE-bpKQ", date: "May 28, 2026", views: "1.9K", tab: "videos" },
-  { id: "v5", title: "Heritage Temple Restoration", description: "Museum-grade restoration of a 200-year-old temple using hand-carved jali panels and carved columns.", category: "Architecture", duration: "6:12", image: jali, embed: "https://www.youtube.com/embed/ScMzIvxBSi4", date: "May 20, 2026", views: "5.2K", tab: "videos" },
-  { id: "v6", title: "CNC Calibration & Quality Control", description: "How we achieve international export tolerances through precision CNC calibration and rigorous QA.", category: "Factory", duration: "4:33", image: column, embed: "https://www.youtube.com/embed/aqz-KE-bpKQ", date: "May 14, 2026", views: "1.6K", tab: "videos" },
-  { id: "v7", title: "Wall Cladding Installation Guide", description: "Step-by-step guide to installing our calibrated sandstone cladding panels on exterior facades.", category: "Installation", duration: "7:05", image: texture, embed: "https://www.youtube.com/embed/ScMzIvxBSi4", date: "May 8, 2026", views: "3.7K", tab: "videos" },
-  { id: "v8", title: "Sustainability at Stone India", description: "Our commitment to responsible quarrying, water recycling, and waste reduction in every operation.", category: "Corporate", duration: "3:28", image: sustainability, embed: "https://www.youtube.com/embed/aqz-KE-bpKQ", date: "April 30, 2026", views: "2.1K", tab: "videos" },
-  { id: "v9", title: "Paving & Cobble Installation", description: "Professional installation techniques for sandstone cobbles and paving in landscape projects.", category: "Installation", duration: "5:45", image: cobbles, embed: "https://www.youtube.com/embed/ScMzIvxBSi4", date: "April 22, 2026", views: "2.8K", tab: "videos" },
-  { id: "v10", title: "Exhibition: Stone+Architecture 2026", description: "Highlights from our showcase at the international stone and architecture exhibition in Dubai.", category: "Exhibitions", duration: "2:30", image: villa, embed: "https://www.youtube.com/embed/aqz-KE-bpKQ", date: "April 15, 2026", views: "1.4K", tab: "videos" },
-  { id: "v11", title: "Jali Patterns Through the Ages", description: "A visual journey through the geometric and floral lattice patterns that define Rajasthani architecture.", category: "Architecture", duration: "5:00", image: jali, embed: "https://www.youtube.com/embed/ScMzIvxBSi4", date: "April 8, 2026", views: "3.9K", tab: "videos" },
-  { id: "v12", title: "Stone Selection for Architects", description: "How to choose the right sandstone finish, thickness, and calibration for architectural specifications.", category: "Products", duration: "6:40", image: column, embed: "https://www.youtube.com/embed/aqz-KE-bpKQ", date: "April 1, 2026", views: "4.3K", tab: "videos" },
-  { id: "v13", title: "Corporate Overview 2026", description: "An overview of Stone India Heritage — our quarries, factory, team, and global footprint across 35+ countries.", category: "Corporate", duration: "4:15", image: factory, embed: "https://www.youtube.com/embed/ScMzIvxBSi4", date: "March 25, 2026", views: "1.1K", tab: "videos" },
-  { id: "v14", title: "Project: Coastal Resort Bali", description: "Behind the scenes of our largest hospitality project — sandstone cladding and paving for a 5-star resort.", category: "Projects", duration: "4:50", image: villa, embed: "https://www.youtube.com/embed/aqz-KE-bpKQ", date: "March 18, 2026", views: "2.5K", tab: "videos" },
-  { id: "v15", title: "Exhibition: India Stone Mart 2026", description: "Our presence at India's premier natural stone trade fair, showcasing new finishes and product lines.", category: "Exhibitions", duration: "2:45", image: texture, embed: "https://www.youtube.com/embed/ScMzIvxBSi4", date: "March 10, 2026", views: "980", tab: "videos" },
+  {
+    id: "v1",
+    title: "Inside Our Quarries",
+    description:
+      "Explore our heritage sandstone quarries in Jodhpur — where centuries-old deposits meet modern extraction techniques.",
+    category: "Factory",
+    duration: "3:42",
+    image: quarry01,
+    videoUrl: vid01,
+    date: "June 15, 2026",
+    views: "2.4K",
+    tab: "videos",
+  },
+  {
+    id: "v2",
+    title: "Precision Manufacturing Tour",
+    description:
+      "A complete walkthrough of our CNC calibration, gang-saw cutting, and quality control processes.",
+    category: "Factory",
+    duration: "5:18",
+    image: factory01,
+    videoUrl: vid05,
+    date: "June 10, 2026",
+    views: "3.1K",
+    tab: "videos",
+  },
+  {
+    id: "v3",
+    title: "The Art of Hand Carving",
+    description:
+      "Master artisans demonstrate the traditional hand-carving techniques passed down through generations.",
+    category: "Products",
+    duration: "4:05",
+    image: carving09,
+    videoUrl: vid03,
+    date: "June 5, 2026",
+    views: "4.8K",
+    tab: "videos",
+  },
+  {
+    id: "v4",
+    title: "Project Spotlight: Desert Villa",
+    description:
+      "See how our sandstone cladding and carved columns transformed a private Dubai estate into a architectural landmark.",
+    category: "Projects",
+    duration: "2:56",
+    image: project01,
+    videoUrl: vid06,
+    date: "May 28, 2026",
+    views: "1.9K",
+    tab: "videos",
+  },
+  {
+    id: "v5",
+    title: "Heritage Temple Restoration",
+    description:
+      "Museum-grade restoration of a 200-year-old temple using hand-carved jali panels and carved columns.",
+    category: "Architecture",
+    duration: "6:12",
+    image: arch05,
+    videoUrl: vid07,
+    date: "May 20, 2026",
+    views: "5.2K",
+    tab: "videos",
+  },
+  {
+    id: "v6",
+    title: "CNC Calibration & Quality Control",
+    description:
+      "How we achieve international export tolerances through precision CNC calibration and rigorous QA.",
+    category: "Factory",
+    duration: "4:33",
+    image: process03,
+    videoUrl: vid04,
+    date: "May 14, 2026",
+    views: "1.6K",
+    tab: "videos",
+  },
+  {
+    id: "v7",
+    title: "Wall Cladding Installation Guide",
+    description:
+      "Step-by-step guide to installing our calibrated sandstone cladding panels on exterior facades.",
+    category: "Installation",
+    duration: "7:05",
+    image: install01,
+    videoUrl: vid08,
+    date: "May 8, 2026",
+    views: "3.7K",
+    tab: "videos",
+  },
+  {
+    id: "v8",
+    title: "Sustainability at Stone India",
+    description:
+      "Our commitment to responsible quarrying, water recycling, and waste reduction in every operation.",
+    category: "Corporate",
+    duration: "3:28",
+    image: quarry03,
+    videoUrl: vid09,
+    date: "April 30, 2026",
+    views: "2.1K",
+    tab: "videos",
+  },
+  {
+    id: "v9",
+    title: "Paving & Cobble Installation",
+    description:
+      "Professional installation techniques for sandstone cobbles and paving in landscape projects.",
+    category: "Installation",
+    duration: "5:45",
+    image: cobble01,
+    videoUrl: vid12,
+    date: "April 22, 2026",
+    views: "2.8K",
+    tab: "videos",
+  },
+  {
+    id: "v10",
+    title: "Exhibition: Stone+Architecture 2026",
+    description:
+      "Highlights from our showcase at the international stone and architecture exhibition in Dubai.",
+    category: "Exhibitions",
+    duration: "2:30",
+    image: gallery08,
+    videoUrl: vid10,
+    date: "April 15, 2026",
+    views: "1.4K",
+    tab: "videos",
+  },
+  {
+    id: "v11",
+    title: "Jali Patterns Through the Ages",
+    description:
+      "A visual journey through the geometric and floral lattice patterns that define Rajasthani architecture.",
+    category: "Architecture",
+    duration: "5:00",
+    image: carveDetail06,
+    videoUrl: vid14,
+    date: "April 8, 2026",
+    views: "3.9K",
+    tab: "videos",
+  },
+  {
+    id: "v12",
+    title: "Stone Selection for Architects",
+    description:
+      "How to choose the right sandstone finish, thickness, and calibration for architectural specifications.",
+    category: "Products",
+    duration: "6:40",
+    image: product23,
+    videoUrl: vid16,
+    date: "April 1, 2026",
+    views: "4.3K",
+    tab: "videos",
+  },
+  {
+    id: "v13",
+    title: "Corporate Overview 2026",
+    description:
+      "An overview of Stone India Heritage — our quarries, factory, team, and global footprint across 35+ countries.",
+    category: "Corporate",
+    duration: "4:15",
+    image: worksite01,
+    videoUrl: vid17,
+    date: "March 25, 2026",
+    views: "1.1K",
+    tab: "videos",
+  },
+  {
+    id: "v14",
+    title: "Project: Coastal Resort Bali",
+    description:
+      "Behind the scenes of our largest hospitality project — sandstone cladding and paving for a 5-star resort.",
+    category: "Projects",
+    duration: "4:50",
+    image: project11,
+    videoUrl: vid18,
+    date: "March 18, 2026",
+    views: "2.5K",
+    tab: "videos",
+  },
+  {
+    id: "v15",
+    title: "Exhibition: India Stone Mart 2026",
+    description:
+      "Our presence at India's premier natural stone trade fair, showcasing new finishes and product lines.",
+    category: "Exhibitions",
+    duration: "2:45",
+    image: quarry07,
+    videoUrl: vid19,
+    date: "March 10, 2026",
+    views: "980",
+    tab: "videos",
+  },
 
   // ── Documentary tab ──
-  { id: "d1", title: "The Heritage of Rajasthani Stone", description: "A feature-length documentary tracing the journey of sandstone from ancient quarries to modern architecture.", category: "Factory", duration: "18:30", image: sustainability, embed: "https://www.youtube.com/embed/ScMzIvxBSi4", date: "June 20, 2026", views: "8.2K", tab: "documentary" },
-  { id: "d2", title: "From Quarry to Site: The Full Journey", description: "Follow a single block of sandstone from extraction through cutting, finishing, quality control, and global shipping.", category: "Factory", duration: "22:15", image: factory, embed: "https://www.youtube.com/embed/aqz-KE-bpKQ", date: "June 18, 2026", views: "6.7K", tab: "documentary" },
-  { id: "d3", title: "Craftsmanship: The Carvers of Jodhpur", description: "An intimate portrait of the master artisans who have kept the tradition of hand-carving alive for generations.", category: "Products", duration: "15:40", image: jali, embed: "https://www.youtube.com/embed/ScMzIvxBSi4", date: "June 14, 2026", views: "9.1K", tab: "documentary" },
-  { id: "d4", title: "Engineering Natural Stone", description: "How modern technology and traditional craftsmanship combine to produce precision architectural stone products.", category: "Factory", duration: "20:00", image: column, embed: "https://www.youtube.com/embed/aqz-KE-bpKQ", date: "June 10, 2026", views: "5.4K", tab: "documentary" },
-  { id: "d5", title: "Global Impact: Indian Stone in World Architecture", description: "How Rajasthan sandstone has shaped iconic buildings across six continents — from Dubai to Melbourne.", category: "Architecture", duration: "25:00", image: villa, embed: "https://www.youtube.com/embed/ScMzIvxBSi4", date: "June 5, 2026", views: "7.8K", tab: "documentary" },
+  {
+    id: "d1",
+    title: "The Heritage of Rajasthani Stone",
+    description:
+      "A feature-length documentary tracing the journey of sandstone from ancient quarries to modern architecture.",
+    category: "Factory",
+    duration: "18:30",
+    image: site01,
+    videoUrl: vid02,
+    date: "June 20, 2026",
+    views: "8.2K",
+    tab: "documentary",
+  },
+  {
+    id: "d2",
+    title: "From Quarry to Site: The Full Journey",
+    description:
+      "Follow a single block of sandstone from extraction through cutting, finishing, quality control, and global shipping.",
+    category: "Factory",
+    duration: "22:15",
+    image: block05,
+    videoUrl: vid15,
+    date: "June 18, 2026",
+    views: "6.7K",
+    tab: "documentary",
+  },
+  {
+    id: "d3",
+    title: "Craftsmanship: The Carvers of Jodhpur",
+    description:
+      "An intimate portrait of the master artisans who have kept the tradition of hand-carving alive for generations.",
+    category: "Products",
+    duration: "15:40",
+    image: carveDetail14,
+    videoUrl: vid11,
+    date: "June 14, 2026",
+    views: "9.1K",
+    tab: "documentary",
+  },
+  {
+    id: "d4",
+    title: "Engineering Natural Stone",
+    description:
+      "How modern technology and traditional craftsmanship combine to produce precision architectural stone products.",
+    category: "Factory",
+    duration: "20:00",
+    image: process12,
+    videoUrl: vid13,
+    date: "June 10, 2026",
+    views: "5.4K",
+    tab: "documentary",
+  },
+  {
+    id: "d5",
+    title: "Global Impact: Indian Stone in World Architecture",
+    description:
+      "How Rajasthan sandstone has shaped iconic buildings across six continents — from Dubai to Melbourne.",
+    category: "Architecture",
+    duration: "25:00",
+    image: project13,
+    videoUrl: vid20,
+    date: "June 5, 2026",
+    views: "7.8K",
+    tab: "documentary",
+  },
 ];
 
-const CATEGORIES = ["All", "Factory", "Products", "Architecture", "Installation", "Projects", "Corporate", "Exhibitions"];
+const CATEGORIES = [
+  "All",
+  "Factory",
+  "Products",
+  "Architecture",
+  "Installation",
+  "Projects",
+  "Corporate",
+  "Exhibitions",
+];
 
 /* ================================================================== */
 /*  PREMIUM VIDEO CARD                                                */
@@ -264,7 +553,11 @@ function VideoPlayerModal({
   const shareVideo = () => {
     if (current) {
       if (navigator.share) {
-        navigator.share({ title: current.title, text: current.description, url: window.location.href });
+        navigator.share({
+          title: current.title,
+          text: current.description,
+          url: window.location.href,
+        });
       } else {
         navigator.clipboard.writeText(window.location.href);
         toast.success("Video link copied");
@@ -343,23 +636,52 @@ function VideoPlayerModal({
             transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
           >
             <div className="relative aspect-video bg-black">
-              <iframe
-                key={current.id}
-                src={`${current.embed}?autoplay=1&rel=0&controls=0${muted ? "&mute=1" : ""}`}
-                title={current.title}
+              <video
+                data-key={current.id}
+                src={current.videoUrl}
+                poster={current.image}
                 className="h-full w-full"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                allowFullScreen
-              />
+                autoPlay
+                muted={muted}
+                controls
+                playsInline
+                loop
+                onError={(e) => {
+                  const el = e.currentTarget;
+                  el.style.display = "none";
+                  // Show poster image as fallback on error
+                  const poster = el.getAttribute("poster");
+                  const parent = el.parentElement;
+                  if (poster && parent) {
+                    const img = document.createElement("img");
+                    img.src = poster;
+                    img.alt = "Video unavailable";
+                    img.className = "h-full w-full object-cover";
+                    parent.appendChild(img);
+                  }
+                }}
+              >
+                Your browser does not support the video tag.
+              </video>
 
               {/* Center play button overlay (shown when controls visible) */}
               <div
-                className={`absolute inset-0 flex items-center justify-center transition-opacity duration-300 ${
-                  showControls ? "opacity-100" : "opacity-0 pointer-events-none"
+                className={`absolute inset-0 flex items-center justify-center transition-opacity duration-300 pointer-events-none ${
+                  showControls ? "opacity-100" : "opacity-0"
                 }`}
               >
                 <button
-                  onClick={() => {}}
+                  onClick={() => {
+                    const video = document.querySelector(
+                      `video[data-key="${current.id}"]`,
+                    ) as HTMLVideoElement;
+                    if (!video) return;
+                    if (video.paused) {
+                      void video.play();
+                    } else {
+                      video.pause();
+                    }
+                  }}
                   aria-label="Play/Pause"
                   className="flex h-16 w-16 items-center justify-center rounded-full bg-gold/90 text-[var(--gold-foreground)] shadow-lg backdrop-blur-sm transition-transform hover:scale-110"
                 >
@@ -429,8 +751,10 @@ function VideoPlayerModal({
               </button>
               <button
                 onClick={() => {
-                  const el = document.querySelector("iframe");
-                  if (el) el.requestFullscreen?.();
+                  const video = document.querySelector(
+                    `video[data-key="${current.id}"]`,
+                  ) as HTMLVideoElement;
+                  if (video) video.requestFullscreen?.();
                 }}
                 aria-label="Fullscreen"
                 className="rounded-md px-2.5 py-1.5 text-xs text-white/60 transition-colors hover:bg-white/10 hover:text-white"
@@ -449,7 +773,10 @@ function VideoPlayerModal({
             animate={{ y: 0, opacity: 1 }}
             transition={{ delay: 0.3, duration: 0.3 }}
           >
-            <div className="flex items-center gap-6 overflow-x-auto px-5 py-4" style={{ scrollbarWidth: "none" }}>
+            <div
+              className="flex items-center gap-6 overflow-x-auto px-5 py-4"
+              style={{ scrollbarWidth: "none" }}
+            >
               <span className="shrink-0 text-xs uppercase tracking-[0.15em] text-white/50 font-medium">
                 Related Videos
               </span>
@@ -483,6 +810,103 @@ function VideoPlayerModal({
 /*  PAGE COMPONENT                                                    */
 /* ================================================================== */
 
+/* ── Type for API video response ── */
+type ApiVideo = {
+  id: string;
+  title: string;
+  slug: string;
+  description?: string;
+  thumbnail?: string;
+  videoUrl?: string;
+  category?: string;
+  duration?: string;
+  featured: boolean;
+  createdAt: string;
+};
+
+/* ── Merge API videos with hardcoded VIDEOS ── */
+function useMergedVideos(): VideoEntry[] {
+  const [apiVideos, setApiVideos] = useState<ApiVideo[] | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    api
+      .get("/api/videos")
+      .then((res: any) => {
+        if (!cancelled && res?.data) {
+          setApiVideos(res.data);
+        }
+      })
+      .catch(() => {
+        // Fall back to hardcoded videos silently
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  return useMemo(() => {
+    if (!apiVideos) return VIDEOS; // Fall back to hardcoded
+
+    // Build a map of slug → hardcoded video entry
+    const hardcodedBySlug = new Map<string, VideoEntry>();
+    VIDEOS.forEach((v) => {
+      // Use the video title slugified as a rough match key
+      const slug = v.title
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/(^-|-$)/g, "");
+      hardcodedBySlug.set(slug, v);
+    });
+
+    const merged: VideoEntry[] = [];
+    const usedSlugs = new Set<string>();
+
+    // First, merge API videos with hardcoded counterparts
+    apiVideos.forEach((api) => {
+      const slug = api.slug;
+      const hardcoded = hardcodedBySlug.get(slug);
+      usedSlugs.add(slug);
+
+      merged.push({
+        id: api.id,
+        title: api.title,
+        description: api.description || hardcoded?.description || "",
+        category: api.category || hardcoded?.category || "Uncategorized",
+        duration: api.duration || hardcoded?.duration || "—",
+        // Use API thumbnail if available, otherwise fall back to hardcoded image
+        image: api.thumbnail || hardcoded?.image || "",
+        // Use API videoUrl if available, otherwise fall back to hardcoded local file
+        videoUrl: api.videoUrl || hardcoded?.videoUrl || undefined,
+        // Preserve tab from hardcoded, default to "videos" for API-only entries
+        tab: hardcoded?.tab || "videos",
+        // Hardcoded date/views for display purposes
+        date:
+          hardcoded?.date ||
+          new Date(api.createdAt).toLocaleDateString("en-US", {
+            month: "long",
+            day: "numeric",
+            year: "numeric",
+          }),
+        views: hardcoded?.views || "—",
+      });
+    });
+
+    // Add any hardcoded videos not in the API (documentaries, etc.)
+    VIDEOS.forEach((v) => {
+      const slug = v.title
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/(^-|-$)/g, "");
+      if (!usedSlugs.has(slug)) {
+        merged.push(v);
+      }
+    });
+
+    return merged;
+  }, [apiVideos]);
+}
+
 function Videos() {
   const [activeTab, setActiveTab] = useState<"videos" | "documentary">("videos");
   const [activeCategory, setActiveCategory] = useState("All");
@@ -491,22 +915,25 @@ function Videos() {
   const searchRef = useRef<HTMLInputElement>(null);
   const [showMobileFilters, setShowMobileFilters] = useState(false);
 
+  // Use merged video data (API + hardcoded fallback)
+  const mergedVideos = useMergedVideos();
+
   // Filter videos based on tab, category, and search
   const filteredVideos = useMemo(() => {
-    let list = VIDEOS.filter((v) => v.tab === activeTab);
+    let list = mergedVideos.filter((v) => v.tab === activeTab);
     if (activeCategory !== "All") list = list.filter((v) => v.category === activeCategory);
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase();
       list = list.filter((v) => v.title.toLowerCase().includes(q));
     }
     return list;
-  }, [activeTab, activeCategory, searchQuery]);
+  }, [activeTab, activeCategory, searchQuery, mergedVideos]);
 
   // Get available categories for the active tab
   const availableCategories = useMemo(() => {
-    const cats = new Set(VIDEOS.filter((v) => v.tab === activeTab).map((v) => v.category));
+    const cats = new Set(mergedVideos.filter((v) => v.tab === activeTab).map((v) => v.category));
     return ["All", ...CATEGORIES.filter((c) => c === "All" || cats.has(c))];
-  }, [activeTab]);
+  }, [activeTab, mergedVideos]);
 
   const handlePlay = (id: string) => {
     setPlayerVideoId(id);
@@ -519,7 +946,12 @@ function Videos() {
   // Keyboard shortcut for search
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === "/" && !e.ctrlKey && !e.metaKey && document.activeElement?.tagName !== "INPUT") {
+      if (
+        e.key === "/" &&
+        !e.ctrlKey &&
+        !e.metaKey &&
+        document.activeElement?.tagName !== "INPUT"
+      ) {
         e.preventDefault();
         searchRef.current?.focus();
       }
@@ -542,11 +974,13 @@ function Videos() {
 
   const videoCounts = useMemo(() => {
     const counts: Record<string, number> = {};
-    VIDEOS.filter((v) => v.tab === activeTab).forEach((v) => {
-      counts[v.category] = (counts[v.category] || 0) + 1;
-    });
+    mergedVideos
+      .filter((v) => v.tab === activeTab)
+      .forEach((v) => {
+        counts[v.category] = (counts[v.category] || 0) + 1;
+      });
     return counts;
-  }, [activeTab]);
+  }, [activeTab, mergedVideos]);
 
   return (
     <>
@@ -554,7 +988,7 @@ function Videos() {
         eyebrow="Media Center"
         title="The story of stone, in motion"
         intro="Go behind the scenes across our quarries, factory floor, and finished landmarks. Watch the full factory documentary."
-        image={factory}
+        image={factory01}
       />
 
       <section className="py-16">
@@ -564,7 +998,11 @@ function Videos() {
           {/* ── Tab Navigation ── */}
           <div className="mb-10 flex items-center gap-1 rounded-xl border border-border/60 bg-card p-1.5 shadow-soft">
             <button
-              onClick={() => { setActiveTab("videos"); setActiveCategory("All"); setSearchQuery(""); }}
+              onClick={() => {
+                setActiveTab("videos");
+                setActiveCategory("All");
+                setSearchQuery("");
+              }}
               aria-pressed={activeTab === "videos"}
               className={`flex items-center gap-2 rounded-lg px-5 py-2.5 text-sm font-medium transition-all duration-200 ${
                 activeTab === "videos"
@@ -574,11 +1012,15 @@ function Videos() {
             >
               <Film className="h-4 w-4" /> Videos
               <span className="ml-0.5 rounded-full bg-background/40 px-1.5 py-0.5 text-[0.6rem] tabular-nums">
-                {VIDEOS.filter((v) => v.tab === "videos").length}
+                {mergedVideos.filter((v) => v.tab === "videos").length}
               </span>
             </button>
             <button
-              onClick={() => { setActiveTab("documentary"); setActiveCategory("All"); setSearchQuery(""); }}
+              onClick={() => {
+                setActiveTab("documentary");
+                setActiveCategory("All");
+                setSearchQuery("");
+              }}
               aria-pressed={activeTab === "documentary"}
               className={`flex items-center gap-2 rounded-lg px-5 py-2.5 text-sm font-medium transition-all duration-200 ${
                 activeTab === "documentary"
@@ -588,7 +1030,7 @@ function Videos() {
             >
               <Factory className="h-4 w-4" /> Factory Documentary
               <span className="ml-0.5 rounded-full bg-background/40 px-1.5 py-0.5 text-[0.6rem] tabular-nums">
-                {VIDEOS.filter((v) => v.tab === "documentary").length}
+                {mergedVideos.filter((v) => v.tab === "documentary").length}
               </span>
             </button>
           </div>
@@ -609,7 +1051,10 @@ function Videos() {
               />
               {searchQuery && (
                 <button
-                  onClick={() => { setSearchQuery(""); searchRef.current?.focus(); }}
+                  onClick={() => {
+                    setSearchQuery("");
+                    searchRef.current?.focus();
+                  }}
                   aria-label="Clear search"
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground transition-colors hover:text-foreground"
                 >
@@ -629,7 +1074,7 @@ function Videos() {
             {/* Desktop category filters */}
             <div className="hidden flex-wrap gap-2 md:flex">
               {availableCategories.map((cat) => {
-                const count = cat === "All" ? filteredVideos.length : videoCounts[cat] ?? 0;
+                const count = cat === "All" ? filteredVideos.length : (videoCounts[cat] ?? 0);
                 return (
                   <button
                     key={cat}
@@ -658,7 +1103,7 @@ function Videos() {
               exit={{ height: 0, opacity: 0 }}
             >
               {availableCategories.map((cat) => {
-                const count = cat === "All" ? filteredVideos.length : videoCounts[cat] ?? 0;
+                const count = cat === "All" ? filteredVideos.length : (videoCounts[cat] ?? 0);
                 return (
                   <button
                     key={cat}
@@ -682,14 +1127,22 @@ function Videos() {
             <p className="text-sm text-muted-foreground">
               {searchQuery ? (
                 <>
-                  Showing <span className="font-medium text-foreground">{filteredVideos.length}</span> result
-                  {filteredVideos.length !== 1 ? "s" : ""} for &ldquo;<span className="font-medium text-foreground">{searchQuery}</span>&rdquo;
+                  Showing{" "}
+                  <span className="font-medium text-foreground">{filteredVideos.length}</span>{" "}
+                  result
+                  {filteredVideos.length !== 1 ? "s" : ""} for &ldquo;
+                  <span className="font-medium text-foreground">{searchQuery}</span>&rdquo;
                 </>
               ) : (
                 <>
                   <span className="font-medium text-foreground">{filteredVideos.length}</span>{" "}
                   {activeTab === "videos" ? "videos" : "documentary films"}
-                  {activeCategory !== "All" && <> in <span className="font-medium text-foreground">{activeCategory}</span></>}
+                  {activeCategory !== "All" && (
+                    <>
+                      {" "}
+                      in <span className="font-medium text-foreground">{activeCategory}</span>
+                    </>
+                  )}
                 </>
               )}
             </p>
@@ -714,7 +1167,13 @@ function Videos() {
                 </p>
               </div>
               {searchQuery && (
-                <Button variant="outline" onClick={() => { setSearchQuery(""); setActiveCategory("All"); }}>
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setSearchQuery("");
+                    setActiveCategory("All");
+                  }}
+                >
                   Clear filters
                 </Button>
               )}
@@ -730,8 +1189,8 @@ function Videos() {
                   The Complete Stone India Heritage Story
                 </h3>
                 <p className="mx-auto mt-3 max-w-lg text-sm text-muted-foreground">
-                  From ancient quarry beds to global architectural landmarks — experience the entire journey
-                  of Rajasthan sandstone in our feature documentary collection.
+                  From ancient quarry beds to global architectural landmarks — experience the entire
+                  journey of Rajasthan sandstone in our feature documentary collection.
                 </p>
                 <Button asChild variant="gold" size="lg" className="mt-6">
                   <Link to="/contact">

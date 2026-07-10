@@ -9,7 +9,10 @@
     "build:dev": "vite build --mode development",
     "preview": "vite preview",
     "lint": "eslint .",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "thumbnails": "node scripts/generate-thumbnails.mjs",
+    "thumbnails:force": "node scripts/generate-thumbnails.mjs --force",
+    "thumbnails:dry": "node scripts/generate-thumbnails.mjs --dry-run"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",

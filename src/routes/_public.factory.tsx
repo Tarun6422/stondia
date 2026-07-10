@@ -1,33 +1,41 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { Reveal, Counter } from "@/components/motion";
 import { PageHero, SectionHeading, CTASection } from "@/components/page-parts";
-import factory from "@/assets/factory.jpg";
-import texture from "@/assets/texture-stone.jpg";
+import { factory01, block03 } from "@/assets/media";
 import { buildMeta, canonicalLink, jsonLdScript, breadcrumbSchema } from "@/lib/seo";
 
 export const Route = createFileRoute("/_public/factory")({
   head: () => ({
     meta: buildMeta({
       title: "Factory — Stone India Heritage",
-      description: "Inside our precision stone manufacturing facility in Jodhpur — 250,000 ft² with multi-wire sawing, CNC finishing, hand carving studio, and quality control lab.",
+      description:
+        "Inside our precision stone manufacturing facility in Jodhpur — 250,000 ft² with multi-wire sawing, CNC finishing, hand carving studio, and quality control lab.",
       path: "/factory",
     }),
     links: [canonicalLink("/factory")],
     scripts: [
-      jsonLdScript(breadcrumbSchema([
-        { name: "Home", item: "/" },
-        { name: "Factory", item: "/factory" },
-      ])),
+      jsonLdScript(
+        breadcrumbSchema([
+          { name: "Home", item: "/" },
+          { name: "Factory", item: "/factory" },
+        ]),
+      ),
     ],
   }),
   component: Factory,
 });
 
 const CAPABILITIES = [
-  { title: "Multi-Wire Sawing", desc: "High-throughput block cutting to precise slab thicknesses." },
+  {
+    title: "Multi-Wire Sawing",
+    desc: "High-throughput block cutting to precise slab thicknesses.",
+  },
   { title: "CNC Finishing", desc: "Computer-controlled edging, profiling and calibration." },
   { title: "Carving Studio", desc: "Dedicated artisan wing for hand-carved products." },
-  { title: "Surface Finishing", desc: "Honing, polishing, brushing, sandblasting and flaming lines." },
+  {
+    title: "Surface Finishing",
+    desc: "Honing, polishing, brushing, sandblasting and flaming lines.",
+  },
   { title: "Quality Lab", desc: "Strength, absorption and dimensional testing." },
   { title: "Packaging Bay", desc: "Seaworthy crating engineered for export." },
 ];
@@ -46,7 +54,7 @@ function Factory() {
         eyebrow="Factory"
         title="Precision at industrial scale"
         intro="A modern manufacturing facility engineered to deliver export-quality stone with consistency and speed."
-        image={factory}
+        image={factory01}
       />
 
       <section className="py-24">
@@ -86,7 +94,12 @@ function Factory() {
         <div className="container-lux grid gap-14 lg:grid-cols-2 lg:items-center">
           <Reveal>
             <div className="overflow-hidden rounded-lg">
-              <img src={texture} alt="Stone material" loading="lazy" className="w-full object-cover" />
+              <img
+                src={block03}
+                alt="Stone material"
+                loading="lazy"
+                className="w-full object-cover"
+              />
             </div>
           </Reveal>
           <SectionHeading

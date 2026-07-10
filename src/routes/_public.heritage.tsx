@@ -1,33 +1,51 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { Reveal } from "@/components/motion";
 import { PageHero, SectionHeading, CTASection } from "@/components/page-parts";
-import hero from "@/assets/hero-sandstone.jpg";
-import jali from "@/assets/product-jali.jpg";
+import { hero, carving01 } from "@/assets/media";
 import { buildMeta, canonicalLink, jsonLdScript, breadcrumbSchema } from "@/lib/seo";
 
 export const Route = createFileRoute("/_public/heritage")({
   head: () => ({
     meta: buildMeta({
       title: "Our Heritage — Stone India Heritage",
-      description: "The living craft of Rajasthani stone — centuries of carving tradition preserved and evolved by master artisans in Jodhpur, India.",
+      description:
+        "The living craft of Rajasthani stone — centuries of carving tradition preserved and evolved by master artisans in Jodhpur, India.",
       path: "/heritage",
     }),
     links: [canonicalLink("/heritage")],
     scripts: [
-      jsonLdScript(breadcrumbSchema([
-        { name: "Home", item: "/" },
-        { name: "Our Heritage", item: "/heritage" },
-      ])),
+      jsonLdScript(
+        breadcrumbSchema([
+          { name: "Home", item: "/" },
+          { name: "Our Heritage", item: "/heritage" },
+        ]),
+      ),
     ],
   }),
   component: Heritage,
 });
 
 const TIMELINE = [
-  { year: "Origins", title: "A carving tradition", desc: "Rajasthan's artisans have shaped sandstone into palaces, temples and havelis for centuries." },
-  { year: "Foundation", title: "A family of stone", desc: "Our founders formalised heritage quarrying and hand-carving into a dedicated workshop." },
-  { year: "Modernisation", title: "Precision manufacturing", desc: "Multi-wire saws and CNC finishing joined the artisan's chisel under one roof." },
-  { year: "Today", title: "Global exporter", desc: "Export-grade stone shipped to 35+ countries, backed by international standards." },
+  {
+    year: "Origins",
+    title: "A carving tradition",
+    desc: "Rajasthan's artisans have shaped sandstone into palaces, temples and havelis for centuries.",
+  },
+  {
+    year: "Foundation",
+    title: "A family of stone",
+    desc: "Our founders formalised heritage quarrying and hand-carving into a dedicated workshop.",
+  },
+  {
+    year: "Modernisation",
+    title: "Precision manufacturing",
+    desc: "Multi-wire saws and CNC finishing joined the artisan's chisel under one roof.",
+  },
+  {
+    year: "Today",
+    title: "Global exporter",
+    desc: "Export-grade stone shipped to 35+ countries, backed by international standards.",
+  },
 ];
 
 function Heritage() {
@@ -51,7 +69,12 @@ function Heritage() {
           </div>
           <Reveal delay={0.1}>
             <div className="overflow-hidden rounded-lg">
-              <img src={jali} alt="Hand carved jali" loading="lazy" className="w-full object-cover" />
+              <img
+                src={carving01}
+                alt="Hand carved jali"
+                loading="lazy"
+                className="w-full object-cover"
+              />
             </div>
           </Reveal>
         </div>
@@ -68,9 +91,7 @@ function Heritage() {
                     <span className="grid h-12 w-12 shrink-0 place-items-center rounded-full bg-gold text-sm font-semibold text-[var(--gold-foreground)]">
                       {i + 1}
                     </span>
-                    {i < TIMELINE.length - 1 && (
-                      <span className="mt-2 w-px flex-1 bg-border" />
-                    )}
+                    {i < TIMELINE.length - 1 && <span className="mt-2 w-px flex-1 bg-border" />}
                   </div>
                   <div className="pb-2">
                     <p className="eyebrow mb-1">{t.year}</p>

@@ -44,13 +44,7 @@ export function EmptyState({ icon, title, description, action }: EmptyStateProps
 /**
  * Pre-configured empty states for specific pages
  */
-export function EmptyProducts({
-  category,
-  onClear,
-}: {
-  category?: string;
-  onClear?: () => void;
-}) {
+export function EmptyProducts({ category, onClear }: { category?: string; onClear?: () => void }) {
   return (
     <EmptyState
       icon={<Package className="h-8 w-8" />}
@@ -65,13 +59,7 @@ export function EmptyProducts({
   );
 }
 
-export function EmptySearch({
-  query,
-  onClear,
-}: {
-  query?: string;
-  onClear?: () => void;
-}) {
+export function EmptySearch({ query, onClear }: { query?: string; onClear?: () => void }) {
   return (
     <EmptyState
       icon={<Search className="h-8 w-8" />}

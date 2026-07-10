@@ -8,40 +8,32 @@ datasource db {
   directUrl = env("DIRECT_URL")
 }
 
-enum Role {
-  ADMIN
-  DEALER
-  ARCHITECT
-  CUSTOMER
-}
-
 model User {
-  id            String   @id @default(cuid())
-  name          String
-  email         String   @unique
-  phone         String?
-  password      String
-  role          Role     @default(CUSTOMER)
-  isVerified    Boolean  @default(false)
-  avatar        String?
-  resetToken        String?
-  resetTokenExp     DateTime?
-  verificationToken String?
-  verificationTokenExp DateTime?
-
-  // OTP-based password reset fields
+  id                     String             @id @default(cuid())
+  name                   String
+  email                  String             @unique
+  phone                  String?
+  password               String
+  role                   Role               @default(CUSTOMER)
+  isVerified             Boolean            @default(false)
+  resetToken             String?
+  resetTokenExp          DateTime?
+  verificationToken      String?
+  verificationTokenExp   DateTime?
+  createdAt              DateTime           @default(now())
+  updatedAt              DateTime           @updatedAt
+  address                String?
+  avatar                 String?
+  company                String?
+  designation            String?
+  passwordResetAttempts  Int                @default(0)
   passwordResetOtp       String?
   passwordResetOtpExpiry DateTime?
-  passwordResetAttempts  Int      @default(0)
-
-  createdAt         DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-
-  rfqs      RFQ[]
-  contacts  Contact[]
-  blogs     Blog[]
-  testimonials Testimonial[]
-  passwordResetLogs PasswordResetLog[]
+  blogs                  Blog[]
+  contacts               Contact[]
+  passwordResetLogs      PasswordResetLog[]
+  rfqs                   RFQ[]
+  testimonials           Testimonial[]
 
   @@map("users")
 }
@@ -49,12 +41,12 @@ model User {
 model PasswordResetLog {
   id        String   @id @default(cuid())
   userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   ip        String?
   userAgent String?
   success   Boolean  @default(true)
   method    String   @default("otp")
   createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
   @@index([createdAt])
@@ -62,44 +54,48 @@ model PasswordResetLog {
 }
 
 model Category {
-  id       String  @id @default(cuid())
-  name     String  @unique
-  slug     String  @unique
-  image    String?
-  featured Boolean @default(false)
-  order    Int     @default(0)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  products Product[]
+  id        String    @id @default(cuid())
+  name      String    @unique
+  slug      String    @unique
+  image     String?
+  featured  Boolean   @default(false)
+  order     Int       @default(0)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  products  Product[]
 
   @@map("categories")
 }
 
 model Product {
-  id          String   @id @default(cuid())
-  slug        String   @unique
-  name        String
-  description String   @db.Text
-  categoryId  String
-  category    Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
-  subCategory String?
-  price       Float?
-  finish      String?
-  size        String?
-  thickness   String?
-  origin      String?
-  images      String[] @default([])
-  pdf         String?
-  featured    Boolean  @default(false)
-  stock       String   @default("In Stock")
-  tags        String[] @default([])
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id              String   @id @default(cuid())
+  slug            String   @unique
+  name            String
+  description     String
+  categoryId      String
+  subCategory     String?
+  price           Float?
+  finish          String?
+  size            String?
+  thickness       String?
+  origin          String?
+  images          String[] @default([])
+  pdf             String?
+  featured        Boolean  @default(false)
+  stock           String   @default("In Stock")
+  tags            String[] @default([])
+  productCode     String?
+  applications    String?
+  packingDetails  String?
+  specs           Json?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  category        Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
 
   @@index([categoryId])
   @@index([featured])
   @@index([slug])
+  @@index([productCode])
   @@map("products")
 }
 
@@ -108,7 +104,7 @@ model Project {
   title       String
   slug        String   @unique
   location    String?
-  description String   @db.Text
+  description String
   gallery     String[] @default([])
   scope       String[] @default([])
   architect   String?
@@ -127,16 +123,16 @@ model Blog {
   id        String   @id @default(cuid())
   title     String
   slug      String   @unique
-  excerpt   String   @db.Text
-  content   String   @db.Text
+  excerpt   String
+  content   String
   cover     String?
   authorId  String?
-  author    User?    @relation(fields: [authorId], references: [id], onDelete: SetNull)
   category  String?
   tags      String[] @default([])
   published Boolean  @default(false)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  author    User?    @relation(fields: [authorId], references: [id])
 
   @@index([slug])
   @@index([published])
@@ -147,9 +143,10 @@ model Video {
   id          String   @id @default(cuid())
   title       String
   slug        String   @unique
-  description String?   
+  description String?
   thumbnail   String?
-  youtubeUrl  String
+  videoUrl    String?
+  youtubeUrl  String?
   category    String?
   duration    String?
   featured    Boolean  @default(false)
@@ -161,19 +158,39 @@ model Video {
 }
 
 model Download {
-  id        String   @id @default(cuid())
-  title     String
-  slug      String   @unique
-description String?
-  pdf       String
-  fileSize  String?
-  category  String?
-  featured  Boolean  @default(false)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id            String        @id @default(cuid())
+  title         String
+  slug          String        @unique
+  description   String?
+  pdf           String
+  fileSize      String?
+  category      String?
+  featured      Boolean       @default(false)
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  coverImage    String?
+  downloadCount Int           @default(0)
+  published     Boolean       @default(false)
+  logs          DownloadLog[]
 
   @@index([slug])
+  @@index([published])
+  @@index([category])
+  @@index([downloadCount])
   @@map("downloads")
+}
+
+model DownloadLog {
+  id         String   @id @default(cuid())
+  downloadId String
+  ip         String?
+  userAgent  String?
+  createdAt  DateTime @default(now())
+  download   Download @relation(fields: [downloadId], references: [id], onDelete: Cascade)
+
+  @@index([downloadId])
+  @@index([createdAt])
+  @@map("download_logs")
 }
 
 model Testimonial {
@@ -181,34 +198,34 @@ model Testimonial {
   client      String
   designation String?
   company     String?
-  review      String   @db.Text
+  review      String
   rating      Int      @default(5)
   photo       String?
   authorId    String?
-  author      User?    @relation(fields: [authorId], references: [id], onDelete: SetNull)
   featured    Boolean  @default(false)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+  author      User?    @relation(fields: [authorId], references: [id])
 
   @@map("testimonials")
 }
 
 model RFQ {
-  id          String   @id @default(cuid())
+  id          String    @id @default(cuid())
   userId      String?
-  user        User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
   company     String?
   phone       String?
   email       String
   country     String?
-  message     String   @db.Text
-  products    String[] @default([])
-  attachments String[] @default([])
-  status      String   @default("Pending")
-  adminReply  String?  @db.Text
+  message     String
+  products    String[]  @default([])
+  status      String    @default("Pending")
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  adminReply  String?
+  attachments String[]  @default([])
   repliedAt   DateTime?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  user        User?     @relation(fields: [userId], references: [id])
 
   @@map("rfqs")
 }
@@ -216,15 +233,15 @@ model RFQ {
 model Contact {
   id        String   @id @default(cuid())
   userId    String?
-  user      User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
   name      String
   email     String
   phone     String?
   company   String?
-  message   String   @db.Text
+  message   String
   status    String   @default("Unread")
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  user      User?    @relation(fields: [userId], references: [id])
 
   @@map("contacts")
 }
@@ -238,10 +255,84 @@ model Subscriber {
   @@map("subscribers")
 }
 
+model Media {
+  id            String   @id @default(cuid())
+  filename      String
+  originalName  String
+  mimeType      String
+  size          Int
+  url           String
+  folder        String   @default("uploads")
+  alt           String?
+  caption       String?
+  tags          String[] @default([])
+  width         Int?
+  height        Int?
+  duration      Float?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([folder])
+  @@index([mimeType])
+  @@index([createdAt])
+  @@map("media")
+}
+
 model Setting {
   id    String @id @default(cuid())
   key   String @unique
-  value String @db.Text
+  value String
 
   @@map("settings")
+}
+
+model GeneratedCatalog {
+  id            String           @id @default(cuid())
+  type          String           // "master" | "category" | "product"
+  title         String
+  slug          String           @unique
+  description   String?
+  pdfUrl        String?
+  coverImage    String?
+  categoryId    String?
+  productId     String?
+  status        String           @default("draft")  // "draft" | "published"
+  version       Int              @default(1)
+  downloadCount Int              @default(0)
+  lastDownloadAt DateTime?
+  fileSize      String?
+  metadata      Json?
+  createdAt     DateTime         @default(now())
+  updatedAt     DateTime         @updatedAt
+  versions      CatalogVersion[]
+
+  @@index([type])
+  @@index([slug])
+  @@index([categoryId])
+  @@index([productId])
+  @@index([status])
+  @@index([downloadCount])
+  @@map("generated_catalogs")
+}
+
+model CatalogVersion {
+  id            String         @id @default(cuid())
+  catalogId     String
+  version       Int
+  pdfUrl        String?
+  fileSize      String?
+  metadata      Json?
+  createdAt     DateTime       @default(now())
+  catalog       GeneratedCatalog @relation(fields: [catalogId], references: [id], onDelete: Cascade)
+
+  @@index([catalogId])
+  @@index([version])
+  @@map("catalog_versions")
+}
+
+enum Role {
+  ADMIN
+  DEALER
+  ARCHITECT
+  CUSTOMER
 }

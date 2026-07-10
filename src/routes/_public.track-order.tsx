@@ -12,15 +12,18 @@ export const Route = createFileRoute("/_public/track-order")({
   head: () => ({
     meta: buildMeta({
       title: "Track Order — Stone India Heritage",
-      description: "Track the status of your natural stone shipment from our factory in Jodhpur to your destination port. Enter your order reference for real-time updates.",
+      description:
+        "Track the status of your natural stone shipment from our factory in Jodhpur to your destination port. Enter your order reference for real-time updates.",
       path: "/track-order",
     }),
     links: [canonicalLink("/track-order")],
     scripts: [
-      jsonLdScript(breadcrumbSchema([
-        { name: "Home", item: "/" },
-        { name: "Track Order", item: "/track-order" },
-      ])),
+      jsonLdScript(
+        breadcrumbSchema([
+          { name: "Home", item: "/" },
+          { name: "Track Order", item: "/track-order" },
+        ]),
+      ),
     ],
   }),
   component: TrackOrder,
@@ -47,12 +50,23 @@ function TrackOrder() {
       <section className="py-20">
         <div className="container-lux max-w-2xl">
           <Reveal>
-            <form onSubmit={(e) => { e.preventDefault(); setShow(true); }} className="flex flex-col gap-3 rounded-lg border border-border bg-card p-6 sm:flex-row">
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                setShow(true);
+              }}
+              className="flex flex-col gap-3 rounded-lg border border-border bg-card p-6 sm:flex-row"
+            >
               <div className="flex flex-1 items-center gap-3 rounded-md border border-border bg-background px-4">
                 <Search className="h-4 w-4 text-muted-foreground" />
-                <input placeholder="e.g. SIH-2026-04821" className="h-11 w-full bg-transparent text-sm outline-none placeholder:text-muted-foreground" />
+                <input
+                  placeholder="e.g. SIH-2026-04821"
+                  className="h-11 w-full bg-transparent text-sm outline-none placeholder:text-muted-foreground"
+                />
               </div>
-              <Button type="submit" variant="gold">Track</Button>
+              <Button type="submit" variant="gold">
+                Track
+              </Button>
             </form>
           </Reveal>
 
@@ -64,19 +78,29 @@ function TrackOrder() {
                     <p className="text-xs uppercase tracking-wide text-muted-foreground">Order</p>
                     <p className="font-serif text-xl text-foreground">SIH-2026-04821</p>
                   </div>
-                  <span className="rounded-full bg-gold/15 px-4 py-1.5 text-sm font-medium text-gold">In Transit</span>
+                  <span className="rounded-full bg-gold/15 px-4 py-1.5 text-sm font-medium text-gold">
+                    In Transit
+                  </span>
                 </div>
                 <div className="mt-10 space-y-0">
                   {STAGES.map((s, i) => (
                     <div key={s.label} className="flex gap-4">
                       <div className="flex flex-col items-center">
-                        <span className={`grid h-10 w-10 place-items-center rounded-full ${s.done ? "bg-gold text-[var(--gold-foreground)]" : "border border-border bg-background text-muted-foreground"}`}>
+                        <span
+                          className={`grid h-10 w-10 place-items-center rounded-full ${s.done ? "bg-gold text-[var(--gold-foreground)]" : "border border-border bg-background text-muted-foreground"}`}
+                        >
                           <s.icon className="h-5 w-5" />
                         </span>
-                        {i < STAGES.length - 1 && <span className={`h-10 w-px ${s.done ? "bg-gold" : "bg-border"}`} />}
+                        {i < STAGES.length - 1 && (
+                          <span className={`h-10 w-px ${s.done ? "bg-gold" : "bg-border"}`} />
+                        )}
                       </div>
                       <div className="pt-2">
-                        <p className={`font-medium ${s.done ? "text-foreground" : "text-muted-foreground"}`}>{s.label}</p>
+                        <p
+                          className={`font-medium ${s.done ? "text-foreground" : "text-muted-foreground"}`}
+                        >
+                          {s.label}
+                        </p>
                       </div>
                     </div>
                   ))}

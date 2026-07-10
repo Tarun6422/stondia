@@ -20,54 +20,78 @@ function resolveFolderParam(folder: string): StorageFolder | null {
 /**
  * POST /api/upload — single file (default folder: uploads)
  */
-router.post("/", authenticate, authorize("ADMIN"), upload.single("file"), async (req: Request, res: Response) => {
-  if (!req.file) throw new AppError("No file provided", 400);
-  const validationError = validateFile(req.file.mimetype, req.file.size);
-  if (validationError) throw new AppError(validationError, 400);
-  const url = await handleUpload(req.file, "uploads");
-  res.json({ url, filename: req.file.originalname, folder: "uploads" });
-});
+router.post(
+  "/",
+  authenticate,
+  authorize("ADMIN"),
+  upload.single("file"),
+  async (req: Request, res: Response) => {
+    if (!req.file) throw new AppError("No file provided", 400);
+    const validationError = validateFile(req.file.mimetype, req.file.size);
+    if (validationError) throw new AppError(validationError, 400);
+    const url = await handleUpload(req.file, "uploads");
+    res.json({ url, filename: req.file.originalname, folder: "uploads" });
+  },
+);
 
 /**
  * POST /api/upload/:folder — single file to specific folder
  */
-router.post("/:folder", authenticate, authorize("ADMIN"), upload.single("file"), async (req: Request, res: Response) => {
-  if (!req.file) throw new AppError("No file provided", 400);
-  const folder = resolveFolderParam(req.params.folder) || "uploads";
-  const validationError = validateFile(req.file.mimetype, req.file.size);
-  if (validationError) throw new AppError(validationError, 400);
-  const url = await handleUpload(req.file, folder);
-  res.json({ url, filename: req.file.originalname, folder });
-});
+router.post(
+  "/:folder",
+  authenticate,
+  authorize("ADMIN"),
+  upload.single("file"),
+  async (req: Request, res: Response) => {
+    if (!req.file) throw new AppError("No file provided", 400);
+    const folder = resolveFolderParam(req.params.folder as string) || "uploads";
+    const validationError = validateFile(req.file.mimetype, req.file.size);
+    if (validationError) throw new AppError(validationError, 400);
+    const url = await handleUpload(req.file, folder);
+    res.json({ url, filename: req.file.originalname, folder });
+  },
+);
 
 /**
  * POST /api/upload/multiple — multiple files (default folder: uploads)
  */
-router.post("/multiple", authenticate, authorize("ADMIN"), upload.array("files", 10), async (req: Request, res: Response) => {
-  const files = req.files as Express.Multer.File[];
-  if (!files || files.length === 0) throw new AppError("No files provided", 400);
-  for (const f of files) {
-    const err = validateFile(f.mimetype, f.size);
-    if (err) throw new AppError(err, 400);
-  }
-  const urls = await handleMultipleUploads(files, "uploads");
-  res.json({ urls, count: urls.length, folder: "uploads" });
-});
+router.post(
+  "/multiple",
+  authenticate,
+  authorize("ADMIN"),
+  upload.array("files", 10),
+  async (req: Request, res: Response) => {
+    const files = req.files as Express.Multer.File[];
+    if (!files || files.length === 0) throw new AppError("No files provided", 400);
+    for (const f of files) {
+      const err = validateFile(f.mimetype, f.size);
+      if (err) throw new AppError(err, 400);
+    }
+    const urls = await handleMultipleUploads(files, "uploads");
+    res.json({ urls, count: urls.length, folder: "uploads" });
+  },
+);
 
 /**
  * POST /api/upload/multiple/:folder — multiple files to specific folder
  */
-router.post("/multiple/:folder", authenticate, authorize("ADMIN"), upload.array("files", 10), async (req: Request, res: Response) => {
-  const files = req.files as Express.Multer.File[];
-  if (!files || files.length === 0) throw new AppError("No files provided", 400);
-  for (const f of files) {
-    const err = validateFile(f.mimetype, f.size);
-    if (err) throw new AppError(err, 400);
-  }
-  const folder = resolveFolderParam(req.params.folder) || "uploads";
-  const urls = await handleMultipleUploads(files, folder);
-  res.json({ urls, count: urls.length, folder });
-});
+router.post(
+  "/multiple/:folder",
+  authenticate,
+  authorize("ADMIN"),
+  upload.array("files", 10),
+  async (req: Request, res: Response) => {
+    const files = req.files as Express.Multer.File[];
+    if (!files || files.length === 0) throw new AppError("No files provided", 400);
+    for (const f of files) {
+      const err = validateFile(f.mimetype, f.size);
+      if (err) throw new AppError(err, 400);
+    }
+    const folder = resolveFolderParam(req.params.folder as string) || "uploads";
+    const urls = await handleMultipleUploads(files, folder);
+    res.json({ urls, count: urls.length, folder });
+  },
+);
 
 /**
  * POST /api/upload/public — public upload (no auth)
@@ -87,7 +111,7 @@ router.post("/public/:folder", upload.single("file"), async (req: Request, res: 
   if (!req.file) throw new AppError("No file provided", 400);
   const validationError = validateFile(req.file.mimetype, req.file.size);
   if (validationError) throw new AppError(validationError, 400);
-  const folder = resolveFolderParam(req.params.folder) || "uploads";
+  const folder = resolveFolderParam(req.params.folder as string) || "uploads";
   const url = await handleUpload(req.file, folder);
   res.json({ url, filename: req.file.originalname, folder });
 });

@@ -45,7 +45,13 @@ import { Reveal } from "@/components/motion";
 import { TiltCard } from "@/components/animations";
 import { Breadcrumbs, breadcrumbSchema } from "@/components/breadcrumbs";
 import { Lightbox } from "@/components/lightbox";
-import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel";
 import { PRODUCTS, PROJECTS, COMPARISON_DATA, APPLICATION_ICONS } from "@/data/site";
 import type { Product, Variant, ProductSize, StoneFeature, DownloadItem } from "@/data/site";
 
@@ -58,9 +64,14 @@ export const Route = createFileRoute("/_public/products/$slug")({
   head: ({ loaderData, params }) => ({
     meta: loaderData
       ? [
-          { title: `${loaderData.product.name} — Premium ${loaderData.product.category} | Stone India Heritage` },
+          {
+            title: `${loaderData.product.name} — Premium ${loaderData.product.category} | Stone India Heritage`,
+          },
           { name: "description", content: loaderData.product.shortDescription.slice(0, 160) },
-          { property: "og:title", content: `${loaderData.product.name} — Premium ${loaderData.product.category}` },
+          {
+            property: "og:title",
+            content: `${loaderData.product.name} — Premium ${loaderData.product.category}`,
+          },
           { property: "og:description", content: loaderData.product.tagline },
           { property: "og:type", content: "product" },
           { property: "og:image", content: loaderData.product.image },
@@ -70,7 +81,10 @@ export const Route = createFileRoute("/_public/products/$slug")({
           { name: "twitter:title", content: loaderData.product.name },
           { name: "twitter:description", content: loaderData.product.tagline },
         ]
-      : [{ title: "Product not found — Stone India Heritage" }, { name: "robots", content: "noindex" }],
+      : [
+          { title: "Product not found — Stone India Heritage" },
+          { name: "robots", content: "noindex" },
+        ],
     links: loaderData ? [{ rel: "canonical", href: `/products/${params.slug}` }] : [],
     scripts: loaderData
       ? [
@@ -86,9 +100,10 @@ export const Route = createFileRoute("/_public/products/$slug")({
               brand: { "@type": "Brand", name: "Stone India Heritage" },
               offers: {
                 "@type": "Offer",
-                availability: loaderData.product.availability === "In Stock"
-                  ? "https://schema.org/InStock"
-                  : "https://schema.org/MadeToOrder",
+                availability:
+                  loaderData.product.availability === "In Stock"
+                    ? "https://schema.org/InStock"
+                    : "https://schema.org/MadeToOrder",
                 itemCondition: "https://schema.org/NewCondition",
               },
               material: loaderData.product.category,
@@ -150,7 +165,8 @@ function ProductGallery({
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (lightboxOpen) return;
-      if (e.key === "ArrowLeft") setActiveIndex((i) => (i - 1 + galleryImages.length) % galleryImages.length);
+      if (e.key === "ArrowLeft")
+        setActiveIndex((i) => (i - 1 + galleryImages.length) % galleryImages.length);
       if (e.key === "ArrowRight") setActiveIndex((i) => (i + 1) % galleryImages.length);
     };
     window.addEventListener("keydown", onKey);
@@ -222,8 +238,16 @@ function ProductGallery({
         className={`relative aspect-[4/3] overflow-hidden rounded-xl border border-border/60 bg-card ${
           fullZoom || scale > 1 ? "cursor-zoom-out" : "cursor-zoom-in"
         }`}
-        onMouseEnter={() => { setIsHovering(true); setZoom((z) => ({ ...z, active: true })); }}
-        onMouseLeave={() => { setIsHovering(false); setZoom((z) => ({ ...z, active: false })); setFullZoom(false); setScale(1); }}
+        onMouseEnter={() => {
+          setIsHovering(true);
+          setZoom((z) => ({ ...z, active: true }));
+        }}
+        onMouseLeave={() => {
+          setIsHovering(false);
+          setZoom((z) => ({ ...z, active: false }));
+          setFullZoom(false);
+          setScale(1);
+        }}
         onMouseMove={(e) => {
           if (fullZoom || scale > 1) return;
           const r = e.currentTarget.getBoundingClientRect();
@@ -257,7 +281,8 @@ function ProductGallery({
 
         {/* Image counter */}
         <div className="absolute bottom-4 left-4 rounded-full bg-background/80 backdrop-blur-sm px-3 py-1 text-xs font-medium tabular-nums">
-          {String(activeIndex + 1).padStart(2, "0")} / {String(galleryImages.length).padStart(2, "0")}
+          {String(activeIndex + 1).padStart(2, "0")} /{" "}
+          {String(galleryImages.length).padStart(2, "0")}
         </div>
 
         {/* Fullscreen button */}
@@ -273,7 +298,9 @@ function ProductGallery({
         {isHovering && (
           <>
             <button
-              onClick={() => setActiveIndex((i) => (i - 1 + galleryImages.length) % galleryImages.length)}
+              onClick={() =>
+                setActiveIndex((i) => (i - 1 + galleryImages.length) % galleryImages.length)
+              }
               aria-label="Previous image"
               className="absolute left-3 top-1/2 -translate-y-1/2 grid h-10 w-10 place-items-center rounded-full bg-background/60 backdrop-blur-sm text-foreground transition-all hover:bg-background/90 opacity-100"
             >
@@ -300,7 +327,11 @@ function ProductGallery({
         {galleryImages.map((img, i) => (
           <button
             key={i}
-            onClick={() => { setActiveIndex(i); setFullZoom(false); setScale(1); }}
+            onClick={() => {
+              setActiveIndex(i);
+              setFullZoom(false);
+              setScale(1);
+            }}
             role="tab"
             aria-selected={i === activeIndex}
             aria-label={`View image ${i + 1}`}
@@ -339,13 +370,13 @@ function ProductGallery({
 const BADGE_STYLES: Record<string, string> = {
   "Export Ready": "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20",
   "Best Seller": "bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20",
-  "Sustainability": "bg-green-500/10 text-green-600 dark:text-green-400 border-green-500/20",
+  Sustainability: "bg-green-500/10 text-green-600 dark:text-green-400 border-green-500/20",
 };
 
 const BADGE_ICONS: Record<string, ReactNode> = {
   "Export Ready": <ArrowUpRight className="h-3 w-3" />,
   "Best Seller": <Star className="h-3 w-3" />,
-  "Sustainability": <Leaf className="h-3 w-3" />,
+  Sustainability: <Leaf className="h-3 w-3" />,
 };
 
 function ProductInfo({ product, activeFinish }: { product: Product; activeFinish: string }) {
@@ -410,9 +441,7 @@ function ProductInfo({ product, activeFinish }: { product: Product; activeFinish
       </div>
 
       {/* Description */}
-      <p className="text-base leading-relaxed text-muted-foreground">
-        {product.shortDescription}
-      </p>
+      <p className="text-base leading-relaxed text-muted-foreground">{product.shortDescription}</p>
 
       {/* Action buttons */}
       <div className="flex flex-wrap gap-3">
@@ -431,7 +460,12 @@ function ProductInfo({ product, activeFinish }: { product: Product; activeFinish
         <Button variant="ghost" size="icon" aria-label="Share product" onClick={shareProduct}>
           <Share2 className="h-4 w-4" />
         </Button>
-        <Button variant="ghost" size="icon" aria-label="Print product details" onClick={printProduct}>
+        <Button
+          variant="ghost"
+          size="icon"
+          aria-label="Print product details"
+          onClick={printProduct}
+        >
           <Printer className="h-4 w-4" />
         </Button>
         <Button variant="ghost" size="icon" aria-label="Save for later" onClick={saveForLater}>
@@ -491,12 +525,12 @@ function VariantSelector({
                   alt={v.label}
                   className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
                 />
-                {isActive && (
-                  <div className="absolute inset-0 border-2 border-gold/20" />
-                )}
+                {isActive && <div className="absolute inset-0 border-2 border-gold/20" />}
               </div>
               <div className="p-3">
-                <p className={`text-sm font-semibold ${isActive ? "text-gold" : "text-foreground"}`}>
+                <p
+                  className={`text-sm font-semibold ${isActive ? "text-gold" : "text-foreground"}`}
+                >
                   {v.label}
                 </p>
                 <p className="mt-0.5 text-[0.65rem] leading-tight text-muted-foreground line-clamp-2">
@@ -552,7 +586,10 @@ function SizeSelector({
           return (
             <button
               key={s.label}
-              onClick={() => { onSizeChange(s.label); onThicknessChange(s.thickness[0]); }}
+              onClick={() => {
+                onSizeChange(s.label);
+                onThicknessChange(s.thickness[0]);
+              }}
               aria-label={`Select size ${s.label}`}
               aria-pressed={isActive}
               className={`rounded-lg border-2 px-4 py-2.5 text-sm font-medium transition-all duration-200 ${
@@ -602,7 +639,17 @@ function SizeSelector({
    ====================================================================== */
 
 const ICON_MAP: Record<string, React.ElementType> = {
-  Building, Layout, Grid3x3, Waypoints, Mountain, Sprout, Layers, Waves, Church, Building2, Home,
+  Building,
+  Layout,
+  Grid3x3,
+  Waypoints,
+  Mountain,
+  Sprout,
+  Layers,
+  Waves,
+  Church,
+  Building2,
+  Home,
 };
 
 function ApplicationGrid({ applications }: { applications: string[] }) {
@@ -677,7 +724,14 @@ function TechnicalSpecs({ specs }: { specs: Product["technicalSpecs"] }) {
    ====================================================================== */
 
 const FEATURE_ICONS: Record<string, React.ElementType> = {
-  Gem, Award, Sun, Shield, Leaf, Hammer, Ruler, Clock,
+  Gem,
+  Award,
+  Sun,
+  Shield,
+  Leaf,
+  Hammer,
+  Ruler,
+  Clock,
 };
 
 function StoneFeatures({ features }: { features: StoneFeature[] }) {
@@ -697,7 +751,9 @@ function StoneFeatures({ features }: { features: StoneFeature[] }) {
                   <Icon className="h-5 w-5" />
                 </div>
                 <h4 className="mt-4 font-serif text-lg text-foreground">{feature.title}</h4>
-                <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">{feature.description}</p>
+                <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">
+                  {feature.description}
+                </p>
               </TiltCard>
             </Reveal>
           );
@@ -711,7 +767,13 @@ function StoneFeatures({ features }: { features: StoneFeature[] }) {
    SECTION 8 — PROJECT SHOWCASE
    ====================================================================== */
 
-function ProjectShowcase({ productName, projectSlugs }: { productName: string; projectSlugs: string[] }) {
+function ProjectShowcase({
+  productName,
+  projectSlugs,
+}: {
+  productName: string;
+  projectSlugs: string[];
+}) {
   const projects = PROJECTS.filter((p) => projectSlugs.includes(p.slug));
 
   if (projects.length === 0) return null;
@@ -745,9 +807,13 @@ function ProjectShowcase({ productName, projectSlugs }: { productName: string; p
                   <h4 className="mt-1.5 font-serif text-lg text-foreground">{project.name}</h4>
                   <p className="mt-1 text-sm text-muted-foreground">{project.location}</p>
                   {project.architect && (
-                    <p className="mt-1 text-xs text-muted-foreground">Architect: {project.architect}</p>
+                    <p className="mt-1 text-xs text-muted-foreground">
+                      Architect: {project.architect}
+                    </p>
                   )}
-                  <p className="mt-1 text-xs text-muted-foreground">Stone: {project.stoneUsed ?? productName}</p>
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    Stone: {project.stoneUsed ?? productName}
+                  </p>
                   <span className="mt-3 inline-flex items-center gap-1 text-sm font-medium text-gold transition-all group-hover:gap-2">
                     View Project <ArrowUpRight className="h-3.5 w-3.5" />
                   </span>
@@ -765,7 +831,13 @@ function ProjectShowcase({ productName, projectSlugs }: { productName: string; p
    SECTION 9 — RELATED PRODUCTS
    ====================================================================== */
 
-function RelatedProducts({ currentSlug, onQuickView }: { currentSlug: string; onQuickView: (slug: string) => void }) {
+function RelatedProducts({
+  currentSlug,
+  onQuickView,
+}: {
+  currentSlug: string;
+  onQuickView: (slug: string) => void;
+}) {
   const related = PRODUCTS.filter((p) => p.slug !== currentSlug).slice(0, 8);
 
   return (
@@ -775,19 +847,15 @@ function RelatedProducts({ currentSlug, onQuickView }: { currentSlug: string; on
         Explore other products from our collection.
       </p>
       <div className="mt-5">
-        <Carousel
-          opts={{ align: "start", loop: true }}
-          className="w-full"
-        >
+        <Carousel opts={{ align: "start", loop: true }} className="w-full">
           <CarouselContent className="-ml-4">
             {related.map((p) => (
-              <CarouselItem key={p.slug} className="basis-[85%] pl-4 sm:basis-1/2 md:basis-1/3 lg:basis-1/4">
+              <CarouselItem
+                key={p.slug}
+                className="basis-[85%] pl-4 sm:basis-1/2 md:basis-1/3 lg:basis-1/4"
+              >
                 <div className="group overflow-hidden rounded-xl border border-border/60 bg-card transition-all duration-300 hover:shadow-soft">
-                  <Link
-                    to="/products/$slug"
-                    params={{ slug: p.slug }}
-                    className="block"
-                  >
+                  <Link to="/products/$slug" params={{ slug: p.slug }} className="block">
                     <div className="relative aspect-[4/3] overflow-hidden">
                       <img
                         src={p.image}
@@ -801,7 +869,9 @@ function RelatedProducts({ currentSlug, onQuickView }: { currentSlug: string; on
                     </div>
                     <div className="p-4">
                       <h4 className="font-serif text-base text-foreground">{p.name}</h4>
-                      <p className="mt-0.5 text-xs text-muted-foreground line-clamp-1">{p.tagline}</p>
+                      <p className="mt-0.5 text-xs text-muted-foreground line-clamp-1">
+                        {p.tagline}
+                      </p>
                     </div>
                   </Link>
                   <div className="flex items-center gap-1 border-t border-border/40 px-4 py-3">
@@ -809,18 +879,24 @@ function RelatedProducts({ currentSlug, onQuickView }: { currentSlug: string; on
                       variant="ghost"
                       size="sm"
                       className="h-8 px-2 text-xs"
-                      onClick={(e) => { e.preventDefault(); onQuickView(p.slug); }}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        onQuickView(p.slug);
+                      }}
                       aria-label={`Quick view ${p.name}`}
                     >
                       <Eye className="h-3 w-3 mr-1" /> Quick View
                     </Button>
-                    <Button variant="ghost" size="sm" className="h-8 px-2 text-xs" aria-label={`Compare ${p.name}`}>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-8 px-2 text-xs"
+                      aria-label={`Compare ${p.name}`}
+                    >
                       <GitCompare className="h-3 w-3 mr-1" /> Compare
                     </Button>
                     <Button asChild variant="ghost" size="sm" className="h-8 px-2 text-xs ml-auto">
-                      <Link to="/quote">
-                        Quote
-                      </Link>
+                      <Link to="/quote">Quote</Link>
                     </Button>
                   </div>
                 </div>
@@ -865,7 +941,9 @@ function StoneComparison({ productCategory }: { productCategory: string }) {
                     stone === currentStone ? "text-gold" : "text-muted-foreground"
                   }`}
                 >
-                  <span className={`${stone === currentStone ? "border-b-2 border-gold pb-0.5" : ""}`}>
+                  <span
+                    className={`${stone === currentStone ? "border-b-2 border-gold pb-0.5" : ""}`}
+                  >
                     {stone}
                   </span>
                 </th>
@@ -963,8 +1041,8 @@ function ExpertCTA() {
             Need Expert Advice?
           </h2>
           <p className="mx-auto mt-4 max-w-lg text-sm leading-relaxed text-white/60">
-            Our team of stone specialists can help you select the perfect finish,
-            dimensions, and quantity for your project — from concept to installation.
+            Our team of stone specialists can help you select the perfect finish, dimensions, and
+            quantity for your project — from concept to installation.
           </p>
         </Reveal>
         <Reveal delay={0.08} className="flex flex-wrap justify-center gap-3">
@@ -974,13 +1052,23 @@ function ExpertCTA() {
               <MessageCircle className="h-4 w-4 transition-transform group-hover:scale-110" />
             </Link>
           </Button>
-          <Button asChild variant="hero" size="lg" className="border-white/20 text-white hover:bg-white/10">
+          <Button
+            asChild
+            variant="hero"
+            size="lg"
+            className="border-white/20 text-white hover:bg-white/10"
+          >
             <Link to="/quote">
               Request Sample
               <BookOpen className="h-4 w-4" />
             </Link>
           </Button>
-          <Button asChild variant="hero" size="lg" className="border-white/20 text-white hover:bg-white/10">
+          <Button
+            asChild
+            variant="hero"
+            size="lg"
+            className="border-white/20 text-white hover:bg-white/10"
+          >
             <Link to="/quote">
               Request Quote
               <ArrowUpRight className="h-4 w-4" />
@@ -996,14 +1084,9 @@ function ExpertCTA() {
    SIDEBAR
    ====================================================================== */
 
-function Sidebar({
-  product,
-  activeVariant,
-}: {
-  product: Product;
-  activeVariant: Variant | null;
-}) {
-  const downloadFile = (name: string) => {      toast.success("Preparing your download", {
+function Sidebar({ product, activeVariant }: { product: Product; activeVariant: Variant | null }) {
+  const downloadFile = (name: string) => {
+    toast.success("Preparing your download", {
       description: `${name} — your download will start shortly.`,
     });
   };
@@ -1042,7 +1125,11 @@ function Sidebar({
               <ArrowUpRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
             </Link>
           </Button>
-          <Button variant="outline" className="w-full" onClick={() => downloadFile("Technical Datasheet")}>
+          <Button
+            variant="outline"
+            className="w-full"
+            onClick={() => downloadFile("Technical Datasheet")}
+          >
             <FileText className="h-4 w-4" /> Download PDF
           </Button>
           <Button variant="ghost" className="w-full justify-start" onClick={shareProduct}>
@@ -1062,7 +1149,12 @@ function Sidebar({
         <div className="rounded-lg bg-muted/50 p-4">
           <p className="text-xs font-medium text-foreground">Why Stone India Heritage?</p>
           <ul className="mt-2 space-y-1.5">
-            {["35+ Countries Served", "ISO & CE Certified", "Direct from Quarry", "Global Shipping"].map((item) => (
+            {[
+              "35+ Countries Served",
+              "ISO & CE Certified",
+              "Direct from Quarry",
+              "Global Shipping",
+            ].map((item) => (
               <li key={item} className="flex items-center gap-2 text-xs text-muted-foreground">
                 <Check className="h-3 w-3 text-gold shrink-0" /> {item}
               </li>
@@ -1137,7 +1229,10 @@ function ProductDetail() {
                   />
                 </Reveal>
                 <Reveal delay={0.06}>
-                  <ProductInfo product={product} activeFinish={activeVariant?.label ?? product.finishes[0]} />
+                  <ProductInfo
+                    product={product}
+                    activeFinish={activeVariant?.label ?? product.finishes[0]}
+                  />
                 </Reveal>
               </div>
 
@@ -1183,10 +1278,13 @@ function ProductDetail() {
 
               {/* Section 9 — Related Products */}
               <Reveal>
-                <RelatedProducts currentSlug={product.slug} onQuickView={(slug) => {
-                  const p = PRODUCTS.find((pr) => pr.slug === slug);
-                  if (p) toast.info(p.name, { description: p.tagline });
-                }} />
+                <RelatedProducts
+                  currentSlug={product.slug}
+                  onQuickView={(slug) => {
+                    const p = PRODUCTS.find((pr) => pr.slug === slug);
+                    if (p) toast.info(p.name, { description: p.tagline });
+                  }}
+                />
               </Reveal>
 
               {/* Section 10 — Stone Comparison */}

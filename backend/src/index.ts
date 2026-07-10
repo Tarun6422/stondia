@@ -26,7 +26,11 @@ import adminRoutes from "./routes/admin.js";
 import searchRoutes from "./routes/search.js";
 import settingsRoutes from "./routes/settings.js";
 import usersRoutes from "./routes/users.js";
+import catalogRoutes from "./routes/catalog.js";
+import catalogGeneratorRoutes from "./routes/catalog-generator.js";
+import mediaRoutes from "./routes/media.js";
 import { ensureBucket } from "./lib/supabase-storage.js";
+import { ensureLocalUploadDir } from "./lib/upload.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -35,12 +39,14 @@ const app = express();
 // ── Security & Performance ──
 app.use(helmet({ crossOriginResourcePolicy: { policy: "cross-origin" } }));
 app.use(compression());
-app.use(cors({
-  origin: CONFIG.FRONTEND_URL,
-  credentials: true,
-  methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
-  allowedHeaders: ["Content-Type", "Authorization"],
-}));
+app.use(
+  cors({
+    origin: CONFIG.FRONTEND_URL,
+    credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+  }),
+);
 
 // ── Rate Limiting ──
 const limiter = rateLimit({
@@ -51,7 +57,14 @@ const limiter = rateLimit({
   message: { message: "Too many requests, please try again later" },
 });
 app.use("/api/auth", rateLimit({ windowMs: 15 * 60 * 1000, max: 20 }));
-app.use("/api/contact", rateLimit({ windowMs: 15 * 60 * 1000, max: 10, message: { message: "Too many messages. Please try again later." } }));
+app.use(
+  "/api/contact",
+  rateLimit({
+    windowMs: 15 * 60 * 1000,
+    max: 10,
+    message: { message: "Too many messages. Please try again later." },
+  }),
+);
 app.use("/api", limiter);
 
 // ── Body Parsing ──
@@ -74,8 +87,10 @@ app.use((req: Request, _res: Response, next: NextFunction) => {
   next();
 });
 
-// ── Static Files (legacy — kept for backward compat, new uploads go to Supabase) ──
-app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
+// ── Static Files — serve local uploads (used when Supabase Storage is unavailable) ──
+const uploadsPath = path.join(process.cwd(), "uploads");
+ensureLocalUploadDir(); // create uploads/ if it doesn't exist
+app.use("/uploads", express.static(uploadsPath));
 
 // ── API Routes ──
 app.use("/api/auth", authRoutes);
@@ -93,6 +108,9 @@ app.use("/api/upload", uploadRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/search", searchRoutes);
 app.use("/api/settings", settingsRoutes);
+app.use("/api/catalog", catalogRoutes);
+app.use("/api/catalog-generator", catalogGeneratorRoutes);
+app.use("/api/media", mediaRoutes);
 app.use("/api/users", usersRoutes);
 
 // ── Health Check ──
@@ -134,9 +152,13 @@ async function start() {
     await prisma.$connect();
     console.log("✓ Database connected");
 
-    // Initialize Supabase Storage bucket
+    // Initialize Supabase Storage bucket (will warn if not configured)
     await ensureBucket();
-    console.log("✓ Supabase Storage ready");
+    if (process.env.SUPABASE_URL && process.env.SUPABASE_SERVICE_KEY) {
+      console.log("✓ Supabase Storage ready");
+    } else {
+      console.log("ℹ Supabase Storage not configured — using local disk for uploads");
+    }
 
     app.listen(CONFIG.PORT, () => {
       console.log(`✓ Server running on http://localhost:${CONFIG.PORT}`);

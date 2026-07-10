@@ -1,15 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { useRef } from "react";
-import {
-  ArrowRight,
-  ArrowUpRight,
-  
-  Leaf,
-  ShieldCheck,
-  Globe2,
-  Gem,
-} from "lucide-react";
+import { ArrowRight, ArrowUpRight, Leaf, ShieldCheck, Globe2, Gem } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Reveal, Counter } from "@/components/motion";
 import { ExportMap, TiltCard, TestimonialCarousel } from "@/components/animations";
@@ -28,10 +20,95 @@ import {
 import hero from "@/assets/hero-sandstone.jpg";
 import factory from "@/assets/factory.jpg";
 import sustainability from "@/assets/sustainability.jpg";
+import {
+  quarry01,
+  factory01,
+  carving09,
+  project01,
+  arch05,
+  quarry03,
+  vid01,
+  vid05,
+  vid03,
+  vid06,
+  vid07,
+  vid09,
+} from "@/assets/media";
+import { FeaturedVideoCarousel } from "@/components/video-carousel";
 
 export const Route = createFileRoute("/_public/")({
   component: Home,
 });
+
+/* ── Featured videos data ── */
+const FEATURED_VIDEOS = [
+  {
+    id: "v1",
+    title: "Inside Our Quarries",
+    description:
+      "Explore our heritage sandstone quarries in Jodhpur — where centuries-old deposits meet modern extraction techniques.",
+    category: "Factory",
+    duration: "3:42",
+    image: quarry01,
+    videoUrl: vid01,
+    views: "2.4K",
+  },
+  {
+    id: "v2",
+    title: "Precision Manufacturing Tour",
+    description:
+      "A complete walkthrough of our CNC calibration, gang-saw cutting, and quality control processes.",
+    category: "Factory",
+    duration: "5:18",
+    image: factory01,
+    videoUrl: vid05,
+    views: "3.1K",
+  },
+  {
+    id: "v3",
+    title: "The Art of Hand Carving",
+    description:
+      "Master artisans demonstrate the traditional hand-carving techniques passed down through generations.",
+    category: "Products",
+    duration: "4:05",
+    image: carving09,
+    videoUrl: vid03,
+    views: "4.8K",
+  },
+  {
+    id: "v4",
+    title: "Project Spotlight: Desert Villa",
+    description:
+      "See how our sandstone cladding and carved columns transformed a private Dubai estate into an architectural landmark.",
+    category: "Projects",
+    duration: "2:56",
+    image: project01,
+    videoUrl: vid06,
+    views: "1.9K",
+  },
+  {
+    id: "v5",
+    title: "Heritage Temple Restoration",
+    description:
+      "Museum-grade restoration of a 200-year-old temple using hand-carved jali panels and carved columns.",
+    category: "Architecture",
+    duration: "6:12",
+    image: arch05,
+    videoUrl: vid07,
+    views: "5.2K",
+  },
+  {
+    id: "v6",
+    title: "Sustainability at Stone India",
+    description:
+      "Our commitment to responsible quarrying, water recycling, and waste reduction in every operation.",
+    category: "Corporate",
+    duration: "3:28",
+    image: quarry03,
+    videoUrl: vid09,
+    views: "2.1K",
+  },
+];
 
 function Home() {
   const heroRef = useRef<HTMLDivElement>(null);
@@ -80,9 +157,8 @@ function Home() {
             transition={{ duration: 0.9, delay: 0.4 }}
             className="mt-6 max-w-xl text-lg leading-relaxed text-white/85"
           >
-            Premium manufacturer and global exporter of heritage sandstone and
-            architectural natural stone — uniting timeless craftsmanship with
-            modern precision.
+            Premium manufacturer and global exporter of heritage sandstone and architectural natural
+            stone — uniting timeless craftsmanship with modern precision.
           </motion.p>
           <motion.div
             initial={{ opacity: 0, y: 24 }}
@@ -203,9 +279,7 @@ function Home() {
                       <Icon className="h-5 w-5" />
                     </div>
                     <h3 className="font-serif text-xl text-foreground">{u.title}</h3>
-                    <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-                      {u.desc}
-                    </p>
+                    <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{u.desc}</p>
                   </div>
                 </Reveal>
               );
@@ -233,9 +307,9 @@ function Home() {
               Modern technology meets the hand of the artisan
             </h2>
             <p className="mt-5 text-white/70">
-              Our facility blends multi-wire sawing, CNC finishing and
-              time-honoured hand carving — all under one roof, calibrated to
-              export tolerances and verified by rigorous quality assurance.
+              Our facility blends multi-wire sawing, CNC finishing and time-honoured hand carving —
+              all under one roof, calibrated to export tolerances and verified by rigorous quality
+              assurance.
             </p>
             <ul className="mt-8 space-y-4">
               {[
@@ -355,11 +429,11 @@ function Home() {
                       className="absolute bottom-0 p-7 text-white"
                       style={{ transform: "translateZ(40px)" }}
                     >
-                      <p className="text-xs uppercase tracking-[0.2em] text-gold">
-                        {p.category}
-                      </p>
+                      <p className="text-xs uppercase tracking-[0.2em] text-gold">{p.category}</p>
                       <h3 className="mt-1 font-serif text-2xl">{p.name}</h3>
-                      <p className="text-sm text-white/70">{p.location} · {p.year}</p>
+                      <p className="text-sm text-white/70">
+                        {p.location} · {p.year}
+                      </p>
                     </div>
                   </Link>
                 </TiltCard>
@@ -374,9 +448,11 @@ function Home() {
         <div className="container-lux">
           <SectionHeading center eyebrow="Testimonials" title="Words from our partners" />
           <TestimonialCarousel items={TESTIMONIALS} />
-
         </div>
       </section>
+
+      {/* FEATURED VIDEOS */}
+      <FeaturedVideoCarousel videos={FEATURED_VIDEOS} />
 
       {/* LATEST ARTICLES */}
       <section className="py-24">
@@ -411,9 +487,7 @@ function Home() {
                     <p className="text-xs uppercase tracking-[0.2em] text-gold">
                       {post.category} · {post.date}
                     </p>
-                    <h3 className="mt-2 font-serif text-xl text-foreground">
-                      {post.title}
-                    </h3>
+                    <h3 className="mt-2 font-serif text-xl text-foreground">{post.title}</h3>
                     <p className="mt-2 text-sm text-muted-foreground">{post.excerpt}</p>
                   </div>
                 </Link>

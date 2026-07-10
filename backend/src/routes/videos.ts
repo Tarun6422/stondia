@@ -4,7 +4,6 @@ import { authenticate, authorize } from "../middleware/auth.js";
 import { NotFoundError } from "../lib/errors.js";
 import { slugify } from "../lib/prisma-helpers.js";
 import { deleteFileByUrl } from "../lib/upload.js";
-
 const router = Router();
 
 router.get("/", async (req: Request, res: Response) => {
@@ -21,7 +20,7 @@ router.get("/", async (req: Request, res: Response) => {
 });
 
 router.get("/:slug", async (req: Request, res: Response) => {
-  const video = await prisma.video.findUnique({ where: { slug: req.params.slug } });
+  const video = await prisma.video.findUnique({ where: { slug: req.params.slug as string } });
   if (!video) throw new NotFoundError("Video");
   res.json(video);
 });
@@ -39,22 +38,28 @@ router.post("/", authenticate, authorize("ADMIN"), async (req: Request, res: Res
 });
 
 router.put("/:id", authenticate, authorize("ADMIN"), async (req: Request, res: Response) => {
-  const video = await prisma.video.findUnique({ where: { id: req.params.id } });
+  const video = await prisma.video.findUnique({ where: { id: req.params.id as string } });
   if (!video) throw new NotFoundError("Video");
-  const updated = await prisma.video.update({ where: { id: req.params.id }, data: req.body });
+  const updated = await prisma.video.update({
+    where: { id: req.params.id as string },
+    data: req.body,
+  });
   res.json(updated);
 });
 
 router.delete("/:id", authenticate, authorize("ADMIN"), async (req: Request, res: Response) => {
-  const video = await prisma.video.findUnique({ where: { id: req.params.id } });
+  const video = await prisma.video.findUnique({ where: { id: req.params.id as string } });
   if (!video) throw new NotFoundError("Video");
 
-  // Delete thumbnail from Supabase Storage
+  // Delete thumbnail and video file from Supabase Storage
   if (video.thumbnail) {
     await deleteFileByUrl(video.thumbnail).catch(() => {});
   }
+  if (video.videoUrl) {
+    await deleteFileByUrl(video.videoUrl).catch(() => {});
+  }
 
-  await prisma.video.delete({ where: { id: req.params.id } });
+  await prisma.video.delete({ where: { id: req.params.id as string } });
   res.json({ message: "Video deleted" });
 });
 

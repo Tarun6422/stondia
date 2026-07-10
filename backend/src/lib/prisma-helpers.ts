@@ -8,10 +8,12 @@ export function slugify(text: string): string {
     .replace(/^-|-$/g, "");
 }
 
-export function paginationParams(query: {
-  page?: string;
-  limit?: string;
-}): { skip: number; take: number; page: number; limit: number } {
+export function paginationParams(query: { page?: string; limit?: string }): {
+  skip: number;
+  take: number;
+  page: number;
+  limit: number;
+} {
   const page = Math.max(1, parseInt(query.page || "1", 10));
   const limit = Math.min(100, Math.max(1, parseInt(query.limit || "12", 10)));
   return { skip: (page - 1) * limit, take: limit, page, limit };

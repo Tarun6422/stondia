@@ -10,6 +10,7 @@ export const CONFIG = {
   JWT_EXPIRES_IN: process.env.JWT_EXPIRES_IN || "15m",
   JWT_REFRESH_EXPIRES_IN: process.env.JWT_REFRESH_EXPIRES_IN || "7d",
   FRONTEND_URL: process.env.FRONTEND_URL || "http://localhost:3000",
+  BACKEND_URL: process.env.BACKEND_URL || "http://localhost:4000",
   SUPABASE_URL: process.env.SUPABASE_URL || "",
   SUPABASE_SERVICE_KEY: process.env.SUPABASE_SERVICE_KEY || "",
   SUPABASE_STORAGE_BUCKET: process.env.SUPABASE_STORAGE_BUCKET || "stone-india-assets",

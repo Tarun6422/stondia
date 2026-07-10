@@ -1,5 +1,12 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useState, useRef, useCallback, useEffect, type ClipboardEvent, type KeyboardEvent } from "react";
+import {
+  useState,
+  useRef,
+  useCallback,
+  useEffect,
+  type ClipboardEvent,
+  type KeyboardEvent,
+} from "react";
 import { z } from "zod";
 import { toast } from "sonner";
 import {
@@ -51,7 +58,8 @@ export const Route = createFileRoute("/_public/forgot-password")({
       { title: "Forgot Password — Stone India Heritage" },
       {
         name: "description",
-        content: "Reset your Stone India Heritage account password using a secure verification code.",
+        content:
+          "Reset your Stone India Heritage account password using a secure verification code.",
       },
     ],
   }),
@@ -120,7 +128,9 @@ function OtpInput({
         {digits.map((digit, i) => (
           <input
             key={i}
-            ref={(el) => { inputsRef.current[i] = el; }}
+            ref={(el) => {
+              inputsRef.current[i] = el;
+            }}
             type="text"
             inputMode="numeric"
             autoComplete="one-time-code"
@@ -150,7 +160,9 @@ function OtpInput({
 
 /* ── Countdown Timer ── */
 function CountdownTimer({ expiresAt, onExpire }: { expiresAt: number; onExpire: () => void }) {
-  const [remaining, setRemaining] = useState(() => Math.max(0, Math.floor((expiresAt - Date.now()) / 1000)));
+  const [remaining, setRemaining] = useState(() =>
+    Math.max(0, Math.floor((expiresAt - Date.now()) / 1000)),
+  );
 
   useEffect(() => {
     if (remaining <= 0) {
@@ -335,10 +347,13 @@ function ForgotPasswordPage() {
     setLoading(true);
 
     try {
-      const res = await api.post<{ verified: boolean; message?: string }>("/api/auth/verify-reset-otp", {
-        email,
-        otp: parsed.data.otp,
-      });
+      const res = await api.post<{ verified: boolean; message?: string }>(
+        "/api/auth/verify-reset-otp",
+        {
+          email,
+          otp: parsed.data.otp,
+        },
+      );
 
       if (res.verified) {
         setStep("password");
@@ -423,7 +438,11 @@ function ForgotPasswordPage() {
             </div>
 
             {/* Step indicator */}
-            {step !== "success" && <div className="mt-6"><StepIndicator current={step} /></div>}
+            {step !== "success" && (
+              <div className="mt-6">
+                <StepIndicator current={step} />
+              </div>
+            )}
 
             {/* ────────────── Error Banner ────────────── */}
             {error && (
@@ -440,7 +459,10 @@ function ForgotPasswordPage() {
                   <input
                     type="email"
                     value={email}
-                    onChange={(e) => { setEmail(e.target.value); setError(""); }}
+                    onChange={(e) => {
+                      setEmail(e.target.value);
+                      setError("");
+                    }}
                     placeholder="jane@studio.com"
                     autoFocus
                     className={`mt-1.5 w-full rounded-lg border bg-background px-4 py-2.5 text-sm outline-none transition-all focus:ring-1 ${
@@ -451,11 +473,21 @@ function ForgotPasswordPage() {
                   />
                 </div>
 
-                <Button type="submit" variant="gold" size="lg" className="w-full" disabled={loading}>
+                <Button
+                  type="submit"
+                  variant="gold"
+                  size="lg"
+                  className="w-full"
+                  disabled={loading}
+                >
                   {loading ? (
-                    <><Loader2 className="h-4 w-4 animate-spin" /> Sending…</>
+                    <>
+                      <Loader2 className="h-4 w-4 animate-spin" /> Sending…
+                    </>
                   ) : (
-                    <><Mail className="h-4 w-4" /> Send Verification Code</>
+                    <>
+                      <Mail className="h-4 w-4" /> Send Verification Code
+                    </>
                   )}
                 </Button>
 
@@ -473,7 +505,10 @@ function ForgotPasswordPage() {
               <div className="mt-6 space-y-5">
                 <OtpInput
                   value={otp}
-                  onChange={(val) => { setOtp(val); setError(""); }}
+                  onChange={(val) => {
+                    setOtp(val);
+                    setError("");
+                  }}
                   disabled={loading || otpExpired}
                   error={error}
                 />
@@ -496,7 +531,9 @@ function ForgotPasswordPage() {
                   onClick={handleVerifyOTP}
                 >
                   {loading ? (
-                    <><Loader2 className="h-4 w-4 animate-spin" /> Verifying…</>
+                    <>
+                      <Loader2 className="h-4 w-4 animate-spin" /> Verifying…
+                    </>
                   ) : (
                     "Verify Code"
                   )}
@@ -558,7 +595,9 @@ function ForgotPasswordPage() {
                 </div>
 
                 <div>
-                  <label className="text-sm font-medium text-foreground">Confirm new password</label>
+                  <label className="text-sm font-medium text-foreground">
+                    Confirm new password
+                  </label>
                   <div className="relative mt-1.5">
                     <input
                       name="confirmPassword"
@@ -587,11 +626,21 @@ function ForgotPasswordPage() {
                   )}
                 </div>
 
-                <Button type="submit" variant="gold" size="lg" className="w-full" disabled={loading}>
+                <Button
+                  type="submit"
+                  variant="gold"
+                  size="lg"
+                  className="w-full"
+                  disabled={loading}
+                >
                   {loading ? (
-                    <><Loader2 className="h-4 w-4 animate-spin" /> Resetting…</>
+                    <>
+                      <Loader2 className="h-4 w-4 animate-spin" /> Resetting…
+                    </>
                   ) : (
-                    <><Lock className="h-4 w-4" /> Reset Password</>
+                    <>
+                      <Lock className="h-4 w-4" /> Reset Password
+                    </>
                   )}
                 </Button>
 
@@ -613,7 +662,9 @@ function ForgotPasswordPage() {
                 <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-green-100 dark:bg-green-900/20">
                   <CheckCircle2 className="h-8 w-8 text-green-600 dark:text-green-400" />
                 </div>
-                <h2 className="mt-4 font-serif text-xl text-foreground">Password reset successful</h2>
+                <h2 className="mt-4 font-serif text-xl text-foreground">
+                  Password reset successful
+                </h2>
                 <p className="mt-2 text-sm text-muted-foreground">
                   Your password has been updated. You can now sign in with your new password.
                 </p>

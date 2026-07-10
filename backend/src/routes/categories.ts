@@ -19,7 +19,7 @@ router.get("/", async (_req: Request, res: Response) => {
 // GET /api/categories/:slug — single with products
 router.get("/:slug", async (req: Request, res: Response) => {
   const category = await prisma.category.findUnique({
-    where: { slug: req.params.slug },
+    where: { slug: req.params.slug as string },
     include: {
       products: { take: 12, orderBy: { createdAt: "desc" } },
       _count: { select: { products: true } },
@@ -43,7 +43,7 @@ router.post("/", authenticate, authorize("ADMIN"), async (req: Request, res: Res
 
 // PUT /api/categories/:id — admin update
 router.put("/:id", authenticate, authorize("ADMIN"), async (req: Request, res: Response) => {
-  const category = await prisma.category.findUnique({ where: { id: req.params.id } });
+  const category = await prisma.category.findUnique({ where: { id: req.params.id as string } });
   if (!category) throw new NotFoundError("Category");
 
   const data = req.body;
@@ -52,7 +52,7 @@ router.put("/:id", authenticate, authorize("ADMIN"), async (req: Request, res: R
   }
 
   const updated = await prisma.category.update({
-    where: { id: req.params.id },
+    where: { id: req.params.id as string },
     data,
   });
   res.json(updated);
@@ -60,7 +60,7 @@ router.put("/:id", authenticate, authorize("ADMIN"), async (req: Request, res: R
 
 // DELETE /api/categories/:id — admin delete
 router.delete("/:id", authenticate, authorize("ADMIN"), async (req: Request, res: Response) => {
-  const category = await prisma.category.findUnique({ where: { id: req.params.id } });
+  const category = await prisma.category.findUnique({ where: { id: req.params.id as string } });
   if (!category) throw new NotFoundError("Category");
 
   // Delete associated image from Supabase Storage
@@ -68,7 +68,7 @@ router.delete("/:id", authenticate, authorize("ADMIN"), async (req: Request, res
     await deleteFileByUrl(category.image).catch(() => {});
   }
 
-  await prisma.category.delete({ where: { id: req.params.id } });
+  await prisma.category.delete({ where: { id: req.params.id as string } });
   res.json({ message: "Category deleted" });
 });
 

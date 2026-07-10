@@ -134,6 +134,9 @@
 }
 
 @layer base {
+  html {
+    overflow-x: hidden;
+  }
   * {
     border-color: var(--color-border);
   }
@@ -142,6 +145,7 @@
     color: var(--color-foreground);
     font-family: var(--font-sans);
     -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
   }
   h1, h2, h3, h4, .font-serif {
     font-family: var(--font-serif);
@@ -151,8 +155,9 @@
 @utility container-lux {
   width: 100%;
   margin-inline: auto;
-  max-width: 80rem;
-  padding-inline: 1.5rem;
+  max-width: 1600px;
+  padding-inline: 2rem;
+  box-sizing: border-box;
 }
 
 @utility text-balance {

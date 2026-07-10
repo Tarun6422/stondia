@@ -20,15 +20,20 @@ export const Route = createFileRoute("/_public/projects/$slug")({
           path: `/projects/${params.slug}`,
           ogImage: loaderData.project.image,
         })
-      : [{ title: "Project not found — Stone India Heritage" }, { name: "robots", content: "noindex" }],
+      : [
+          { title: "Project not found — Stone India Heritage" },
+          { name: "robots", content: "noindex" },
+        ],
     links: loaderData ? [canonicalLink(`/projects/${params.slug}`)] : [],
     scripts: loaderData
       ? [
-          jsonLdScript(breadcrumbSchema([
-            { name: "Home", item: "/" },
-            { name: "Projects", item: "/projects" },
-            { name: loaderData.project.name, item: `/projects/${params.slug}` },
-          ])),
+          jsonLdScript(
+            breadcrumbSchema([
+              { name: "Home", item: "/" },
+              { name: "Projects", item: "/projects" },
+              { name: loaderData.project.name, item: `/projects/${params.slug}` },
+            ]),
+          ),
         ]
       : [],
   }),
@@ -54,14 +59,21 @@ function ProjectDetail() {
         <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/40 to-black/30" />
         <div className="container-lux absolute inset-x-0 bottom-0 pb-14 text-white">
           <Reveal>
-            <Link to="/projects" className="mb-4 inline-flex items-center gap-2 text-sm text-white/80 hover:text-white">
+            <Link
+              to="/projects"
+              className="mb-4 inline-flex items-center gap-2 text-sm text-white/80 hover:text-white"
+            >
               <ArrowLeft className="h-4 w-4" /> All projects
             </Link>
             <p className="text-xs uppercase tracking-[0.2em] text-gold">{project.category}</p>
             <h1 className="mt-2 max-w-3xl font-serif text-4xl md:text-6xl">{project.name}</h1>
             <div className="mt-4 flex flex-wrap gap-6 text-sm text-white/85">
-              <span className="inline-flex items-center gap-2"><MapPin className="h-4 w-4 text-gold" /> {project.location}</span>
-              <span className="inline-flex items-center gap-2"><Calendar className="h-4 w-4 text-gold" /> {project.year}</span>
+              <span className="inline-flex items-center gap-2">
+                <MapPin className="h-4 w-4 text-gold" /> {project.location}
+              </span>
+              <span className="inline-flex items-center gap-2">
+                <Calendar className="h-4 w-4 text-gold" /> {project.year}
+              </span>
             </div>
           </Reveal>
         </div>
@@ -72,12 +84,14 @@ function ProjectDetail() {
           <Reveal>
             <div>
               <h2 className="font-serif text-3xl text-foreground">Project Overview</h2>
-              <p className="mt-5 text-lg leading-relaxed text-muted-foreground">{project.summary}</p>
+              <p className="mt-5 text-lg leading-relaxed text-muted-foreground">
+                {project.summary}
+              </p>
               <p className="mt-4 leading-relaxed text-muted-foreground">
-                Every element was engineered to export-grade tolerances and packaged to international
-                standards, ensuring flawless installation on site. Our team collaborated closely with
-                the architects to honour the design intent while guaranteeing durability and weather
-                resistance for decades to come.
+                Every element was engineered to export-grade tolerances and packaged to
+                international standards, ensuring flawless installation on site. Our team
+                collaborated closely with the architects to honour the design intent while
+                guaranteeing durability and weather resistance for decades to come.
               </p>
             </div>
           </Reveal>
@@ -111,7 +125,12 @@ function ProjectDetail() {
                 className="hover-lift group relative block overflow-hidden rounded-lg"
               >
                 <div className="aspect-[4/3] overflow-hidden">
-                  <img src={p.image} alt={p.name} loading="lazy" className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105" />
+                  <img
+                    src={p.image}
+                    alt={p.name}
+                    loading="lazy"
+                    className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+                  />
                 </div>
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent" />
                 <div className="absolute bottom-0 p-5 text-white">

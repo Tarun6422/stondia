@@ -26,7 +26,12 @@ import texture from "@/assets/texture-stone.jpg";
 const quoteSchema = z.object({
   name: z.string().trim().min(1, "Full name is required").max(100),
   company: z.string().trim().max(200).optional().default(""),
-  email: z.string().trim().min(1, "Email is required").email("Enter a valid email address").max(255),
+  email: z
+    .string()
+    .trim()
+    .min(1, "Email is required")
+    .email("Enter a valid email address")
+    .max(255),
   phone: z
     .string()
     .trim()
@@ -52,8 +57,16 @@ const quoteSchema = z.object({
 type QuoteData = z.infer<typeof quoteSchema>;
 
 const FINISH_OPTIONS = [
-  "Natural", "Honed", "Polished", "Leather", "Brushed",
-  "Sandblasted", "Bush Hammered", "Flamed", "Antique", "Tumbled",
+  "Natural",
+  "Honed",
+  "Polished",
+  "Leather",
+  "Brushed",
+  "Sandblasted",
+  "Bush Hammered",
+  "Flamed",
+  "Antique",
+  "Tumbled",
 ];
 
 const BUDGET_RANGES = [
@@ -81,7 +94,11 @@ export const Route = createFileRoute("/_public/quote")({
   head: () => ({
     meta: [
       { title: "Request a Quote — Stone India Heritage" },
-      { name: "description", content: "Request a detailed quote or samples for your natural stone project. Our export team replies within one business day." },
+      {
+        name: "description",
+        content:
+          "Request a detailed quote or samples for your natural stone project. Our export team replies within one business day.",
+      },
     ],
   }),
   component: Quote,
@@ -105,13 +122,17 @@ function Quote() {
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
       return raw ? JSON.parse(raw) : {};
-    } catch { return {}; }
+    } catch {
+      return {};
+    }
   }, []);
 
   const saveDraft = useCallback((data: Partial<QuoteData>) => {
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-    } catch { /* ignore */ }
+    } catch {
+      /* ignore */
+    }
   }, []);
 
   const draft = useRef(loadDraft());
@@ -132,12 +153,14 @@ function Quote() {
 
   const handleBlur = (name: keyof QuoteData) => {
     setTouched((prev) => ({ ...prev, [name]: true }));
-    const input = formRef.current?.elements.namedItem(name) as HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement | null;
+    const input = formRef.current?.elements.namedItem(name) as
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement | null;
     if (input) validateField(name, input.value);
   };
 
   const handleChange = (name: keyof QuoteData) => {
-    const input = formRef.current?.elements.namedItem(name) as HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement | null;
+    const input = formRef.current?.elements.namedItem(name) as
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement | null;
     if (input) {
       if (touched[name]) validateField(name, input.value);
       const formData = Object.fromEntries(new FormData(formRef.current!));
@@ -182,7 +205,8 @@ function Quote() {
       });
     } catch (err) {
       toast.error("Upload failed", {
-        description: err instanceof Error ? err.message : "Please try again or contact us directly.",
+        description:
+          err instanceof Error ? err.message : "Please try again or contact us directly.",
       });
       e.target.value = "";
     } finally {
@@ -197,7 +221,9 @@ function Quote() {
 
     // Mark all as touched
     const allTouched: Record<string, boolean> = {};
-    Object.keys(quoteSchema.shape).forEach((k) => { allTouched[k] = true; });
+    Object.keys(quoteSchema.shape).forEach((k) => {
+      allTouched[k] = true;
+    });
     setTouched(allTouched as Partial<Record<keyof QuoteData, boolean>>);
 
     const parsed = quoteSchema.safeParse(data);
@@ -231,13 +257,16 @@ function Quote() {
       });
 
       setSent(true);
-      setRefNumber(`RFQ-${new Date().getFullYear()}-${String(Math.floor(Math.random() * 9000) + 1000)}`);
+      setRefNumber(
+        `RFQ-${new Date().getFullYear()}-${String(Math.floor(Math.random() * 9000) + 1000)}`,
+      );
       localStorage.removeItem(STORAGE_KEY);
       toast.success("Request submitted!", {
         description: "Our export team will respond within one business day.",
       });
     } catch (err) {
-      const message = err instanceof ApiError ? err.message : "Something went wrong. Please try again.";
+      const message =
+        err instanceof ApiError ? err.message : "Something went wrong. Please try again.";
       toast.error(message, {
         description: "Please try again, or email us directly at exports@stoneindiaheritage.com.",
       });
@@ -404,7 +433,10 @@ function Quote() {
                         label="Product *"
                         options={[
                           { value: "", label: "Select a product" },
-                          ...PRODUCTS.map((p) => ({ value: p.slug, label: `${p.name} (${p.category})` })),
+                          ...PRODUCTS.map((p) => ({
+                            value: p.slug,
+                            label: `${p.name} (${p.category})`,
+                          })),
                           { value: "custom", label: "Custom product not listed" },
                         ]}
                         error={touched.product ? errors.product : undefined}
@@ -489,7 +521,9 @@ function Quote() {
 
                     {/* ── Upload Drawing ── */}
                     <div className="mt-5">
-                      <p className="text-sm font-medium text-foreground">Upload Drawing (optional)</p>
+                      <p className="text-sm font-medium text-foreground">
+                        Upload Drawing (optional)
+                      </p>
                       <div
                         onClick={() => fileRef.current?.click()}
                         className={`mt-1.5 flex cursor-pointer items-center justify-center gap-3 rounded-lg border-2 border-dashed px-6 py-8 transition-all ${
@@ -501,7 +535,9 @@ function Quote() {
                         {uploading ? (
                           <Loader2 className="h-5 w-5 animate-spin text-gold" />
                         ) : (
-                          <Upload className={`h-5 w-5 ${fileUploaded ? "text-gold" : "text-muted-foreground"}`} />
+                          <Upload
+                            className={`h-5 w-5 ${fileUploaded ? "text-gold" : "text-muted-foreground"}`}
+                          />
                         )}
                         <div className="text-center">
                           {fileUploaded ? (
@@ -540,14 +576,18 @@ function Quote() {
                           placeholder="Describe your project in detail — including finishes, colours, site conditions, and any special requirements…"
                           defaultValue={draft.current.projectDetails}
                           onBlur={() => handleBlur("projectDetails")}
-                          onFocus={() => {}}                          onChange={(e) => { handleChange("projectDetails"); setDetailsLen(e.target.value.length); }}
-                            maxLength={3000}
-                            className={`w-full rounded-lg border bg-background px-4 py-3 text-sm outline-none transition-all focus:ring-1 ${
-                              touched.projectDetails && errors.projectDetails
-                                ? "border-destructive focus:border-destructive focus:ring-destructive/30"
-                                : "border-border/60 focus:border-gold focus:ring-gold/30"
-                            }`}
-                          />
+                          onFocus={() => {}}
+                          onChange={(e) => {
+                            handleChange("projectDetails");
+                            setDetailsLen(e.target.value.length);
+                          }}
+                          maxLength={3000}
+                          className={`w-full rounded-lg border bg-background px-4 py-3 text-sm outline-none transition-all focus:ring-1 ${
+                            touched.projectDetails && errors.projectDetails
+                              ? "border-destructive focus:border-destructive focus:ring-destructive/30"
+                              : "border-border/60 focus:border-gold focus:ring-gold/30"
+                          }`}
+                        />
                         <span className="absolute bottom-3 right-3 text-[0.6rem] text-muted-foreground">
                           <span className="tabular-nums">{detailsLen}</span>/3000
                         </span>
@@ -561,7 +601,11 @@ function Quote() {
 
                     {/* ── Samples checkbox ── */}
                     <div className="mt-6 flex items-center gap-2">
-                      <input id="samples" type="checkbox" className="h-4 w-4 accent-[var(--gold)]" />
+                      <input
+                        id="samples"
+                        type="checkbox"
+                        className="h-4 w-4 accent-[var(--gold)]"
+                      />
                       <label htmlFor="samples" className="text-sm text-muted-foreground">
                         I&apos;d also like to receive physical samples
                       </label>
@@ -631,9 +675,7 @@ function FormField({
 }) {
   return (
     <div>
-      <label className="text-sm font-medium text-foreground">
-        {label}
-      </label>
+      <label className="text-sm font-medium text-foreground">{label}</label>
       <div className="relative mt-1.5">
         <input
           name={name}
@@ -654,7 +696,11 @@ function FormField({
         />
       </div>
       {error && (
-        <p id={`${name}-error`} className="mt-1 text-xs text-destructive flex items-center gap-1" role="alert">
+        <p
+          id={`${name}-error`}
+          className="mt-1 text-xs text-destructive flex items-center gap-1"
+          role="alert"
+        >
           <AlertCircle className="h-3 w-3 shrink-0" /> {error}
         </p>
       )}
@@ -706,7 +752,11 @@ function SelectField({
         <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
       </div>
       {error && (
-        <p id={`${name}-error`} className="mt-1 text-xs text-destructive flex items-center gap-1" role="alert">
+        <p
+          id={`${name}-error`}
+          className="mt-1 text-xs text-destructive flex items-center gap-1"
+          role="alert"
+        >
           <AlertCircle className="h-3 w-3 shrink-0" /> {error}
         </p>
       )}

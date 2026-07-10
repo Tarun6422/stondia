@@ -4,12 +4,31 @@
 import { useMemo } from "react";
 import { motion } from "framer-motion";
 import {
-  BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  Tooltip,
+  ResponsiveContainer,
+  PieChart,
+  Pie,
+  Cell,
 } from "recharts";
 import {
-  Package, FolderTree, Building2, Newspaper, Video, Download,
-  MessageSquare, FileText, Users, Mail, UserCheck, AlertCircle,
-  Star, Clock,
+  Package,
+  FolderTree,
+  Building2,
+  Newspaper,
+  Video,
+  Download,
+  MessageSquare,
+  FileText,
+  Users,
+  Mail,
+  UserCheck,
+  AlertCircle,
+  Star,
+  Clock,
 } from "lucide-react";
 import { useDashboard, useCategories } from "./admin-hooks";
 import { StatCard, StatCardSkeleton, AnimatedCount } from "./data-table";
@@ -98,16 +117,60 @@ export function DashboardOverview() {
           Array.from({ length: 10 }).map((_, i) => <StatCardSkeleton key={i} />)
         ) : (
           <>
-            <StatCard label="Products" value={<AnimatedCount value={stats?.products ?? 0} />} icon={<Package className="h-5 w-5" />} />
-            <StatCard label="Categories" value={<AnimatedCount value={stats?.categories ?? 0} />} icon={<FolderTree className="h-5 w-5" />} />
-            <StatCard label="Projects" value={<AnimatedCount value={stats?.projects ?? 0} />} icon={<Building2 className="h-5 w-5" />} />
-            <StatCard label="Blog Posts" value={<AnimatedCount value={stats?.blogs ?? 0} />} icon={<Newspaper className="h-5 w-5" />} />
-            <StatCard label="Videos" value={<AnimatedCount value={stats?.videos ?? 0} />} icon={<Video className="h-5 w-5" />} />
-            <StatCard label="Downloads" value={<AnimatedCount value={stats?.downloads ?? 0} />} icon={<Download className="h-5 w-5" />} />
-            <StatCard label="RFQs" value={<AnimatedCount value={stats?.rfqs?.total ?? 0} />} trend={`${stats?.rfqs?.pending ?? 0} pending`} trendUp icon={<FileText className="h-5 w-5" />} />
-            <StatCard label="Contacts" value={<AnimatedCount value={stats?.contacts?.total ?? 0} />} trend={`${stats?.contacts?.unread ?? 0} unread`} trendUp icon={<MessageSquare className="h-5 w-5" />} />
-            <StatCard label="Subscribers" value={<AnimatedCount value={stats?.subscribers ?? 0} />} icon={<Mail className="h-5 w-5" />} />
-            <StatCard label="Users" value={<AnimatedCount value={stats?.users ?? 0} />} icon={<Users className="h-5 w-5" />} />
+            <StatCard
+              label="Products"
+              value={<AnimatedCount value={stats?.products ?? 0} />}
+              icon={<Package className="h-5 w-5" />}
+            />
+            <StatCard
+              label="Categories"
+              value={<AnimatedCount value={stats?.categories ?? 0} />}
+              icon={<FolderTree className="h-5 w-5" />}
+            />
+            <StatCard
+              label="Projects"
+              value={<AnimatedCount value={stats?.projects ?? 0} />}
+              icon={<Building2 className="h-5 w-5" />}
+            />
+            <StatCard
+              label="Blog Posts"
+              value={<AnimatedCount value={stats?.blogs ?? 0} />}
+              icon={<Newspaper className="h-5 w-5" />}
+            />
+            <StatCard
+              label="Videos"
+              value={<AnimatedCount value={stats?.videos ?? 0} />}
+              icon={<Video className="h-5 w-5" />}
+            />
+            <StatCard
+              label="Downloads"
+              value={<AnimatedCount value={stats?.downloads ?? 0} />}
+              icon={<Download className="h-5 w-5" />}
+            />
+            <StatCard
+              label="RFQs"
+              value={<AnimatedCount value={stats?.rfqs?.total ?? 0} />}
+              trend={`${stats?.rfqs?.pending ?? 0} pending`}
+              trendUp
+              icon={<FileText className="h-5 w-5" />}
+            />
+            <StatCard
+              label="Contacts"
+              value={<AnimatedCount value={stats?.contacts?.total ?? 0} />}
+              trend={`${stats?.contacts?.unread ?? 0} unread`}
+              trendUp
+              icon={<MessageSquare className="h-5 w-5" />}
+            />
+            <StatCard
+              label="Subscribers"
+              value={<AnimatedCount value={stats?.subscribers ?? 0} />}
+              icon={<Mail className="h-5 w-5" />}
+            />
+            <StatCard
+              label="Users"
+              value={<AnimatedCount value={stats?.users ?? 0} />}
+              icon={<Users className="h-5 w-5" />}
+            />
           </>
         )}
       </div>
@@ -139,7 +202,10 @@ export function DashboardOverview() {
               <PieChart>
                 <Pie
                   data={categoryChartData}
-                  cx="50%" cy="50%" innerRadius={50} outerRadius={80}
+                  cx="50%"
+                  cy="50%"
+                  innerRadius={50}
+                  outerRadius={80}
                   dataKey="value"
                   paddingAngle={3}
                 >
@@ -165,7 +231,11 @@ export function DashboardOverview() {
                 <Star className="h-3.5 w-3.5 text-gold" /> Testimonials
               </span>
               <span className="font-serif text-lg text-foreground">
-                {isLoading ? <Skeleton className="inline-block h-5 w-8" /> : stats?.testimonials ?? 0}
+                {isLoading ? (
+                  <Skeleton className="inline-block h-5 w-8" />
+                ) : (
+                  (stats?.testimonials ?? 0)
+                )}
               </span>
             </div>
             <div className="flex items-center justify-between border-b border-border/40 pb-2.5">
@@ -173,7 +243,11 @@ export function DashboardOverview() {
                 <Clock className="h-3.5 w-3.5 text-gold" /> Pending RFQs
               </span>
               <span className="font-serif text-lg text-foreground">
-                {isLoading ? <Skeleton className="inline-block h-5 w-8" /> : stats?.rfqs?.pending ?? 0}
+                {isLoading ? (
+                  <Skeleton className="inline-block h-5 w-8" />
+                ) : (
+                  (stats?.rfqs?.pending ?? 0)
+                )}
               </span>
             </div>
             <div className="flex items-center justify-between border-b border-border/40 pb-2.5">
@@ -181,7 +255,11 @@ export function DashboardOverview() {
                 <UserCheck className="h-3.5 w-3.5 text-gold" /> Unread Contacts
               </span>
               <span className="font-serif text-lg text-foreground">
-                {isLoading ? <Skeleton className="inline-block h-5 w-8" /> : stats?.contacts?.unread ?? 0}
+                {isLoading ? (
+                  <Skeleton className="inline-block h-5 w-8" />
+                ) : (
+                  (stats?.contacts?.unread ?? 0)
+                )}
               </span>
             </div>
             <div className="flex items-center justify-between">
@@ -189,7 +267,11 @@ export function DashboardOverview() {
                 <Users className="h-3.5 w-3.5 text-gold" /> Active Subs
               </span>
               <span className="font-serif text-lg text-foreground">
-                {isLoading ? <Skeleton className="inline-block h-5 w-8" /> : stats?.subscribers ?? 0}
+                {isLoading ? (
+                  <Skeleton className="inline-block h-5 w-8" />
+                ) : (
+                  (stats?.subscribers ?? 0)
+                )}
               </span>
             </div>
           </div>
@@ -198,16 +280,28 @@ export function DashboardOverview() {
         {/* Quick Links */}
         <ChartCard title="Quick Actions">
           <div className="space-y-2 pt-2">
-            <Link to="/admin/products" className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-muted-foreground transition-colors hover:bg-muted/50 hover:text-foreground">
+            <Link
+              to="/admin/products"
+              className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-muted-foreground transition-colors hover:bg-muted/50 hover:text-foreground"
+            >
               <Package className="h-4 w-4 text-gold" /> Manage Products
             </Link>
-            <Link to="/admin/projects" className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-muted-foreground transition-colors hover:bg-muted/50 hover:text-foreground">
+            <Link
+              to="/admin/projects"
+              className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-muted-foreground transition-colors hover:bg-muted/50 hover:text-foreground"
+            >
               <Building2 className="h-4 w-4 text-gold" /> Manage Projects
             </Link>
-            <Link to="/admin/blogs" className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-muted-foreground transition-colors hover:bg-muted/50 hover:text-foreground">
+            <Link
+              to="/admin/blogs"
+              className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-muted-foreground transition-colors hover:bg-muted/50 hover:text-foreground"
+            >
               <Newspaper className="h-4 w-4 text-gold" /> Manage Blogs
             </Link>
-            <Link to="/admin/rfqs" className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-muted-foreground transition-colors hover:bg-muted/50 hover:text-foreground">
+            <Link
+              to="/admin/rfqs"
+              className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-muted-foreground transition-colors hover:bg-muted/50 hover:text-foreground"
+            >
               <FileText className="h-4 w-4 text-gold" /> View RFQs
             </Link>
           </div>
@@ -235,17 +329,28 @@ export function DashboardOverview() {
               ))
             ) : data?.recent?.rfqs?.length ? (
               data.recent.rfqs.map((rfq: any) => (
-                <div key={rfq.id} className="flex items-center justify-between px-6 py-3.5 transition-colors hover:bg-muted/20">
+                <div
+                  key={rfq.id}
+                  className="flex items-center justify-between px-6 py-3.5 transition-colors hover:bg-muted/20"
+                >
                   <div className="flex items-center gap-3">
                     <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gold/10 text-xs font-semibold text-gold">
                       {rfq.user?.name?.charAt(0) || rfq.email?.charAt(0) || "?"}
                     </div>
                     <div>
-                      <p className="text-sm font-medium text-foreground">{rfq.user?.name || rfq.email || "Anonymous"}</p>
-                      <p className="text-xs text-muted-foreground">{rfq.country || "—"} · {rfq.createdAt ? format(new Date(rfq.createdAt), "MMM d, yyyy") : ""}</p>
+                      <p className="text-sm font-medium text-foreground">
+                        {rfq.user?.name || rfq.email || "Anonymous"}
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        {rfq.country || "—"} ·{" "}
+                        {rfq.createdAt ? format(new Date(rfq.createdAt), "MMM d, yyyy") : ""}
+                      </p>
                     </div>
                   </div>
-                  <Badge className={`${STATUS_STYLES[rfq.status] || ""} shrink-0`} variant="outline">
+                  <Badge
+                    className={`${STATUS_STYLES[rfq.status] || ""} shrink-0`}
+                    variant="outline"
+                  >
                     {rfq.status}
                   </Badge>
                 </div>
@@ -275,17 +380,25 @@ export function DashboardOverview() {
               ))
             ) : data?.recent?.contacts?.length ? (
               data.recent.contacts.map((c: any) => (
-                <div key={c.id} className="flex items-center justify-between px-6 py-3.5 transition-colors hover:bg-muted/20">
+                <div
+                  key={c.id}
+                  className="flex items-center justify-between px-6 py-3.5 transition-colors hover:bg-muted/20"
+                >
                   <div className="flex items-center gap-3 min-w-0 flex-1">
                     <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gold/10 text-xs font-semibold text-gold">
                       {c.name?.charAt(0) || "?"}
                     </div>
                     <div className="min-w-0">
                       <p className="text-sm font-medium text-foreground truncate">{c.name}</p>
-                      <p className="text-xs text-muted-foreground truncate">{c.email} · {c.createdAt ? format(new Date(c.createdAt), "MMM d") : ""}</p>
+                      <p className="text-xs text-muted-foreground truncate">
+                        {c.email} · {c.createdAt ? format(new Date(c.createdAt), "MMM d") : ""}
+                      </p>
                     </div>
                   </div>
-                  <Badge className={`${STATUS_STYLES[c.status] || ""} shrink-0 ml-2`} variant="outline">
+                  <Badge
+                    className={`${STATUS_STYLES[c.status] || ""} shrink-0 ml-2`}
+                    variant="outline"
+                  >
                     {c.status}
                   </Badge>
                 </div>
@@ -301,12 +414,7 @@ export function DashboardOverview() {
 }
 
 /* ── Chart Card Wrapper ── */
-function ChartCard({
-  title, children,
-}: {
-  title: string;
-  children: React.ReactNode;
-}) {
+function ChartCard({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <motion.div
       initial={{ opacity: 0, y: 12 }}

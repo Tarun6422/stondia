@@ -17,7 +17,10 @@ export function Breadcrumbs({ items, className }: { items: Crumb[]; className?: 
           return (
             <li key={i} className="inline-flex items-center gap-1.5">
               {last || !c.to ? (
-                <span aria-current={last ? "page" : undefined} className={last ? "text-foreground" : ""}>
+                <span
+                  aria-current={last ? "page" : undefined}
+                  className={last ? "text-foreground" : ""}
+                >
                   {i === 0 ? <Home className="h-3.5 w-3.5" aria-label="Home" /> : c.label}
                 </span>
               ) : (

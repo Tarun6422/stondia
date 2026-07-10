@@ -11,16 +11,19 @@ export const Route = createFileRoute("/_public/faq")({
   head: () => ({
     meta: buildMeta({
       title: "FAQ — Stone India Heritage",
-      description: "Answers to common questions about ordering natural stone, shipping, custom work, samples, and technical documentation from India's premier sandstone exporter.",
+      description:
+        "Answers to common questions about ordering natural stone, shipping, custom work, samples, and technical documentation from India's premier sandstone exporter.",
       path: "/faq",
     }),
     links: [canonicalLink("/faq")],
     scripts: [
       jsonLdScript(faqSchema(FAQS.map((f) => ({ question: f.q, answer: f.a })))),
-      jsonLdScript(breadcrumbSchema([
-        { name: "Home", item: "/" },
-        { name: "FAQ", item: "/faq" },
-      ])),
+      jsonLdScript(
+        breadcrumbSchema([
+          { name: "Home", item: "/" },
+          { name: "FAQ", item: "/faq" },
+        ]),
+      ),
     ],
   }),
   component: FAQ,
@@ -50,7 +53,9 @@ function FAQ() {
                     {open === i ? <Minus className="h-5 w-5" /> : <Plus className="h-5 w-5" />}
                   </span>
                 </button>
-                <div className={`grid overflow-hidden px-6 transition-all duration-300 ${open === i ? "grid-rows-[1fr] pb-5" : "grid-rows-[0fr]"}`}>
+                <div
+                  className={`grid overflow-hidden px-6 transition-all duration-300 ${open === i ? "grid-rows-[1fr] pb-5" : "grid-rows-[0fr]"}`}
+                >
                   <p className="min-h-0 text-muted-foreground">{f.a}</p>
                 </div>
               </Reveal>

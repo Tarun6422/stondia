@@ -27,10 +27,13 @@ function ResetPasswordRedirect() {
         </span>
         <h1 className="mt-4 font-serif text-2xl text-foreground">Password reset link expired</h1>
         <p className="mt-2 text-sm text-muted-foreground">
-          The old password reset links have been replaced with a new secure verification code system.
+          The old password reset links have been replaced with a new secure verification code
+          system.
           {email ? (
             <>
-              {" "}If you still need to reset your password for <strong>{email}</strong>, please request a new code below.
+              {" "}
+              If you still need to reset your password for <strong>{email}</strong>, please request
+              a new code below.
             </>
           ) : (
             <> Please request a new verification code to reset your password.</>

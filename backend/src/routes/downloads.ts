@@ -13,7 +13,7 @@ router.get("/", async (_req: Request, res: Response) => {
 });
 
 router.get("/:slug", async (req: Request, res: Response) => {
-  const download = await prisma.download.findUnique({ where: { slug: req.params.slug } });
+  const download = await prisma.download.findUnique({ where: { slug: req.params.slug as string } });
   if (!download) throw new NotFoundError("Download");
   res.json(download);
 });
@@ -31,14 +31,17 @@ router.post("/", authenticate, authorize("ADMIN"), async (req: Request, res: Res
 });
 
 router.put("/:id", authenticate, authorize("ADMIN"), async (req: Request, res: Response) => {
-  const download = await prisma.download.findUnique({ where: { id: req.params.id } });
+  const download = await prisma.download.findUnique({ where: { id: req.params.id as string } });
   if (!download) throw new NotFoundError("Download");
-  const updated = await prisma.download.update({ where: { id: req.params.id }, data: req.body });
+  const updated = await prisma.download.update({
+    where: { id: req.params.id as string },
+    data: req.body,
+  });
   res.json(updated);
 });
 
 router.delete("/:id", authenticate, authorize("ADMIN"), async (req: Request, res: Response) => {
-  const download = await prisma.download.findUnique({ where: { id: req.params.id } });
+  const download = await prisma.download.findUnique({ where: { id: req.params.id as string } });
   if (!download) throw new NotFoundError("Download");
 
   // Delete PDF from Supabase Storage
@@ -46,7 +49,7 @@ router.delete("/:id", authenticate, authorize("ADMIN"), async (req: Request, res
     await deleteFileByUrl(download.pdf).catch(() => {});
   }
 
-  await prisma.download.delete({ where: { id: req.params.id } });
+  await prisma.download.delete({ where: { id: req.params.id as string } });
   res.json({ message: "Download deleted" });
 });
 

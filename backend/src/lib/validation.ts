@@ -23,7 +23,11 @@ export function validate(schema: ZodSchema, source: "body" | "query" | "params" 
 
 export const emailSchema = z.string().email("Invalid email").max(255);
 export const passwordSchema = z.string().min(8, "Password must be at least 8 characters").max(100);
-export const slugSchema = z.string().min(1).max(200).regex(/^[a-z0-9-]+$/, "Invalid slug format");
+export const slugSchema = z
+  .string()
+  .min(1)
+  .max(200)
+  .regex(/^[a-z0-9-]+$/, "Invalid slug format");
 
 // Password with strength validation
 const strongPasswordSchema = z

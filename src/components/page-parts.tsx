@@ -23,9 +23,7 @@ export function SectionHeading({
         {title}
       </h2>
       {intro && (
-        <p className="mt-4 text-base leading-relaxed text-muted-foreground md:text-lg">
-          {intro}
-        </p>
+        <p className="mt-4 text-base leading-relaxed text-muted-foreground md:text-lg">{intro}</p>
       )}
     </Reveal>
   );
@@ -73,8 +71,8 @@ export function CTASection() {
             Request a quote or a sample of Rajasthan's finest sandstone
           </h2>
           <p className="mx-auto mt-4 max-w-xl text-white/70">
-            Share your project specifications and our export team will respond
-            within one business day.
+            Share your project specifications and our export team will respond within one business
+            day.
           </p>
         </Reveal>
         <Reveal delay={0.1} className="mt-2 flex flex-wrap justify-center gap-3">

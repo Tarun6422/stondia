@@ -3,7 +3,13 @@ import { prisma } from "../db.js";
 import { authenticate, authorize, optionalAuth } from "../middleware/auth.js";
 import { validate, rfqSchema } from "../lib/validation.js";
 import { NotFoundError } from "../lib/errors.js";
-import { sendEmail, rfqConfirmationEmail, adminNotificationEmail, rfqCompletedEmail, rfqCancelledEmail } from "../lib/email.js";
+import {
+  sendEmail,
+  rfqConfirmationEmail,
+  adminNotificationEmail,
+  rfqCompletedEmail,
+  rfqCancelledEmail,
+} from "../lib/email.js";
 import { CONFIG } from "../config.js";
 
 const router = Router();
@@ -12,7 +18,7 @@ const router = Router();
 router.post("/", optionalAuth, validate(rfqSchema), async (req: Request, res: Response) => {
   const data = req.body;
 
-  const rfq = await prisma.rfq.create({
+  const rfq = await prisma.rFQ.create({
     data: {
       userId: req.user?.userId || null,
       company: data.company || null,
@@ -26,7 +32,15 @@ router.post("/", optionalAuth, validate(rfqSchema), async (req: Request, res: Re
   });
 
   // Send confirmation
-  try { await sendEmail(data.email, "Quote Request Received — Stone India Heritage", rfqConfirmationEmail(data.name)); } catch { /* ignore */ }
+  try {
+    await sendEmail(
+      data.email,
+      "Quote Request Received — Stone India Heritage",
+      rfqConfirmationEmail(data.name),
+    );
+  } catch {
+    /* ignore */
+  }
 
   // Notify admin
   try {
@@ -44,14 +58,20 @@ router.post("/", optionalAuth, validate(rfqSchema), async (req: Request, res: Re
         attachments: data.attachments,
       }),
     );
-  } catch { /* ignore */ }
+  } catch {
+    /* ignore */
+  }
 
   res.status(201).json({ message: "Quote request submitted", id: rfq.id });
 });
 
 // GET /api/rfq — admin list with pagination and status filter
 router.get("/", authenticate, authorize("ADMIN"), async (req: Request, res: Response) => {
-  const { status, page: pageStr, limit: limitStr } = req.query as Record<string, string | undefined>;
+  const {
+    status,
+    page: pageStr,
+    limit: limitStr,
+  } = req.query as Record<string, string | undefined>;
   const page = Math.max(1, parseInt(pageStr || "1", 10));
   const limit = Math.min(100, Math.max(1, parseInt(limitStr || "20", 10)));
   const skip = (page - 1) * limit;
@@ -60,17 +80,17 @@ router.get("/", authenticate, authorize("ADMIN"), async (req: Request, res: Resp
   if (status && status !== "all") where.status = status;
 
   const [rfqs, total] = await Promise.all([
-    prisma.rfq.findMany({
+    prisma.rFQ.findMany({
       where,
       orderBy: { createdAt: "desc" },
       skip,
       take: limit,
       include: { user: { select: { id: true, name: true, email: true } } },
     }),
-    prisma.rfq.count({ where }),
+    prisma.rFQ.count({ where }),
   ]);
 
-  const pending = await prisma.rfq.count({ where: { status: "Pending" } });
+  const pending = await prisma.rFQ.count({ where: { status: "Pending" } });
 
   res.json({
     data: rfqs,
@@ -81,7 +101,10 @@ router.get("/", authenticate, authorize("ADMIN"), async (req: Request, res: Resp
 
 // PUT /api/rfq/:id — admin update status and/or reply with quotation
 router.put("/:id", authenticate, authorize("ADMIN"), async (req: Request, res: Response) => {
-  const rfq = await prisma.rfq.findUnique({ where: { id: req.params.id } });
+  const rfq = await prisma.rFQ.findUnique({
+    where: { id: req.params.id as string },
+    include: { user: { select: { name: true } } },
+  });
   if (!rfq) throw new NotFoundError("Quote request");
 
   const allowedStatuses = ["Pending", "Quoted", "Negotiation", "Completed", "Cancelled"];
@@ -96,8 +119,8 @@ router.put("/:id", authenticate, authorize("ADMIN"), async (req: Request, res: R
     updateData.repliedAt = new Date();
   }
 
-  const updated = await prisma.rfq.update({
-    where: { id: req.params.id },
+  const updated = await prisma.rFQ.update({
+    where: { id: req.params.id as string },
     data: updateData,
   });
 
@@ -114,7 +137,9 @@ router.put("/:id", authenticate, authorize("ADMIN"), async (req: Request, res: R
           `Quote Update — Stone India Heritage (${newStatus})`,
           rfqReplyEmail(req.body.adminReply, newStatus),
         );
-      } catch { /* ignore */ }
+      } catch {
+        /* ignore */
+      }
     } else if (statusChanged && newStatus === "Completed") {
       // Status changed to Completed without a reply
       try {
@@ -123,7 +148,9 @@ router.put("/:id", authenticate, authorize("ADMIN"), async (req: Request, res: R
           "Quote Completed — Stone India Heritage",
           rfqCompletedEmail(rfq.user?.name || rfq.email, rfq.company || undefined),
         );
-      } catch { /* ignore */ }
+      } catch {
+        /* ignore */
+      }
     } else if (statusChanged && newStatus === "Cancelled") {
       // Status changed to Cancelled without a reply
       try {
@@ -132,7 +159,9 @@ router.put("/:id", authenticate, authorize("ADMIN"), async (req: Request, res: R
           "Quote Cancelled — Stone India Heritage",
           rfqCancelledEmail(rfq.user?.name || rfq.email, req.body.adminReply || undefined),
         );
-      } catch { /* ignore */ }
+      } catch {
+        /* ignore */
+      }
     }
   }
 
@@ -141,9 +170,9 @@ router.put("/:id", authenticate, authorize("ADMIN"), async (req: Request, res: R
 
 // DELETE /api/rfq/:id — admin delete
 router.delete("/:id", authenticate, authorize("ADMIN"), async (req: Request, res: Response) => {
-  const rfq = await prisma.rfq.findUnique({ where: { id: req.params.id } });
+  const rfq = await prisma.rFQ.findUnique({ where: { id: req.params.id as string } });
   if (!rfq) throw new NotFoundError("Quote request");
-  await prisma.rfq.delete({ where: { id: req.params.id } });
+  await prisma.rFQ.delete({ where: { id: req.params.id as string } });
   res.json({ message: "Quote request deleted" });
 });
 

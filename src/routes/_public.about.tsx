@@ -3,23 +3,25 @@ import { Button } from "@/components/ui/button";
 import { Reveal } from "@/components/motion";
 import { PageHero, SectionHeading, CTASection } from "@/components/page-parts";
 import { COMPANY } from "@/data/site";
-import factory from "@/assets/factory.jpg";
-import texture from "@/assets/texture-stone.jpg";
+import { factory02, arch03 } from "@/assets/media";
 import { buildMeta, canonicalLink, jsonLdScript, breadcrumbSchema } from "@/lib/seo";
 
 export const Route = createFileRoute("/_public/about")({
   head: () => ({
     meta: buildMeta({
       title: "About — Stone India Heritage",
-      description: "Learn about Stone India Heritage — our vision, mission and values as a premium Rajasthan sandstone manufacturer and global exporter serving 35+ countries.",
+      description:
+        "Learn about Stone India Heritage — our vision, mission and values as a premium Rajasthan sandstone manufacturer and global exporter serving 35+ countries.",
       path: "/about",
     }),
     links: [canonicalLink("/about")],
     scripts: [
-      jsonLdScript(breadcrumbSchema([
-        { name: "Home", item: "/" },
-        { name: "About", item: "/about" },
-      ])),
+      jsonLdScript(
+        breadcrumbSchema([
+          { name: "Home", item: "/" },
+          { name: "About", item: "/about" },
+        ]),
+      ),
     ],
   }),
   component: About,
@@ -32,14 +34,19 @@ function About() {
         eyebrow="About Us"
         title="Custodians of Rajasthan's stone legacy"
         intro="A premium manufacturer and global exporter uniting generations of craftsmanship with modern precision manufacturing."
-        image={texture}
+        image={arch03}
       />
 
       <section className="py-24">
         <div className="container-lux grid gap-14 lg:grid-cols-2 lg:items-center">
           <Reveal>
             <div className="overflow-hidden rounded-lg">
-              <img src={factory} alt="Our facility" loading="lazy" className="w-full object-cover" />
+              <img
+                src={factory02}
+                alt="Our facility"
+                loading="lazy"
+                className="w-full object-cover"
+              />
             </div>
           </Reveal>
           <div>
@@ -65,9 +72,7 @@ function About() {
           <Reveal delay={0.1}>
             <div className="h-full rounded-lg border border-border bg-card p-10">
               <p className="eyebrow mb-3">Our Mission</p>
-              <p className="text-lg leading-relaxed text-foreground/80">
-                {COMPANY.mission}
-              </p>
+              <p className="text-lg leading-relaxed text-foreground/80">{COMPANY.mission}</p>
             </div>
           </Reveal>
         </div>

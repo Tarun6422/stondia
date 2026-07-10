@@ -17,7 +17,8 @@ export const STORAGE_FOLDERS = [
   "downloads",
   "testimonials",
   "avatars",
-  "uploads",     // public form uploads
+  "uploads", // public form uploads
+  "catalogs", // generated PDF catalogs
 ] as const;
 export type StorageFolder = (typeof STORAGE_FOLDERS)[number];
 
@@ -26,10 +27,21 @@ const ALLOWED_MIMES = new Set([
   "image/jpeg",
   "image/png",
   "image/webp",
+  "image/avif",
   "application/pdf",
+  "video/mp4",
+  "video/quicktime",
+  "video/webm",
+  "video/x-msvideo",
+  "video/x-matroska",
 ]);
 
-const MAX_SIZE = 10 * 1024 * 1024; // 10 MB
+const MAX_SIZE = 500 * 1024 * 1024; // 500 MB
+
+/* ── Check if Supabase Storage is configured and usable ── */
+export function isSupabaseConfigured(): boolean {
+  return !!(SUPABASE_URL && SERVICE_KEY);
+}
 
 /* ── Auth headers for service-role calls ── */
 function headers(extra: Record<string, string> = {}): Record<string, string> {
@@ -42,7 +54,9 @@ function headers(extra: Record<string, string> = {}): Record<string, string> {
 /* ── Ensure bucket exists and is public (called once on startup) ── */
 export async function ensureBucket(): Promise<void> {
   if (!SUPABASE_URL || !SERVICE_KEY) {
-    console.warn("[Supabase Storage] Missing SUPABASE_URL or SUPABASE_SERVICE_KEY — storage disabled");
+    console.warn(
+      "[Supabase Storage] Missing SUPABASE_URL or SUPABASE_SERVICE_KEY — storage disabled",
+    );
     return;
   }
 
@@ -89,10 +103,11 @@ export async function ensureBucket(): Promise<void> {
 /* ── Validate file ── */
 export function validateFile(mime: string, size: number): string | null {
   if (!ALLOWED_MIMES.has(mime)) {
-    return "Only JPG, PNG, WebP images and PDF files are allowed";
+    return "Only JPG, PNG, WebP, AVIF images, PDF documents, and MP4/MOV/WebM videos are allowed";
   }
   if (size > MAX_SIZE) {
-    return `File too large. Maximum size is 10 MB (got ${(size / 1024 / 1024).toFixed(1)} MB)`;
+    const limitMB = MAX_SIZE / 1024 / 1024;
+    return `File too large. Maximum size is ${limitMB} MB (got ${(size / 1024 / 1024).toFixed(1)} MB)`;
   }
   return null;
 }
@@ -193,4 +208,53 @@ export async function listFiles(folder: string): Promise<string[]> {
   if (!res.ok) return [];
   const data = await res.json();
   return (data as any[]).map((item: any) => item.name || "");
+}
+
+/* ── Get total storage usage (bytes) across all catalog files ── */
+export async function getStorageUsage(): Promise<number> {
+  if (!SUPABASE_URL || !SERVICE_KEY) return 0;
+
+  let totalBytes = 0;
+  const folder = "downloads";
+
+  try {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 5000); // 5s timeout
+
+    const res = await fetch(`${SUPABASE_URL}/storage/v1/object/list/${BUCKET}`, {
+      method: "POST",
+      headers: headers({ "Content-Type": "application/json" }),
+      signal: controller.signal,
+      body: JSON.stringify({
+        prefix: folder,
+        limit: 1000,
+        offset: 0,
+        sortBy: { column: "name", order: "asc" },
+      }),
+    });
+
+    clearTimeout(timeoutId);
+    if (!res.ok) return 0;
+    const data = await res.json();
+    const files = Array.isArray(data) ? data : [];
+
+    for (const file of files) {
+      if (file.metadata?.size) {
+        totalBytes += file.metadata.size;
+      }
+    }
+  } catch (err) {
+    console.warn("[Supabase Storage] Failed to calculate storage usage:", err);
+  }
+
+  return totalBytes;
+}
+
+/* ── Format bytes into human-readable string ── */
+export function formatStorageBytes(bytes: number): string {
+  if (bytes === 0) return "0 B";
+  const units = ["B", "KB", "MB", "GB"];
+  const i = Math.floor(Math.log(bytes) / Math.log(1024));
+  const val = bytes / Math.pow(1024, i);
+  return `${val.toFixed(i === 0 ? 0 : 1)} ${units[i]}`;
 }

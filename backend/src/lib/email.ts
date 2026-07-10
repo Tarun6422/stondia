@@ -68,7 +68,15 @@ export async function sendEmail(to: string, subject: string, html: string) {
 /*  Shared HTML shell — luxury brand wrapper                           */
 /* ------------------------------------------------------------------ */
 
-function shell({ title, preview, children }: { title?: string; preview?: string; children: string }) {
+function shell({
+  title,
+  preview,
+  children,
+}: {
+  title?: string;
+  preview?: string;
+  children: string;
+}) {
   return `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -512,7 +520,9 @@ export function passwordResetOTPEmail(name: string, otp: string): string {
 export function newsletterConfirmationEmail(name?: string, email?: string): string {
   const safeName = name ? escapeVal(name) : "";
   const safeEmail = email ? escapeVal(email) : "";
-  const unsubscribeUrl = email ? `${CONFIG.FRONTEND_URL}/unsubscribe?email=${encodeURIComponent(email)}` : `${CONFIG.FRONTEND_URL}/contact`;
+  const unsubscribeUrl = email
+    ? `${CONFIG.FRONTEND_URL}/unsubscribe?email=${encodeURIComponent(email)}`
+    : `${CONFIG.FRONTEND_URL}/contact`;
   const greeting = name ? `Dear ${safeName},` : "Hello,";
   return shell({
     title: "You're Subscribed — Stone India Heritage",

@@ -3,22 +3,25 @@ import { Award } from "lucide-react";
 import { Reveal } from "@/components/motion";
 import { PageHero, CTASection } from "@/components/page-parts";
 import { CERTIFICATIONS } from "@/data/site";
-import factory from "@/assets/factory.jpg";
+import { factory04 } from "@/assets/media";
 import { buildMeta, canonicalLink, jsonLdScript, breadcrumbSchema } from "@/lib/seo";
 
 export const Route = createFileRoute("/_public/certifications")({
   head: () => ({
     meta: buildMeta({
       title: "Certifications — Stone India Heritage",
-      description: "ISO 9001, ISO 14001, CE Marking, SGS Verified and ethical labour certifications backing our export-grade natural stone quality standards.",
+      description:
+        "ISO 9001, ISO 14001, CE Marking, SGS Verified and ethical labour certifications backing our export-grade natural stone quality standards.",
       path: "/certifications",
     }),
     links: [canonicalLink("/certifications")],
     scripts: [
-      jsonLdScript(breadcrumbSchema([
-        { name: "Home", item: "/" },
-        { name: "Certifications", item: "/certifications" },
-      ])),
+      jsonLdScript(
+        breadcrumbSchema([
+          { name: "Home", item: "/" },
+          { name: "Certifications", item: "/certifications" },
+        ]),
+      ),
     ],
   }),
   component: Certifications,
@@ -31,7 +34,7 @@ function Certifications() {
         eyebrow="Certifications"
         title="Quality, verified and certified"
         intro="Independent accreditations that guarantee export-grade quality, environmental care and ethical practice."
-        image={factory}
+        image={factory04}
       />
       <section className="py-20">
         <div className="container-lux grid gap-6 sm:grid-cols-2 lg:grid-cols-3">

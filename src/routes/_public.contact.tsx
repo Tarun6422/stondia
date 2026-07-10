@@ -20,18 +20,31 @@ import { SuccessCheck } from "@/components/animations";
 import { PageHero } from "@/components/page-parts";
 import { COMPANY } from "@/data/site";
 import { api, ApiError } from "@/lib/api";
-import factory from "@/assets/factory.jpg";
+import { export01 } from "@/assets/media";
 
 // ── Schema ──
 const contactSchema = z.object({
   name: z.string().trim().min(1, "Name is required").max(100, "Name must be under 100 characters"),
-  company: z.string().trim().max(200, "Company name must be under 200 characters").optional().default(""),
-  email: z.string().trim().min(1, "Email is required").email("Enter a valid email address").max(255),
+  company: z
+    .string()
+    .trim()
+    .max(200, "Company name must be under 200 characters")
+    .optional()
+    .default(""),
+  email: z
+    .string()
+    .trim()
+    .min(1, "Email is required")
+    .email("Enter a valid email address")
+    .max(255),
   phone: z
     .string()
     .trim()
     .max(30, "Phone number is too long")
-    .refine((v) => !v || /^[+\d\s\-().]{5,30}$/.test(v), "Enter a valid phone number (e.g. +91 98290 00000)")
+    .refine(
+      (v) => !v || /^[+\d\s\-().]{5,30}$/.test(v),
+      "Enter a valid phone number (e.g. +91 98290 00000)",
+    )
     .optional()
     .default(""),
   country: z.string().trim().max(100).optional().default(""),
@@ -67,15 +80,18 @@ export const Route = createFileRoute("/_public/contact")({
   head: () => ({
     meta: buildMeta({
       title: "Contact — Stone India Heritage",
-      description: "Get in touch with our global export team in Jodhpur, Dubai, and London for quotes, samples, and partnership enquiries. We respond within one business day.",
+      description:
+        "Get in touch with our global export team in Jodhpur, Dubai, and London for quotes, samples, and partnership enquiries. We respond within one business day.",
       path: "/contact",
     }),
     links: [canonicalLink("/contact")],
     scripts: [
-      jsonLdScript(breadcrumbSchema([
-        { name: "Home", item: "/" },
-        { name: "Contact", item: "/contact" },
-      ])),
+      jsonLdScript(
+        breadcrumbSchema([
+          { name: "Home", item: "/" },
+          { name: "Contact", item: "/contact" },
+        ]),
+      ),
     ],
   }),
   component: Contact,
@@ -94,7 +110,9 @@ function Contact() {
   const saveDraft = useCallback((data: Partial<ContactData>) => {
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-    } catch { /* ignore quota errors */ }
+    } catch {
+      /* ignore quota errors */
+    }
   }, []);
 
   // ── Load draft ──
@@ -102,7 +120,9 @@ function Contact() {
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
       return raw ? JSON.parse(raw) : {};
-    } catch { return {}; }
+    } catch {
+      return {};
+    }
   }, []);
 
   const draft = useRef(loadDraft());
@@ -116,7 +136,10 @@ function Contact() {
 
   // ── Validate on blur / change ──
   const validateField = (name: keyof ContactData, value: string) => {
-    const result = contactSchema.safeParse({ ...Object.fromEntries(new FormData(formRef.current!)), [name]: value });
+    const result = contactSchema.safeParse({
+      ...Object.fromEntries(new FormData(formRef.current!)),
+      [name]: value,
+    });
     if (!result.success) {
       const fieldError = result.error.issues.find((i) => i.path[0] === name);
       setErrors((prev) => ({ ...prev, [name]: fieldError?.message }));
@@ -128,7 +151,8 @@ function Contact() {
 
   const handleBlur = (name: keyof ContactData) => {
     setTouched((prev) => ({ ...prev, [name]: true }));
-    const input = formRef.current?.elements.namedItem(name) as HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement | null;
+    const input = formRef.current?.elements.namedItem(name) as
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement | null;
     if (input) validateField(name, input.value);
   };
 
@@ -137,7 +161,8 @@ function Contact() {
   };
 
   const handleChange = (name: keyof ContactData) => {
-    const input = formRef.current?.elements.namedItem(name) as HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement | null;
+    const input = formRef.current?.elements.namedItem(name) as
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement | null;
     if (input) {
       if (touched[name]) validateField(name, input.value);
       // Auto-save
@@ -154,7 +179,9 @@ function Contact() {
 
     // Mark all as touched
     const allTouched: Record<string, boolean> = {};
-    Object.keys(contactSchema.shape).forEach((k) => { allTouched[k] = true; });
+    Object.keys(contactSchema.shape).forEach((k) => {
+      allTouched[k] = true;
+    });
     setTouched(allTouched as Partial<Record<keyof ContactData, boolean>>);
 
     if (!parsed.success) {
@@ -187,7 +214,8 @@ function Contact() {
       });
     } catch (err) {
       setError(true);
-      const message = err instanceof ApiError ? err.message : "Something went wrong. Please try again later.";
+      const message =
+        err instanceof ApiError ? err.message : "Something went wrong. Please try again later.";
       toast.error(message, {
         description: "Please try again, or email us directly at exports@stoneindiaheritage.com.",
       });
@@ -211,7 +239,7 @@ function Contact() {
         eyebrow="Contact"
         title="Let's talk stone"
         intro="Our export team responds within one business day, wherever you are in the world."
-        image={factory}
+        image={export01}
       />
       <section className="py-20">
         <div className="container-lux">
@@ -252,9 +280,14 @@ function Contact() {
                       </div>
                       <div className="grid gap-4 sm:grid-cols-3">
                         {OFFICES.map((o) => (
-                          <div key={o.city} className="rounded-lg border border-border/60 bg-card p-5 transition-all hover:shadow-soft">
+                          <div
+                            key={o.city}
+                            className="rounded-lg border border-border/60 bg-card p-5 transition-all hover:shadow-soft"
+                          >
                             <p className="font-serif text-lg text-foreground">{o.city}</p>
-                            <p className="mt-1 text-xs uppercase tracking-wide text-gold">{o.role}</p>
+                            <p className="mt-1 text-xs uppercase tracking-wide text-gold">
+                              {o.role}
+                            </p>
                             <p className="mt-2 text-sm text-muted-foreground">{o.detail}</p>
                           </div>
                         ))}
@@ -272,7 +305,13 @@ function Contact() {
                     >
                       {/* Honeypot — hidden from users, traps bots */}
                       <div className="absolute left-[-9999px]" aria-hidden="true">
-                        <input name="_hp" type="text" tabIndex={-1} autoComplete="off" defaultValue="" />
+                        <input
+                          name="_hp"
+                          type="text"
+                          tabIndex={-1}
+                          autoComplete="off"
+                          defaultValue=""
+                        />
                       </div>
                       <h2 className="font-serif text-2xl text-foreground">Send us a message</h2>
                       {error && (
@@ -350,7 +389,9 @@ function Contact() {
                             >
                               <option value="">Select a project type</option>
                               {PROJECT_TYPES.map((t) => (
-                                <option key={t} value={t}>{t}</option>
+                                <option key={t} value={t}>
+                                  {t}
+                                </option>
                               ))}
                             </select>
                             <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
@@ -370,7 +411,10 @@ function Contact() {
                             defaultValue={draft.current.message}
                             onBlur={() => handleBlur("message")}
                             onFocus={() => handleFocus("message")}
-                            onChange={(e) => { handleChange("message"); setMessageLen(e.target.value.length); }}
+                            onChange={(e) => {
+                              handleChange("message");
+                              setMessageLen(e.target.value.length);
+                            }}
                             maxLength={2000}
                             className={`w-full rounded-lg border bg-background px-4 py-3 text-sm outline-none transition-all focus:ring-1 ${
                               touched.message && errors.message
@@ -480,14 +524,20 @@ function FormField({
           onChange={onChange}
           maxLength={type === "email" ? 255 : type === "tel" ? 30 : 200}
           className={`w-full rounded-lg border bg-background px-4 py-2.5 text-sm outline-none transition-all focus:ring-1 ${
-            error ? "border-destructive focus:border-destructive focus:ring-destructive/30" : "border-border/60 focus:border-gold focus:ring-gold/30"
+            error
+              ? "border-destructive focus:border-destructive focus:ring-destructive/30"
+              : "border-border/60 focus:border-gold focus:ring-gold/30"
           }`}
           aria-invalid={!!error}
           aria-describedby={error ? `${name}-error` : undefined}
         />
       </div>
       {error && (
-        <p id={`${name}-error`} className="mt-1 text-xs text-destructive flex items-center gap-1" role="alert">
+        <p
+          id={`${name}-error`}
+          className="mt-1 text-xs text-destructive flex items-center gap-1"
+          role="alert"
+        >
           <AlertCircle className="h-3 w-3 shrink-0" /> {error}
         </p>
       )}

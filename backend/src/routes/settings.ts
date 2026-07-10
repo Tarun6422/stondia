@@ -15,7 +15,8 @@ router.get("/", async (_req: Request, res: Response) => {
 // PUT /api/settings — admin update settings
 router.put("/", authenticate, authorize("ADMIN"), async (req: Request, res: Response) => {
   const entries = req.body;
-  if (typeof entries !== "object") return res.status(400).json({ message: "Expected object of key/value pairs" });
+  if (typeof entries !== "object")
+    return res.status(400).json({ message: "Expected object of key/value pairs" });
 
   for (const [key, value] of Object.entries(entries)) {
     if (typeof value === "string") {

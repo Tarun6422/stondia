@@ -5,7 +5,7 @@ import { Reveal } from "@/components/motion";
 import { PageHero, CTASection } from "@/components/page-parts";
 import { Breadcrumbs } from "@/components/breadcrumbs";
 import { PRODUCTS, CATEGORIES } from "@/data/site";
-import texture from "@/assets/texture-stone.jpg";
+import { product20 } from "@/assets/media";
 import { buildMeta, canonicalLink, jsonLdScript, breadcrumbSchema } from "@/lib/seo";
 
 type SortKey = "latest" | "popular" | "az";
@@ -14,15 +14,18 @@ export const Route = createFileRoute("/_public/products/")({
   head: () => ({
     meta: buildMeta({
       title: "Products — Stone India Heritage",
-      description: "Explore our full range of premium Rajasthan sandstone products — wall cladding, flooring, cobbles, jali screens, columns, carvings, paving, and architectural stone for global projects.",
+      description:
+        "Explore our full range of premium Rajasthan sandstone products — wall cladding, flooring, cobbles, jali screens, columns, carvings, paving, and architectural stone for global projects.",
       path: "/products",
     }),
     links: [canonicalLink("/products")],
     scripts: [
-      jsonLdScript(breadcrumbSchema([
-        { name: "Home", item: "/" },
-        { name: "Products", item: "/products" },
-      ])),
+      jsonLdScript(
+        breadcrumbSchema([
+          { name: "Home", item: "/" },
+          { name: "Products", item: "/products" },
+        ]),
+      ),
     ],
   }),
   component: Products,
@@ -47,7 +50,7 @@ function Products() {
         eyebrow="Products"
         title="Architectural stone, engineered to specification"
         intro="Raw and finished stones across every architectural application — from precision cladding to hand-carved ornamentation."
-        image={texture}
+        image={product20}
       />
 
       <section className="py-16">
@@ -55,19 +58,19 @@ function Products() {
           <Breadcrumbs items={[{ label: "Products" }]} className="mb-8" />
           <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
             <div className="flex flex-wrap gap-2">
-            {["All", ...CATEGORIES].map((c) => (
-              <button
-                key={c}
-                onClick={() => setActive(c)}
-                className={`rounded-full border px-4 py-1.5 text-sm transition-colors ${
-                  active === c
-                    ? "border-gold bg-gold text-[var(--gold-foreground)]"
-                    : "border-border bg-card text-muted-foreground hover:text-foreground"
-                }`}
-              >
-                {c}
-              </button>
-            ))}
+              {["All", ...CATEGORIES].map((c) => (
+                <button
+                  key={c}
+                  onClick={() => setActive(c)}
+                  className={`rounded-full border px-4 py-1.5 text-sm transition-colors ${
+                    active === c
+                      ? "border-gold bg-gold text-[var(--gold-foreground)]"
+                      : "border-border bg-card text-muted-foreground hover:text-foreground"
+                  }`}
+                >
+                  {c}
+                </button>
+              ))}
             </div>
             <select
               value={sort}
@@ -80,7 +83,6 @@ function Products() {
               <option value="az">A–Z</option>
             </select>
           </div>
-
 
           <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {filtered.map((p, i) => (
