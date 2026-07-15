@@ -55,11 +55,11 @@ type Step = "email" | "otp" | "password" | "success";
 export const Route = createFileRoute("/_public/forgot-password")({
   head: () => ({
     meta: [
-      { title: "Forgot Password — Stone India Heritage" },
+      { title: "Forgot Password — STONDIA" },
       {
         name: "description",
         content:
-          "Reset your Stone India Heritage account password using a secure verification code.",
+          "Reset your STONDIA account password using a secure verification code.",
       },
     ],
   }),

@@ -33,7 +33,7 @@ router.post("/", validate(contactSchema), async (req: Request, res: Response) =>
   try {
     await sendEmail(
       CONFIG.EMAIL_TO,
-      "New Contact Enquiry — Stone India Heritage",
+      "New Contact Enquiry — STONDIA",
       adminNotificationEmail("Contact Enquiry", {
         name: data.name,
         email: data.email,

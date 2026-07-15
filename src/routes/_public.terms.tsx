@@ -6,7 +6,7 @@ import { buildMeta, canonicalLink, jsonLdScript, breadcrumbSchema } from "@/lib/
 export const Route = createFileRoute("/_public/terms")({
   head: () => ({
     meta: buildMeta({
-      title: "Terms & Conditions — Stone India Heritage",
+      title: "Terms & Conditions — STONDIA",
       description:
         "The terms governing use of our website and the sale of our natural stone products, including quotations, pricing, shipping, and warranty.",
       path: "/terms",
@@ -51,7 +51,7 @@ const SECTIONS = [
   },
   {
     h: "Intellectual Property",
-    p: "All website content, imagery and designs remain the property of Stone India Heritage.",
+    p: "All website content, imagery and designs remain the property of STONDIA.",
   },
   {
     h: "Governing Law",

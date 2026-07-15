@@ -83,14 +83,14 @@ router.post("/register", validate(registerSchema), async (req: Request, res: Res
   // Send welcome & verification email
   const verifyUrl = `${CONFIG.FRONTEND_URL}/verify-email?token=${verificationToken}&email=${email}`;
   try {
-    await sendEmail(email, "Welcome to Stone India Heritage", welcomeEmail(name));
+    await sendEmail(email, "Welcome to STONDIA", welcomeEmail(name));
     await sendEmail(
       email,
-      "Verify Your Email — Stone India Heritage",
+      "Verify Your Email — STONDIA",
       `<div style="font-family:Georgia,serif;max-width:560px;margin:0 auto;padding:32px 24px">
         <h2 style="font-size:22px;margin:0 0 8px;color:#1a1a1a">Verify your email</h2>
         <p style="color:#5c5248;font-size:15px;line-height:1.7;margin:0 0 24px">
-          Thanks for joining Stone India Heritage, <strong>${name}</strong>. Please verify your email address by clicking the button below.
+          Thanks for joining STONDIA, <strong>${name}</strong>. Please verify your email address by clicking the button below.
         </p>
         <a href="${verifyUrl}" style="display:inline-block;padding:14px 32px;background:#b8860b;color:#fff;text-decoration:none;border-radius:6px;font-weight:600;font-size:14px">
           Verify Email
@@ -275,7 +275,7 @@ router.post(
     try {
       await sendEmail(
         email,
-        "Stone India Heritage Password Reset OTP",
+        "STONDIA Password Reset OTP",
         passwordResetOTPEmail(user.name, otp),
       );
     } catch {
@@ -453,7 +453,7 @@ router.post("/forgot-password", async (req: Request, res: Response) => {
   try {
     await sendEmail(
       email,
-      "Stone India Heritage Password Reset OTP",
+      "STONDIA Password Reset OTP",
       passwordResetOTPEmail(user.name, otp),
     );
   } catch {

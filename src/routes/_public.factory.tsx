@@ -7,7 +7,7 @@ import { buildMeta, canonicalLink, jsonLdScript, breadcrumbSchema } from "@/lib/
 export const Route = createFileRoute("/_public/factory")({
   head: () => ({
     meta: buildMeta({
-      title: "Factory — Stone India Heritage",
+      title: "Factory — STONDIA",
       description:
         "Inside our precision stone manufacturing facility in Jodhpur — 250,000 ft² with multi-wire sawing, CNC finishing, hand carving studio, and quality control lab.",
       path: "/factory",

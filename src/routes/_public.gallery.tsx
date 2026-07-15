@@ -108,7 +108,7 @@ import {
 export const Route = createFileRoute("/_public/gallery")({
   head: () => ({
     meta: buildMeta({
-      title: "Gallery — Stone India Heritage",
+      title: "Gallery — STONDIA",
       description:
         "A visual gallery of premium Rajasthan sandstone products, finishes, textures, and completed architectural projects across luxury villas, resorts, temples, and civic spaces.",
       path: "/gallery",

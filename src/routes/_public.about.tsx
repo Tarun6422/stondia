@@ -9,9 +9,9 @@ import { buildMeta, canonicalLink, jsonLdScript, breadcrumbSchema } from "@/lib/
 export const Route = createFileRoute("/_public/about")({
   head: () => ({
     meta: buildMeta({
-      title: "About — Stone India Heritage",
+      title: "About — STONDIA",
       description:
-        "Learn about Stone India Heritage — our vision, mission and values as a premium Rajasthan sandstone manufacturer and global exporter serving 35+ countries.",
+        "Learn about STONDIA — our vision, mission and values as a premium Rajasthan sandstone manufacturer and global exporter serving 35+ countries.",
       path: "/about",
     }),
     links: [canonicalLink("/about")],
@@ -52,8 +52,7 @@ function About() {
           <div>
             <SectionHeading
               eyebrow="Our Story"
-              title="From heritage quarries to global architecture"
-              intro="Stone India Heritage delivers high-quality stone solutions for architects, builders, developers, landscape designers and international importers. We combine traditional Indian craftsmanship with modern manufacturing technology to serve projects across the globe."
+              title="From heritage quarries to global architecture"               intro="STONDIA delivers high-quality stone solutions for architects, builders, developers, landscape designers and international importers. We combine traditional Indian craftsmanship with modern manufacturing technology to serve projects across the globe."
             />
           </div>
         </div>

@@ -3,7 +3,7 @@
 /*  Features: upload, grid, search, filter, preview, replace, delete, */
 /*  bulk actions, usage tracking, copy URL, stats                     */
 /* ------------------------------------------------------------------ */
-import { useState, useCallback, useRef, type DragEvent } from "react";
+import { useState, useCallback, useRef, type DragEvent, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Upload,
@@ -12,6 +12,9 @@ import {
   Image as ImageIcon,
   Video,
   FileText,
+  Package,
+  Layout,
+  Pen,
   Loader2,
   AlertCircle,
   CheckCircle2,
@@ -29,13 +32,25 @@ import {
   HardDrive,
   Tags,
   Edit3,
+  FolderOpen,
+  FolderClosed,
+  Plus,
+  ChevronDown
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { format } from "date-fns";
 import { toast } from "sonner";
-import { compressImage, uploadFile, deleteFile, validateUploadFile } from "@/lib/storage-utils";
+import {
+  compressImage,
+  uploadFile,
+  deleteFile,
+  validateUploadFile,
+  getFileHash,
+  generateThumbnail,
+} from "@/lib/storage-utils";
+import { CrudDialog } from "./crud-dialog";
 import * as hooks from "./admin-hooks";
 import { cn } from "@/lib/utils";
 
@@ -101,15 +116,28 @@ function MediaStatsBar() {
   );
 }
 
+/* ── Quick upload folders ── */
+const UPLOAD_FOLDERS = [
+  { id: "products", label: "Products", icon: Package },
+  { id: "gallery", label: "Gallery", icon: ImageIcon },
+  { id: "videos", label: "Videos", icon: Video },
+  { id: "catalogues", label: "Catalogues", icon: FileText },
+  { id: "banners", label: "Banners", icon: Layout },
+  { id: "logos", label: "Logos", icon: Pen },
+] as const;
+
 /* ── Upload Dropzone ── */
 function MediaUploader({ onUploadComplete }: { onUploadComplete: () => void }) {
-  const [state, setState] = useState<"idle" | "uploading" | "error">("idle");
+  const [state, setState] = useState<"idle" | "uploading" | "error" | "duplicate">("idle");
   const [progress, setProgress] = useState(0);
   const [errorMsg, setErrorMsg] = useState("");
   const [dragOver, setDragOver] = useState(false);
   const [fileName, setFileName] = useState("");
+  const [uploadFolder, setUploadFolder] = useState<string>("uploads");
+  const [existingMedia, setExistingMedia] = useState<hooks.MediaItem | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const createMedia = hooks.useCreateMedia();
+  const checkDuplicate = hooks.useCheckDuplicateMedia();
 
   const handleFile = useCallback(
     async (file: File) => {
@@ -122,29 +150,84 @@ function MediaUploader({ onUploadComplete }: { onUploadComplete: () => void }) {
 
       setFileName(file.name);
       setErrorMsg("");
+      setExistingMedia(null);
+
+      // ── Step 1: Compute file hash for duplicate detection ──
       setState("uploading");
-      setProgress(0);
+      setProgress(5);
+
+      let fileHash: string | null = null;
+      try {
+        fileHash = await getFileHash(file);
+      } catch {
+        // Hash generation failed — continue without duplicate check
+      }
+
+      if (fileHash) {
+        setProgress(10);
+        try {
+          const result = await checkDuplicate.mutateAsync(fileHash);
+          const data = result as unknown as { exists: boolean; media: hooks.MediaItem | null };
+          if (data.exists && data.media) {
+            setExistingMedia(data.media);
+            setState("duplicate");
+            setErrorMsg(
+              `This file already exists in the library as "${data.media.originalName}"`,
+            );
+            setProgress(0);
+            return;
+          }
+        } catch {
+          // Duplicate check failed — continue with upload
+        }
+      }
+
+      setState("uploading");
+      setProgress(15);
 
       try {
-        // Upload to storage
+        // ── Step 2: Generate thumbnail for images ──
+        let thumbnailUrl: string | null = null;
+        let isGeneratingThumb = file.type.startsWith("image/");
+
+        if (isGeneratingThumb) {
+          try {
+            const thumbBlob = await generateThumbnail(file, { size: 200, quality: 0.7 });
+            const thumbFile = new File([thumbBlob], `thumb_${file.name}`, {
+              type: "image/webp",
+            });
+            const thumbResult = await uploadFile(thumbFile, {
+              folder: uploadFolder,
+              onProgress: (pct) => setProgress(15 + Math.round(pct * 0.15)),
+            });
+            thumbnailUrl = thumbResult.url;
+          } catch {
+            // Thumbnail generation failed — continue without thumbnail
+          }
+        }
+
+        // ── Step 3: Upload the original file ──
         const result = await uploadFile(file, {
-          folder: "uploads",
-          onProgress: (pct) => setProgress(pct),
+          folder: uploadFolder,
+          onProgress: (pct) => setProgress(30 + Math.round(pct * 0.65)),
         });
 
-        setProgress(100);
+        setProgress(95);
 
-        // Register in media library
+        // ── Step 4: Register in media library ──
         await createMedia.mutateAsync({
           filename: result.filename,
           originalName: file.name,
           mimeType: file.type,
           size: file.size,
           url: result.url,
-          folder: "uploads",
+          folder: uploadFolder,
+          hash: fileHash,
+          tags: fileHash ? [`hash:${fileHash}`] : [],
         });
 
-        toast.success(`"${file.name}" uploaded`);
+        setProgress(100);
+        toast.success(`"${file.name}" uploaded to ${uploadFolder}`);
         onUploadComplete();
         setState("idle");
         setProgress(0);
@@ -155,7 +238,7 @@ function MediaUploader({ onUploadComplete }: { onUploadComplete: () => void }) {
         setState("error");
       }
     },
-    [createMedia, onUploadComplete],
+    [createMedia, checkDuplicate, onUploadComplete, uploadFolder],
   );
 
   const handleDrop = useCallback(
@@ -169,6 +252,47 @@ function MediaUploader({ onUploadComplete }: { onUploadComplete: () => void }) {
 
   return (
     <div className="mb-6">
+      {/* Folder selector */}
+      <div className="mb-3 flex flex-wrap items-center gap-2">
+        <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+          Upload to:
+        </span>
+        <div className="flex flex-wrap gap-1.5">
+          <button
+            onClick={() => setUploadFolder("uploads")}
+            className={cn(
+              "flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-xs font-medium transition-all",
+              uploadFolder === "uploads"
+                ? "bg-gold/15 text-gold ring-1 ring-gold/30"
+                : "bg-muted/40 text-muted-foreground hover:bg-muted hover:text-foreground",
+            )}
+          >
+            <Upload className="h-3 w-3" />
+            All Files
+          </button>
+          {UPLOAD_FOLDERS.map((fld) => (
+            <button
+              key={fld.id}
+              onClick={() => setUploadFolder(fld.id)}
+              className={cn(
+                "flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-xs font-medium transition-all",
+                uploadFolder === fld.id
+                  ? "bg-gold/15 text-gold ring-1 ring-gold/30"
+                  : "bg-muted/40 text-muted-foreground hover:bg-muted hover:text-foreground",
+              )}
+            >
+              <fld.icon className="h-3 w-3" />
+              {fld.label}
+            </button>
+          ))}
+        </div>
+        {uploadFolder !== "uploads" && (
+          <span className="text-[0.6rem] text-muted-foreground/60 ml-1">
+            /{uploadFolder}/
+          </span>
+        )}
+      </div>
+
       <div
         onDrop={handleDrop}
         onDragOver={(e) => {
@@ -186,6 +310,7 @@ function MediaUploader({ onUploadComplete }: { onUploadComplete: () => void }) {
             ? "border-gold bg-gold/5"
             : "border-border/60 hover:border-gold/40 hover:bg-muted/30",
           state === "error" && "border-destructive/50 bg-destructive/5",
+          state === "duplicate" && "border-amber-500/50 bg-amber-500/5",
         )}
       >
         <input
@@ -205,7 +330,13 @@ function MediaUploader({ onUploadComplete }: { onUploadComplete: () => void }) {
               </div>
               <div className="min-w-0 flex-1 text-left">
                 <p className="text-sm font-medium text-foreground truncate">{fileName}</p>
-                <p className="text-xs text-muted-foreground">Uploading to Media Library…</p>
+                <p className="text-xs text-muted-foreground">
+                  {progress < 15
+                    ? "Checking for duplicates…"
+                    : progress < 30
+                      ? "Generating thumbnail…"
+                      : `Uploading to /${uploadFolder}/…`}
+                </p>
               </div>
             </div>
             <div className="h-1.5 w-full overflow-hidden rounded-full bg-muted">
@@ -217,6 +348,45 @@ function MediaUploader({ onUploadComplete }: { onUploadComplete: () => void }) {
               />
             </div>
             <p className="text-xs text-muted-foreground tabular-nums">{progress}%</p>
+          </div>
+        ) : state === "duplicate" && existingMedia ? (
+          <div className="flex flex-col items-center gap-3">
+            <AlertCircle className="h-8 w-8 text-amber-500" />
+            <div className="text-center">
+              <p className="text-sm font-medium text-amber-600">Duplicate file detected</p>
+              <p className="text-xs text-muted-foreground mt-1">
+                "{existingMedia.originalName}" already exists in the library.
+              </p>
+              <p className="text-xs text-muted-foreground">
+                Folder: {existingMedia.folder} ·{' '}
+                {new Date(existingMedia.createdAt).toLocaleDateString()}
+              </p>
+            </div>
+            <div className="flex gap-2 mt-1">
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setState("idle");
+                  setErrorMsg("");
+                  setExistingMedia(null);
+                }}
+                className="text-xs text-gold hover:underline"
+              >
+                Upload anyway
+              </button>
+              <span className="text-xs text-muted-foreground">·</span>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setState("idle");
+                  setErrorMsg("");
+                  setExistingMedia(null);
+                }}
+                className="text-xs text-muted-foreground hover:text-foreground"
+              >
+                Cancel
+              </button>
+            </div>
           </div>
         ) : state === "error" ? (
           <div className="flex flex-col items-center gap-2">
@@ -243,7 +413,7 @@ function MediaUploader({ onUploadComplete }: { onUploadComplete: () => void }) {
                 <span className="font-medium text-gold">Click to upload</span> or drag and drop
               </p>
               <p className="text-xs text-muted-foreground/60 mt-1">
-                Images, Videos, or PDFs up to 500 MB
+                Images, Videos, or PDFs up to 500 MB → <span className="font-medium text-foreground/60">/{uploadFolder}/</span>
               </p>
             </div>
           </div>
@@ -269,9 +439,12 @@ function MediaPreviewDialog({
 }) {
   const { data: usage } = hooks.useMediaUsage(item?.id || "");
   const [showEdit, setShowEdit] = useState(false);
+  const [showRename, setShowRename] = useState(false);
+  const [newFileName, setNewFileName] = useState("");
   const [alt, setAlt] = useState(item?.alt || "");
   const [caption, setCaption] = useState(item?.caption || "");
   const updateMedia = hooks.useUpdateMedia();
+  const renameMedia = hooks.useRenameMedia();
 
   if (!item) return null;
 
@@ -287,6 +460,23 @@ function MediaPreviewDialog({
   const handleCopyUrl = () => {
     navigator.clipboard.writeText(item.url);
     toast.success("URL copied to clipboard");
+  };
+
+  const handleRename = () => {
+    if (!newFileName.trim()) {
+      toast.error("File name is required");
+      return;
+    }
+    renameMedia.mutate(
+      { id: item.id, originalName: newFileName.trim() },
+      {
+        onSuccess: () => {
+          setShowRename(false);
+          setNewFileName("");
+        },
+        onError: (e: Error) => toast.error(e.message),
+      },
+    );
   };
 
   return (
@@ -347,7 +537,39 @@ function MediaPreviewDialog({
             <div className="p-5 space-y-4">
               <div className="flex items-start justify-between gap-4">
                 <div className="min-w-0">
-                  <h3 className="font-medium text-foreground truncate">{item.originalName}</h3>
+                  {/* Rename inline */}
+                  {showRename ? (
+                    <div className="flex items-center gap-2">
+                      <input
+                        value={newFileName}
+                        onChange={(e) => setNewFileName(e.target.value)}
+                        placeholder="Enter new file name…"
+                        className="flex-1 rounded-md border border-input bg-transparent px-2 py-1 text-sm"
+                        autoFocus
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") handleRename();
+                          if (e.key === "Escape") setShowRename(false);
+                        }}
+                      />
+                      <button
+                        onClick={handleRename}
+                        className="rounded-md bg-gold px-2.5 py-1 text-xs font-medium text-white hover:brightness-105"
+                        disabled={renameMedia.isPending}
+                      >
+                        Save
+                      </button>
+                      <button
+                        onClick={() => setShowRename(false)}
+                        className="text-xs text-muted-foreground hover:text-foreground"
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  ) : (
+                    <h3 className="font-medium text-foreground truncate max-w-[300px]">
+                      {item.originalName}
+                    </h3>
+                  )}
                   <p className="text-xs text-muted-foreground mt-0.5">
                     {item.filename} · {formatSize(item.size)}
                   </p>
@@ -356,6 +578,11 @@ function MediaPreviewDialog({
                   <Badge variant="outline" className="text-[0.6rem]">
                     {item.mimeType}
                   </Badge>
+                  {item.tags?.some((t: string) => t.startsWith("hash:")) && (
+                    <Badge variant="outline" className="text-[0.6rem] text-emerald-600 border-emerald-300">
+                      Verified
+                    </Badge>
+                  )}
                 </div>
               </div>
 
@@ -440,9 +667,21 @@ function MediaPreviewDialog({
                   variant="outline"
                   onClick={() => {
                     setShowEdit(!showEdit);
+                    setShowRename(false);
                   }}
                 >
                   <Edit3 className="h-3.5 w-3.5 mr-1" /> Edit Info
+                </Button>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => {
+                    setShowRename(!showRename);
+                    setShowEdit(false);
+                    if (!showRename) setNewFileName(item.originalName);
+                  }}
+                >
+                  <Edit3 className="h-3.5 w-3.5 mr-1" /> Rename
                 </Button>
                 <Button size="sm" variant="outline" onClick={() => onReplace(item.id)}>
                   <Upload className="h-3.5 w-3.5 mr-1" /> Replace
@@ -470,10 +709,187 @@ function MediaPreviewDialog({
   );
 }
 
+/* ── Media Folder Tree ── */
+function MediaFolderTree({
+  selectedFolder,
+  onSelectFolder,
+  onCreateFolder,
+}: {
+  selectedFolder: string | null;
+  onSelectFolder: (folderId: string | null) => void;
+  onCreateFolder: (parentId?: string) => void;
+}) {
+  const [expandedFolders, setExpandedFolders] = useState<Set<string>>(new Set());
+  const { data: rootFolders } = hooks.useMediaFolders();
+
+  const toggleExpanded = useCallback((folderId: string) => {
+    setExpandedFolders((prev) => {
+      const next = new Set(prev);
+      if (next.has(folderId)) next.delete(folderId);
+      else next.add(folderId);
+      return next;
+    });
+  }, []);
+
+  const renderFolderTree = useCallback(
+    (folders: hooks.MediaFolder[], depth = 0) => {
+      return folders.map((folder) => {
+        const isExpanded = expandedFolders.has(folder.id);
+        const isSelected = selectedFolder === folder.id;
+        const hasChildren = (folder._count?.children ?? 0) > 0;
+        return (
+          <div key={folder.id}>
+            <div
+              className={`group flex cursor-pointer items-center gap-1.5 rounded-md px-2 py-1.5 text-sm transition-colors ${
+                isSelected
+                  ? "bg-gold/10 text-gold font-medium"
+                  : "text-muted-foreground hover:bg-muted/30 hover:text-foreground"
+              }`}
+              style={{ paddingLeft: `${depth * 16 + 8}px` }}
+              onClick={() => onSelectFolder(folder.id)}
+            >
+              {hasChildren ? (
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    toggleExpanded(folder.id);
+                  }}
+                  className="p-0.5 text-muted-foreground/60 hover:text-foreground"
+                >
+                  {isExpanded ? (
+                    <ChevronDown className="h-3 w-3" />
+                  ) : (
+                    <ChevronRight className="h-3 w-3" />
+                  )}
+                </button>
+              ) : (
+                <span className="w-4" />
+              )}
+              {isExpanded ? (
+                <FolderOpen className="h-4 w-4 shrink-0 text-gold/60" />
+              ) : (
+                <FolderClosed className="h-4 w-4 shrink-0 text-muted-foreground/60" />
+              )}
+              <span className="truncate">{folder.name}</span>
+              {folder._count?.media ? (
+                <span className="ml-auto text-[0.6rem] text-muted-foreground/50">
+                  {folder._count.media}
+                </span>
+              ) : null}
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onCreateFolder(folder.id);
+                }}
+                className="ml-1 hidden group-hover:flex h-5 w-5 items-center justify-center rounded text-muted-foreground hover:text-foreground"
+                title="New subfolder"
+              >
+                <Plus className="h-3 w-3" />
+              </button>
+            </div>
+            {isExpanded && hasChildren && (
+              <FolderSubTree
+                parentId={folder.id}
+                depth={depth + 1}
+                selectedFolder={selectedFolder}
+                onSelectFolder={onSelectFolder}
+                onCreateFolder={onCreateFolder}
+              />
+            )}
+          </div>
+        );
+      });
+    },
+    [expandedFolders, selectedFolder, onSelectFolder, toggleExpanded, onCreateFolder],
+  );
+
+  return (
+    <div className="space-y-1">
+      {/* Root (All Files) */}
+      <div
+        onClick={() => onSelectFolder(null)}
+        className={`flex cursor-pointer items-center gap-2 rounded-md px-3 py-2 text-sm transition-colors ${
+          selectedFolder === null
+            ? "bg-gold/10 text-gold font-medium"
+            : "text-muted-foreground hover:bg-muted/30 hover:text-foreground"
+        }`}
+      >
+        <FolderClosed className="h-4 w-4" />
+        <span>All Files</span>
+      </div>
+      {rootFolders?.data && renderFolderTree(rootFolders.data)}
+    </div>
+  );
+}
+
+/* ── Recursive subfolder fetcher ── */
+function FolderSubTree({
+  parentId,
+  depth,
+  selectedFolder,
+  onSelectFolder,
+  onCreateFolder,
+}: {
+  parentId: string;
+  depth: number;
+  selectedFolder: string | null;
+  onSelectFolder: (folderId: string | null) => void;
+  onCreateFolder: (parentId?: string) => void;
+}) {
+  const { data: children } = hooks.useMediaFolders(parentId);
+
+  if (!children?.data || children.data.length === 0) return null;
+
+  return (
+    <>
+      {children.data.map((folder) => {
+        const isSelected = selectedFolder === folder.id;
+        const hasChildren = (folder._count?.children ?? 0) > 0;
+        return (
+          <div key={folder.id}>
+            <div
+              onClick={() => onSelectFolder(folder.id)}
+              className={`group flex cursor-pointer items-center gap-1.5 rounded-md px-2 py-1.5 text-sm transition-colors ${
+                isSelected
+                  ? "bg-gold/10 text-gold font-medium"
+                  : "text-muted-foreground hover:bg-muted/30 hover:text-foreground"
+              }`}
+              style={{ paddingLeft: `${depth * 16 + 8}px` }}
+            >
+              <FolderClosed className="h-4 w-4 shrink-0 text-muted-foreground/60" />
+              <span className="truncate">{folder.name}</span>
+              {folder._count?.media ? (
+                <span className="ml-auto text-[0.6rem] text-muted-foreground/50">
+                  {folder._count.media}
+                </span>
+              ) : null}
+            </div>
+            {hasChildren && (
+              <FolderSubTree
+                parentId={folder.id}
+                depth={depth + 1}
+                selectedFolder={selectedFolder}
+                onSelectFolder={onSelectFolder}
+                onCreateFolder={onCreateFolder}
+              />
+            )}
+          </div>
+        );
+      })}
+    </>
+  );
+}
+
 /* ── Main Media Library Module ── */
 export function MediaLibraryModule() {
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
+  const [selectedFolder, setSelectedFolder] = useState<string | null>(null);
+  const [folderSidebarOpen, setFolderSidebarOpen] = useState(true);
+  const [newFolderOpen, setNewFolderOpen] = useState(false);
+  const [newFolderName, setNewFolderName] = useState("");
+  const [newFolderParent, setNewFolderParent] = useState<string | undefined>(undefined);
+  const createFolderMut = hooks.useCreateMediaFolder();
   const [typeFilter, setTypeFilter] = useState<FilterType>("");
   const [sort, setSort] = useState<SortMode>("newest");
   const [view, setView] = useState<ViewMode>("grid");
@@ -492,7 +908,34 @@ export function MediaLibraryModule() {
     search,
     type: typeFilter || undefined,
     sort,
+    folder: selectedFolder || undefined,
   });
+
+  const handleCreateFolder = useCallback(
+    (parentId?: string) => {
+      setNewFolderParent(parentId);
+      setNewFolderName("");
+      setNewFolderOpen(true);
+    },
+    [],
+  );
+
+  const handleSubmitNewFolder = useCallback(() => {
+    if (!newFolderName.trim()) {
+      toast.error("Folder name is required");
+      return;
+    }
+    createFolderMut.mutate(
+      { name: newFolderName.trim(), parentId: newFolderParent },
+      {
+        onSuccess: () => {
+          setNewFolderOpen(false);
+          setNewFolderName("");
+          setNewFolderParent(undefined);
+        },
+      },
+    );
+  }, [newFolderName, newFolderParent, createFolderMut]);
 
   const handleRefresh = useCallback(() => {
     setUploadRefresh((n) => n + 1);
@@ -591,6 +1034,20 @@ export function MediaLibraryModule() {
       {/* Toolbar */}
       <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
         <div className="flex flex-1 items-center gap-3 min-w-0">
+          {/* Folder toggle */}
+          <button
+            onClick={() => setFolderSidebarOpen(!folderSidebarOpen)}
+            className={cn(
+              "rounded-md p-1.5 transition-colors",
+              folderSidebarOpen
+                ? "bg-gold/10 text-gold"
+                : "text-muted-foreground hover:text-foreground",
+            )}
+            title="Toggle folder tree"
+          >
+            <FolderClosed className="h-4 w-4" />
+          </button>
+
           {/* Search */}
           <div className="relative flex-1 max-w-xs">
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
@@ -667,7 +1124,39 @@ export function MediaLibraryModule() {
         </div>
       </div>
 
-      {/* Media Grid */}
+      {/* Main content area with folder sidebar */}
+      <div className="flex gap-4">
+        {/* Folder Sidebar */}
+        {folderSidebarOpen && (
+          <div className="w-56 shrink-0">
+            <div className="mb-2 flex items-center justify-between">
+              <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                Folders
+              </span>
+              <button
+                onClick={() => handleCreateFolder()}
+                className="flex h-6 w-6 items-center justify-center rounded text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+                title="New folder"
+              >
+                <Plus className="h-3.5 w-3.5" />
+              </button>
+            </div>
+            <div className="overflow-y-auto" style={{ maxHeight: "calc(100vh - 360px)" }}>
+              <MediaFolderTree
+                selectedFolder={selectedFolder}
+                onSelectFolder={(folderId) => {
+                  setSelectedFolder(folderId);
+                  setPage(1);
+                }}
+                onCreateFolder={handleCreateFolder}
+              />
+            </div>
+          </div>
+        )}
+
+        {/* Media content */}
+        <div className="flex-1 min-w-0">
+          {/* Media Grid */}
       {isLoading ? (
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
           {Array.from({ length: 12 }).map((_, i) => (
@@ -908,6 +1397,9 @@ export function MediaLibraryModule() {
         </div>
       )}
 
+        </div>
+      </div>
+
       {/* Preview Dialog */}
       <MediaPreviewDialog
         item={previewItem}
@@ -915,6 +1407,23 @@ export function MediaLibraryModule() {
         onOpenChange={() => setPreviewItem(null)}
         onDelete={handleDelete}
         onReplace={handleReplace}
+      />
+
+      {/* New Folder Dialog */}
+      <CrudDialog
+        open={newFolderOpen}
+        onOpenChange={setNewFolderOpen}
+        title="Create Folder"
+        description="Add a new folder to organize your media files."
+        fields={[
+          { name: "folderName", label: "Folder Name", required: true },
+        ]}
+        formData={{ folderName: newFolderName }}
+        onChange={(n, v) => setNewFolderName(v)}
+        onSubmit={handleSubmitNewFolder}
+        isSubmitting={createFolderMut.isPending}
+        isEditing
+        size="sm"
       />
     </div>
   );

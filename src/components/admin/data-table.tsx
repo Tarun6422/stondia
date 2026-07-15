@@ -23,7 +23,7 @@ export type PaginationMeta = { page: number; limit: number; total: number; total
 /* ─── Column definition ─── */
 export type Column<T> = {
   key: string;
-  label: string;
+  label: ReactNode;
   sortable?: boolean;
   render: (item: T) => ReactNode;
   className?: string;

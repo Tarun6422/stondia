@@ -67,6 +67,7 @@ export const registerSchema = z.object({
 export const loginSchema = z.object({
   email: emailSchema,
   password: z.string().min(1, "Password is required"),
+  rememberMe: z.boolean().optional(),
 });
 
 export const contactSchema = z.object({
@@ -97,6 +98,7 @@ export const newsletterSchema = z.object({
 export const productSchema = z.object({
   name: z.string().min(2).max(200),
   slug: slugSchema.optional(),
+  productCode: z.string().max(50).optional(),
   description: z.string().min(10),
   categoryId: z.string().min(1),
   subCategory: z.string().max(100).optional(),

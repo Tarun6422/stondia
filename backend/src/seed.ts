@@ -7,13 +7,13 @@ async function main() {
   console.log("Seeding database...");
 
   // ── Admin User ──
-  const adminPassword = await bcrypt.hash("Admin@StoneIndia#2025!", 12);
+  const adminPassword = await bcrypt.hash("Admin@StoneIndia6422", 12);
   const admin = await prisma.user.upsert({
-    where: { email: "admin@stoneindiaheritage.com" },
+    where: { email: "tarunsolanki6422@gmail.com" },
     update: {},
     create: {
       name: "Admin",
-      email: "admin@stoneindiaheritage.com",
+      email: "tarunsolanki6422@gmail.com",
       password: adminPassword,
       role: "ADMIN",
       isVerified: true,
@@ -378,14 +378,14 @@ async function main() {
   // ── Settings ──
   await prisma.setting.upsert({
     where: { key: "site_name" },
-    update: { value: "Stone India Heritage" },
-    create: { key: "site_name", value: "Stone India Heritage" },
+    update: { value: "STONDIA" },
+    create: { key: "site_name", value: "STONDIA" },
   });
 
   console.log("✓ Settings");
   console.log("\nSeed complete!");
   console.log("\nLogin credentials:");
-  console.log("  Admin:    admin@stoneindiaheritage.com / Admin@StoneIndia#2025!");
+  console.log("  Admin:    tarunsolanki6422@gmail.com / Admin@StoneIndia6422");
   console.log("  Customer: architect@example.com / customer123");
 }
 

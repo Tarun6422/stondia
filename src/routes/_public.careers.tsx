@@ -9,7 +9,7 @@ import { buildMeta, canonicalLink, jsonLdScript, breadcrumbSchema } from "@/lib/
 export const Route = createFileRoute("/_public/careers")({
   head: () => ({
     meta: buildMeta({
-      title: "Careers — Stone India Heritage",
+      title: "Careers — STONDIA",
       description:
         "Join a global stone brand blending heritage craftsmanship with modern manufacturing. Explore careers in sales, manufacturing, quality, logistics, and artisan crafts.",
       path: "/careers",

@@ -9,7 +9,7 @@ import { buildMeta, canonicalLink, jsonLdScript, breadcrumbSchema } from "@/lib/
 export const Route = createFileRoute("/_public/certifications")({
   head: () => ({
     meta: buildMeta({
-      title: "Certifications — Stone India Heritage",
+      title: "Certifications — STONDIA",
       description:
         "ISO 9001, ISO 14001, CE Marking, SGS Verified and ethical labour certifications backing our export-grade natural stone quality standards.",
       path: "/certifications",

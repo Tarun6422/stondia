@@ -79,7 +79,7 @@ import { buildMeta, canonicalLink, jsonLdScript, breadcrumbSchema } from "@/lib/
 export const Route = createFileRoute("/_public/contact")({
   head: () => ({
     meta: buildMeta({
-      title: "Contact — Stone India Heritage",
+      title: "Contact — STONDIA",
       description:
         "Get in touch with our global export team in Jodhpur, Dubai, and London for quotes, samples, and partnership enquiries. We respond within one business day.",
       path: "/contact",
@@ -217,7 +217,7 @@ function Contact() {
       const message =
         err instanceof ApiError ? err.message : "Something went wrong. Please try again later.";
       toast.error(message, {
-        description: "Please try again, or email us directly at exports@stoneindiaheritage.com.",
+        description: "Please try again, or email us directly at exports@stondia.com.",
       });
     } finally {
       setLoading(false);

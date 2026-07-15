@@ -25,7 +25,7 @@ export const CONFIG = {
   SUPABASE_SMTP_PORT: parseInt(process.env.SUPABASE_SMTP_PORT || "465", 10),
   SUPABASE_SMTP_USER: process.env.SUPABASE_SMTP_USER || "",
   SUPABASE_SMTP_PASS: process.env.SUPABASE_SMTP_PASS || "",
-  EMAIL_FROM: process.env.EMAIL_FROM || "noreply@stoneindiaheritage.com",
-  EMAIL_TO: process.env.EMAIL_TO || "exports@stoneindiaheritage.com",
+  EMAIL_FROM: process.env.EMAIL_FROM || "noreply@stondia.com",
+  EMAIL_TO: process.env.EMAIL_TO || "exports@stondia.com",
   COMPANY_PHONE: process.env.COMPANY_PHONE || "+91 98290 00000",
 } as const;

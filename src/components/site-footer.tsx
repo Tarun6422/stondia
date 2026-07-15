@@ -107,7 +107,7 @@ function NewsletterForm() {
       setSubscribed(true);
       setEmail("");
       toast.success("Subscribed!", {
-        description: "You'll receive updates from Stone India Heritage.",
+        description: "You'll receive updates from STONDIA.",
       });
     } catch (err) {
       const msg = err instanceof ApiError ? err.message : "Subscription failed. Please try again.";

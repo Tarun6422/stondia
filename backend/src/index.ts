@@ -29,6 +29,11 @@ import usersRoutes from "./routes/users.js";
 import catalogRoutes from "./routes/catalog.js";
 import catalogGeneratorRoutes from "./routes/catalog-generator.js";
 import mediaRoutes from "./routes/media.js";
+import catalogTemplateRoutes from "./routes/catalog-templates.js";
+import mediaFolderRoutes from "./routes/media-folders.js";
+import qrCodeRoutes from "./routes/qr-codes.js";
+import structuredImagesRoutes from "./routes/structured-images.js";
+import productMediaRoutes from "./routes/product-media.js";
 import { ensureBucket } from "./lib/supabase-storage.js";
 import { ensureLocalUploadDir } from "./lib/upload.js";
 
@@ -111,6 +116,11 @@ app.use("/api/settings", settingsRoutes);
 app.use("/api/catalog", catalogRoutes);
 app.use("/api/catalog-generator", catalogGeneratorRoutes);
 app.use("/api/media", mediaRoutes);
+app.use("/api/catalog-templates", catalogTemplateRoutes);
+app.use("/api/media/folders", mediaFolderRoutes);
+app.use("/api/qr-codes", qrCodeRoutes);
+app.use("/api/structured-images", structuredImagesRoutes);
+app.use("/api/products", productMediaRoutes); // product media management (must be after product routes)
 app.use("/api/users", usersRoutes);
 
 // ── Health Check ──

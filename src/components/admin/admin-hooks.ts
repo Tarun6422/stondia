@@ -51,6 +51,11 @@ export type Product = {
   categoryId: string;
   category: { id: string; name: string; slug: string };
   subCategory?: string;
+  productCode?: string;
+  mainImage?: string;
+  thumbnailImage?: string;
+  textureImage?: string;
+  applicationImages?: string[];
   price?: number;
   finish?: string;
   size?: string;
@@ -611,6 +616,71 @@ export function useCatalogAnalytics() {
   });
 }
 
+/* ─── Enhanced Catalog Analytics ─── */
+
+export type EnhancedCatalogAnalytics = {
+  summary: {
+    totalCatalogs: number;
+    publishedCatalogs: number;
+    totalDownloads: number;
+    totalViews: number;
+    todayViews: number;
+    monthlyViews: number;
+    todayDownloads: number;
+    monthlyDownloads: number;
+    featuredCatalogs: number;
+    mostDownloaded: {
+      id: string;
+      title: string;
+      downloadCount: number;
+      type: string;
+    } | null;
+  };
+  downloadTrend: Array<{ month: string; downloads: number }>;
+  viewTrend: Array<{ month: string; views: number }>;
+  topProducts: Array<{
+    id: string;
+    title: string;
+    productId: string | null;
+    productName: string | null;
+    downloadCount: number;
+    type: string;
+  }>;
+  topCategories: Array<{
+    categoryId: string;
+    categoryName: string;
+    downloadCount: number;
+  }>;
+  popularPDFs: Array<{
+    id: string;
+    title: string;
+    slug: string;
+    downloadCount: number;
+    fileSize: string | null;
+    type: string;
+  }>;
+  recentDownloads: Array<{
+    id: string;
+    createdAt: string;
+    ip: string | null;
+    country: string | null;
+    browser: string | null;
+    device: string | null;
+    referrer: string | null;
+    download: { title: string; slug: string };
+  }>;
+  deviceBreakdown: Array<{ name: string; value: number }>;
+  browserBreakdown: Array<{ name: string; value: number }>;
+  countryBreakdown: Array<{ name: string; value: number }>;
+};
+
+export function useEnhancedCatalogAnalytics() {
+  return useQuery<EnhancedCatalogAnalytics>({
+    queryKey: ["admin", "catalog", "analytics", "enhanced"],
+    queryFn: () => api.get("/api/admin/catalog/analytics/enhanced"),
+  });
+}
+
 /* ─── Testimonials ─── */
 
 export function useTestimonials() {
@@ -988,6 +1058,8 @@ export type CatalogVersion = {
 export type CatalogAnalyticsSummary = {
   totalCatalogs: number;
   publishedCatalogs: number;
+  featuredCatalogs: number;
+  archivedCatalogs: number;
   totalDownloads: number;
   masterCount: number;
   categoryCount: number;
@@ -1019,7 +1091,8 @@ export function useGeneratedCatalog(id: string) {
 export function useGenerateMasterCatalog() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: () => api.post("/api/catalog-generator/generate/master"),
+    mutationFn: (options?: { theme?: string; language?: string; templateId?: string }) =>
+      api.post("/api/catalog-generator/generate/master", options || {}),
     onSuccess: (data: any) => {
       qc.invalidateQueries({ queryKey: ["admin", "catalog-generator"] });
       toast.success(data.message || "Master catalog generated");
@@ -1031,8 +1104,8 @@ export function useGenerateMasterCatalog() {
 export function useGenerateCategoryCatalog() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (categoryId: string) =>
-      api.post(`/api/catalog-generator/generate/category/${categoryId}`),
+    mutationFn: (opts: { categoryId: string; theme?: string; language?: string; templateId?: string }) =>
+      api.post(`/api/catalog-generator/generate/category/${opts.categoryId}`, opts),
     onSuccess: (data: any) => {
       qc.invalidateQueries({ queryKey: ["admin", "catalog-generator"] });
       toast.success(data.message || "Category catalog generated");
@@ -1044,8 +1117,8 @@ export function useGenerateCategoryCatalog() {
 export function useGenerateProductCatalog() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (productId: string) =>
-      api.post(`/api/catalog-generator/generate/product/${productId}`),
+    mutationFn: (opts: { productId: string; theme?: string; language?: string; templateId?: string }) =>
+      api.post(`/api/catalog-generator/generate/product/${opts.productId}`, opts),
     onSuccess: (data: any) => {
       qc.invalidateQueries({ queryKey: ["admin", "catalog-generator"] });
       toast.success(data.message || "Product catalog generated");
@@ -1057,7 +1130,12 @@ export function useGenerateProductCatalog() {
 export function useRegenerateCatalog() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (id: string) => api.post(`/api/catalog-generator/regenerate/${id}`),
+    mutationFn: (opts: string | { id: string; theme?: string; language?: string; templateId?: string }) => {
+      if (typeof opts === "string") {
+        return api.post(`/api/catalog-generator/regenerate/${opts}`);
+      }
+      return api.post(`/api/catalog-generator/regenerate/${opts.id}`, opts);
+    },
     onSuccess: (data: any) => {
       qc.invalidateQueries({ queryKey: ["admin", "catalog-generator"] });
       toast.success(data.message || "Catalog regenerated");
@@ -1107,5 +1185,539 @@ export function useCatalogGeneratorAnalytics() {
   return useQuery<CatalogAnalyticsSummary>({
     queryKey: ["admin", "catalog-generator", "analytics"],
     queryFn: () => api.get("/api/catalog-generator/analytics/summary"),
+  });
+}
+
+/* ─── Catalog Generator: Feature / Archive / Duplicate / Restore / Bulk ─── */
+
+export function useFeatureGeneratedCatalog() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => api.patch(`/api/catalog-generator/${id}/feature`),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["admin", "catalog-generator"] });
+      toast.success("Featured status toggled");
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+}
+
+export function useArchiveGeneratedCatalog() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => api.patch(`/api/catalog-generator/${id}/archive`),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["admin", "catalog-generator"] });
+      toast.success("Archive status toggled");
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+}
+
+export function useDuplicateGeneratedCatalog() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => api.post(`/api/catalog-generator/${id}/duplicate`),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["admin", "catalog-generator"] });
+      toast.success("Catalog duplicated");
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+}
+
+export function useRestoreCatalogVersion() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ catalogId, versionId }: { catalogId: string; versionId: string }) =>
+      api.post(`/api/catalog-generator/${catalogId}/restore/${versionId}`),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["admin", "catalog-generator"] });
+      toast.success("Version restored");
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+}
+
+export function useBulkDeleteCatalogs() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (ids: string[]) => api.post("/api/catalog-generator/bulk-delete", { ids }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["admin", "catalog-generator"] });
+      toast.success("Selected catalogs deleted");
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+}
+
+export function useBulkUpdateCatalogs() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ ids, data }: { ids: string[]; data: Record<string, unknown> }) =>
+      api.post("/api/catalog-generator/bulk-update", { ids, data }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["admin", "catalog-generator"] });
+      toast.success("Catalogs updated");
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+}
+
+export function useUploadCatalogPdf() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (data: Record<string, unknown>) => api.post("/api/catalog-generator/upload", data),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["admin", "catalog-generator"] });
+      toast.success("Catalog uploaded");
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+}
+
+export function useCatalogAssignments(catalog: any) {
+  const categoryId = catalog?.categoryId;
+  const productId = catalog?.productId;
+
+  const query = useQuery<{
+    categoryName: string | null;
+    productName: string | null;
+    productCode: string | null;
+  }>({
+    queryKey: ["admin", "catalog-assignments", categoryId, productId],
+    queryFn: () =>
+      api.post("/api/catalog-generator/resolve-assignments", {
+        categoryId,
+        productId,
+      }),
+    enabled: !!(categoryId || productId),
+  });
+
+  return {
+    categoryName: query.data?.categoryName || null,
+    productName: query.data?.productName || null,
+    productCode: query.data?.productCode || null,
+    isLoading: query.isLoading,
+  };
+}
+
+/* ─── Catalog Templates ─── */
+
+export type CatalogTemplate = {
+  id: string;
+  name: string;
+  slug: string;
+  description?: string;
+  type: string;
+  icon?: string;
+  defaultFields?: Record<string, unknown>;
+  createdAt: string;
+  updatedAt: string;
+  _count?: { catalogs: number };
+};
+
+export function useCatalogTemplates() {
+  return useQuery<{ data: CatalogTemplate[] }>({
+    queryKey: ["admin", "catalog-templates"],
+    queryFn: () => api.get("/api/catalog-templates"),
+  });
+}
+
+export function useCreateCatalogTemplate() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (data: Record<string, unknown>) => api.post("/api/catalog-templates", data),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["admin", "catalog-templates"] });
+      toast.success("Template created");
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+}
+
+export function useUpdateCatalogTemplate() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, ...data }: Record<string, unknown>) =>
+      api.put(`/api/catalog-templates/${id}`, data),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["admin", "catalog-templates"] });
+      toast.success("Template updated");
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+}
+
+export function useDeleteCatalogTemplate() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => api.delete(`/api/catalog-templates/${id}`),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["admin", "catalog-templates"] });
+      toast.success("Template deleted");
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+}
+
+/* ─── Media Folders ─── */
+
+export type MediaFolder = {
+  id: string;
+  name: string;
+  slug: string;
+  parentId?: string;
+  createdAt: string;
+  updatedAt: string;
+  _count?: { media: number; children: number };
+  children?: MediaFolder[];
+};
+
+export function useMediaFolders(parent?: string) {
+  return useQuery<{ data: MediaFolder[] }>({
+    queryKey: ["admin", "media-folders", parent],
+    queryFn: () => api.get(`/api/media/folders${parent ? `?parent=${parent}` : ""}`),
+  });
+}
+
+export function useCreateMediaFolder() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (data: { name: string; parentId?: string }) => api.post("/api/media/folders", data),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["admin", "media-folders"] });
+      toast.success("Folder created");
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+}
+
+export function useRenameMedia() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, originalName }: { id: string; originalName: string }) =>
+      api.put(`/api/media/${id}/rename`, { originalName }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["admin", "media"] });
+      toast.success("Media renamed");
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+}
+
+export function useCheckDuplicateMedia() {
+  return useMutation({
+    mutationFn: (hash: string) => api.post("/api/media/check-duplicate", { hash }),
+  });
+}
+
+export function useDeleteMediaFolder() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => api.delete(`/api/media/folders/${id}`),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["admin", "media-folders"] });
+      toast.success("Folder deleted");
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+}
+
+/* ─── Structured Images ─── */
+
+export type StructuredImage = {
+  id: string;
+  fileName: string;
+  displayName?: string;
+  url: string;
+  imageType: string; // cover | banner | thumbnail | gallery | texture | project | application | catalogue_cover | seo
+  productCode?: string;
+  categoryId?: string;
+  productId?: string;
+  projectId?: string;
+  altText?: string;
+  sortOrder: number;
+  width?: number;
+  height?: number;
+  createdAt: string;
+  updatedAt: string;
+  category?: { id: string; name: string; slug: string };
+  product?: { id: string; name: string; slug: string; productCode?: string };
+};
+
+export function useStructuredImages(params: {
+  page?: number;
+  limit?: number;
+  imageType?: string;
+  categoryId?: string;
+  productId?: string;
+  productCode?: string;
+  search?: string;
+  sort?: string;
+}) {
+  return useQuery<{ data: StructuredImage[]; pagination: Pagination }>({
+    queryKey: ["admin", "structured-images", params],
+    queryFn: () => api.get(`/api/structured-images${buildQueryString(params)}`),
+  });
+}
+
+export function useStructuredImagesByCategory(categoryId: string) {
+  return useQuery<{
+    category: { id: string; name: string; slug: string };
+    images: StructuredImage[];
+    grouped: Record<string, StructuredImage[]>;
+  }>({
+    queryKey: ["admin", "structured-images", "by-category", categoryId],
+    queryFn: () => api.get(`/api/structured-images/by-category/${categoryId}`),
+    enabled: !!categoryId,
+  });
+}
+
+export function useStructuredImagesByProduct(productId: string) {
+  return useQuery<{
+    product: { id: string; name: string; slug: string; productCode?: string };
+    images: StructuredImage[];
+    grouped: Record<string, StructuredImage[]>;
+  }>({
+    queryKey: ["admin", "structured-images", "by-product", productId],
+    queryFn: () => api.get(`/api/structured-images/by-product/${productId}`),
+    enabled: !!productId,
+  });
+}
+
+export function useStructuredImagesByProductCode(productCode: string) {
+  return useQuery<{
+    productCode: string;
+    images: StructuredImage[];
+    grouped: Record<string, StructuredImage[]>;
+  }>({
+    queryKey: ["admin", "structured-images", "by-productCode", productCode],
+    queryFn: () => api.get(`/api/structured-images/by-productCode/${productCode}`),
+    enabled: !!productCode,
+  });
+}
+
+export function useCreateStructuredImage() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (data: Record<string, unknown>) => api.post("/api/structured-images", data),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["admin", "structured-images"] });
+      toast.success("Image registered");
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+}
+
+export function useUpdateStructuredImage() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, ...data }: Record<string, unknown>) =>
+      api.put(`/api/structured-images/${id}`, data),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["admin", "structured-images"] });
+      toast.success("Image updated");
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+}
+
+export function useDeleteStructuredImage() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => api.delete(`/api/structured-images/${id}`),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["admin", "structured-images"] });
+      toast.success("Image deleted");
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+}
+
+/* ─── Product Media ─── */
+
+export type ProductImage = {
+  id: string;
+  fileName: string;
+  displayName?: string;
+  url: string;
+  imageType: string;
+  productCode?: string;
+  productId?: string;
+  altText?: string;
+  sortOrder: number;
+  width?: number;
+  height?: number;
+  createdAt: string;
+};
+
+export type ProductMediaData = {
+  productId: string;
+  productCode: string | null;
+  productName: string;
+  mainImage: string | null;
+  images: string[];
+  structured: Record<string, ProductImage[]>;
+  all: ProductImage[];
+};
+
+export function useProductMedia(productId: string) {
+  return useQuery<ProductMediaData>({
+    queryKey: ["admin", "product-media", productId],
+    queryFn: () => api.get(`/api/products/${productId}/media`),
+    enabled: !!productId,
+  });
+}
+
+export function useAddProductImage() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({
+      productId,
+      url,
+      imageType,
+      altText,
+      sortOrder,
+      width,
+      height,
+    }: {
+      productId: string;
+      url: string;
+      imageType: string;
+      altText?: string;
+      sortOrder?: number;
+      width?: number;
+      height?: number;
+    }) => api.post(`/api/products/${productId}/media`, { url, imageType, altText, sortOrder, width, height }),
+    onSuccess: (_data, variables) => {
+      qc.invalidateQueries({ queryKey: ["admin", "product-media", variables.productId] });
+      qc.invalidateQueries({ queryKey: ["admin", "products"] });
+      toast.success("Image added");
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+}
+
+export function useUpdateProductImage() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({
+      productId,
+      mediaId,
+      altText,
+      sortOrder,
+      imageType,
+      displayName,
+    }: {
+      productId: string;
+      mediaId: string;
+      altText?: string;
+      sortOrder?: number;
+      imageType?: string;
+      displayName?: string;
+    }) => api.put(`/api/products/${productId}/media/${mediaId}`, { altText, sortOrder, imageType, displayName }),
+    onSuccess: (_data, variables) => {
+      qc.invalidateQueries({ queryKey: ["admin", "product-media", variables.productId] });
+      qc.invalidateQueries({ queryKey: ["admin", "products"] });
+      toast.success("Image updated");
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+}
+
+export function useDeleteProductImage() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ productId, mediaId }: { productId: string; mediaId: string }) =>
+      api.delete(`/api/products/${productId}/media/${mediaId}`),
+    onSuccess: (_data, variables) => {
+      qc.invalidateQueries({ queryKey: ["admin", "product-media", variables.productId] });
+      qc.invalidateQueries({ queryKey: ["admin", "products"] });
+      toast.success("Image deleted");
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+}
+
+export function useReorderProductImages() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({
+      productId,
+      imageType,
+      order,
+    }: {
+      productId: string;
+      imageType: string;
+      order: string[];
+    }) => api.put(`/api/products/${productId}/media/reorder`, { imageType, order }),
+    onSuccess: (_data, variables) => {
+      qc.invalidateQueries({ queryKey: ["admin", "product-media", variables.productId] });
+      qc.invalidateQueries({ queryKey: ["admin", "products"] });
+      toast.success("Gallery reordered");
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+}
+
+export function useSetMainProductImage() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ productId, mediaId }: { productId: string; mediaId: string }) =>
+      api.put(`/api/products/${productId}/media/set-main/${mediaId}`),
+    onSuccess: (_data, variables) => {
+      qc.invalidateQueries({ queryKey: ["admin", "product-media", variables.productId] });
+      qc.invalidateQueries({ queryKey: ["admin", "products"] });
+      toast.success("Main image updated");
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+}
+
+/* ─── QR Codes ─── */
+
+export type QRCode = {
+  id: string;
+  catalogId: string;
+  url: string;
+  imageUrl?: string;
+  label?: string;
+  scanCount: number;
+  lastScannedAt?: string;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export function useCatalogQRCodes(catalogId: string) {
+  return useQuery<{ data: QRCode[] }>({
+    queryKey: ["admin", "qr-codes", catalogId],
+    queryFn: () => api.get(`/api/qr-codes/catalog/${catalogId}`),
+    enabled: !!catalogId,
+  });
+}
+
+export function useGenerateQRCode() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ catalogId, label, customUrl }: { catalogId: string; label?: string; customUrl?: string }) =>
+      api.post(`/api/qr-codes/generate/${catalogId}`, { label, customUrl }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["admin", "qr-codes"] });
+      toast.success("QR Code generated");
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+}
+
+export function useDeleteQRCode() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => api.delete(`/api/qr-codes/${id}`),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["admin", "qr-codes"] });
+      toast.success("QR Code deleted");
+    },
+    onError: (e: Error) => toast.error(e.message),
   });
 }

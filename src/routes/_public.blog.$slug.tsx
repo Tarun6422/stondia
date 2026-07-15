@@ -14,15 +14,13 @@ export const Route = createFileRoute("/_public/blog/$slug")({
   },
   head: ({ loaderData, params }) => ({
     meta: loaderData
-      ? buildMeta({
-          title: `${loaderData.post.title} — Stone India Heritage`,
+      ? buildMeta({           title: `${loaderData.post.title} — STONDIA`,
           description: loaderData.post.excerpt,
           path: `/blog/${params.slug}`,
           ogImage: loaderData.post.image,
           ogType: "article",
         })
-      : [
-          { title: "Post not found — Stone India Heritage" },
+      : [           { title: "Post not found — STONDIA" },
           { name: "robots", content: "noindex" },
         ],
     links: loaderData ? [canonicalLink(`/blog/${params.slug}`)] : [],

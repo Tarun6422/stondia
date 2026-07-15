@@ -19,6 +19,11 @@ export const STORAGE_FOLDERS = [
   "avatars",
   "uploads", // public form uploads
   "catalogs", // generated PDF catalogs
+  "categories", // category-specific images
+  "gallery",   // gallery / lifestyle images
+  "catalogues", // brochure / catalogue PDFs
+  "banners",   // hero / banner images
+  "logos",     // brand / partner logos
 ] as const;
 export type StorageFolder = (typeof STORAGE_FOLDERS)[number];
 

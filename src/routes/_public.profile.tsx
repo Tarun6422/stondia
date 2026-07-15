@@ -41,7 +41,7 @@ const passwordSchema = z
 export const Route = createFileRoute("/_public/profile")({
   head: () => ({
     meta: [
-      { title: "My Profile — Stone India Heritage" },
+      { title: "My Profile — STONDIA" },
       { name: "description", content: "Manage your profile, password, and avatar." },
     ],
   }),

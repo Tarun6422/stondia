@@ -10,7 +10,7 @@ import { buildMeta, canonicalLink, jsonLdScript, faqSchema, breadcrumbSchema } f
 export const Route = createFileRoute("/_public/faq")({
   head: () => ({
     meta: buildMeta({
-      title: "FAQ — Stone India Heritage",
+      title: "FAQ — STONDIA",
       description:
         "Answers to common questions about ordering natural stone, shipping, custom work, samples, and technical documentation from India's premier sandstone exporter.",
       path: "/faq",

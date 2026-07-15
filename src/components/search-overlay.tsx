@@ -77,7 +77,7 @@ const GROUP_LABELS: Record<string, string> = {
 };
 
 const ROUTE_MAP: Record<string, { to: string; param: string }> = {
-  product: { to: "/products/$slug", param: "slug" },
+  product: { to: "/product/$slug", param: "slug" },
   project: { to: "/projects/$slug", param: "slug" },
   blog: { to: "/blog/$slug", param: "slug" },
   video: { to: "/videos", param: "" },

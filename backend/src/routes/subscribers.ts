@@ -19,7 +19,7 @@ router.post("/", validate(newsletterSchema), async (req: Request, res: Response)
       try {
         await sendEmail(
           email,
-          "You're Subscribed — Stone India Heritage",
+          "You're Subscribed — STONDIA",
           newsletterConfirmationEmail(name, email),
         );
       } catch {
@@ -36,7 +36,7 @@ router.post("/", validate(newsletterSchema), async (req: Request, res: Response)
   try {
     await sendEmail(
       email,
-      "You're Subscribed — Stone India Heritage",
+      "You're Subscribed — STONDIA",
       newsletterConfirmationEmail(name, email),
     );
   } catch {

@@ -22,7 +22,7 @@ function NotFoundComponent() {
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
       <div className="max-w-md text-center">
         <p className="text-xs uppercase tracking-[0.25em] text-muted-foreground">
-          Stone India Heritage
+          STONDIA
         </p>
         <h1 className="mt-4 font-serif text-8xl text-foreground">404</h1>
         <h2 className="mt-4 font-serif text-2xl text-foreground">Page not found</h2>
@@ -85,35 +85,35 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Stone India Heritage — Rajasthan Sandstone & Architecture" },
+      { title: "STONDIA — Rajasthan Sandstone & Architecture" },
       {
         name: "description",
         content:
           "Premium manufacturer and global exporter of Rajasthan Sandstone and architectural natural stone. Heritage craftsmanship, sustainable quarrying and export-quality precision.",
       },
-      { name: "author", content: "Stone India Heritage" },
+      { name: "author", content: "STONDIA" },
       {
         name: "keywords",
         content:
           "Rajasthan sandstone, natural stone manufacturer, sandstone exporter India, architectural stone, heritage stone, stone India, premium cladding",
       },
-      { property: "og:title", content: "Stone India Heritage — Heritage Sandstone & Architecture" },
+      { property: "og:title", content: "STONDIA — Heritage Sandstone & Architecture" },
       {
         property: "og:description",
         content:
           "Rajasthan Sandstone crafted for the world — premium natural stone for architects, developers and importers.",
       },
       { property: "og:type", content: "website" },
-      { property: "og:url", content: "https://stoneindiaheritage.com" },
+      { property: "og:url", content: "https://stondia.com" },
       { property: "og:image", content: SOCIAL_PREVIEW.ogImage },
       { property: "og:image:width", content: "1200" },
       { property: "og:image:height", content: "630" },
-      { property: "og:site_name", content: "Stone India Heritage" },
+      { property: "og:site_name", content: "STONDIA" },
       { name: "twitter:card", content: "summary_large_image" },
       { name: "twitter:site", content: "@StoneIndia" },
       {
         name: "twitter:title",
-        content: "Stone India Heritage — Heritage Sandstone & Architecture",
+        content: "STONDIA — Heritage Sandstone & Architecture",
       },
       {
         name: "twitter:description",
@@ -125,7 +125,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     links: [
       { rel: "stylesheet", href: appCss },
       { rel: "icon", href: "/favicon.ico", type: "image/x-icon" },
-      { rel: "canonical", href: "https://stoneindiaheritage.com" },
+      { rel: "canonical", href: "https://stondia.com" },
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
       {
         rel: "preconnect",

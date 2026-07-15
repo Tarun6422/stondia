@@ -45,12 +45,13 @@ import {
   SettingsModule,
   MediaLibraryModule,
   CatalogGeneratorModule,
+  CatalogTemplatesModule,
 } from "@/components/admin/modules";
 
 export const Route = createFileRoute("/admin")({
   head: () => ({
     meta: [
-      { title: "Admin Dashboard — Stone India Heritage" },
+      { title: "Admin Dashboard — STONDIA" },
       { name: "robots", content: "noindex" },
     ],
   }),
@@ -62,6 +63,7 @@ const NAV_ITEMS = [
   { label: "Dashboard", icon: LayoutDashboard, section: "dashboard" },
   { label: "Media Library", icon: Images, section: "media" },
   { label: "Catalog Generator", icon: FilePlus, section: "catalog-generator" },
+  { label: "Catalog Templates", icon: FileText, section: "catalog-templates" },
   { label: "Products", icon: Package, section: "products" },
   { label: "Categories", icon: FolderTree, section: "categories" },
   { label: "Projects", icon: Building2, section: "projects" },
@@ -81,6 +83,7 @@ const SECTION_LABELS: Record<string, string> = {
   dashboard: "Dashboard",
   media: "Media Library",
   "catalog-generator": "Catalog Generator",
+  "catalog-templates": "Catalog Templates",
   products: "Products",
   categories: "Categories",
   projects: "Projects",
@@ -134,7 +137,7 @@ function Admin() {
     return () => window.removeEventListener("keydown", onKey);
   }, []);
 
-  // Protect admin route
+  // Protect admin route — must be logged in AND have ADMIN role
   if (!loading && !user) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-background">
@@ -157,6 +160,28 @@ function Admin() {
     );
   }
 
+  if (!loading && user && user.role !== "ADMIN") {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-background">
+        <div className="max-w-sm text-center space-y-4">
+          <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-destructive/10 text-destructive mx-auto">
+            <LayoutDashboard className="h-8 w-8" />
+          </div>
+          <h2 className="font-serif text-2xl text-foreground">Access Denied</h2>
+          <p className="text-sm text-muted-foreground">
+            You don&apos;t have permission to access the admin dashboard.
+          </p>
+          <Link
+            to="/dashboard"
+            className="inline-flex items-center justify-center rounded-md bg-gold px-6 py-2.5 text-sm font-medium text-[var(--gold-foreground)] transition-all hover:brightness-105"
+          >
+            Go to Dashboard
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
   if (loading) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-background">
@@ -164,6 +189,7 @@ function Admin() {
       </div>
     );
   }
+
 
   const handleLogout = async () => {
     await logout();
@@ -184,7 +210,7 @@ function Admin() {
               S
             </span>
             <div className="flex flex-col leading-tight">
-              <span className="font-serif text-sm tracking-tight text-white">Stone India</span>
+              <span className="font-serif text-sm tracking-tight text-white">STONDIA</span>
               <span className="text-[0.55rem] uppercase tracking-[0.25em] text-white/40">
                 Admin
               </span>
@@ -332,9 +358,10 @@ function Admin() {
               exit={{ opacity: 0, y: -8 }}
               transition={{ duration: 0.2 }}
             >
-              {section === "dashboard" && <DashboardOverview />}
+              {section === "dashboard" && <DashboardOverview onNavigate={setSection} />}
               {section === "media" && <MediaLibraryModule />}
               {section === "catalog-generator" && <CatalogGeneratorModule />}
+              {section === "catalog-templates" && <CatalogTemplatesModule />}
               {section === "products" && <ProductsModule />}
               {section === "categories" && <CategoriesModule />}
               {section === "projects" && <ProjectsModule />}

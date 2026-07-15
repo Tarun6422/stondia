@@ -93,7 +93,7 @@ const STORAGE_KEY = "stoneindia_quote_draft";
 export const Route = createFileRoute("/_public/quote")({
   head: () => ({
     meta: [
-      { title: "Request a Quote — Stone India Heritage" },
+      { title: "Request a Quote — STONDIA" },
       {
         name: "description",
         content:
@@ -268,7 +268,7 @@ function Quote() {
       const message =
         err instanceof ApiError ? err.message : "Something went wrong. Please try again.";
       toast.error(message, {
-        description: "Please try again, or email us directly at exports@stoneindiaheritage.com.",
+        description: "Please try again, or email us directly at exports@stondia.com.",
       });
     } finally {
       setLoading(false);

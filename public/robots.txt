@@ -3,7 +3,7 @@ Allow: /
 Disallow: /admin
 
 # Sitemap
-Sitemap: https://stoneindiaheritage.com/sitemap.xml
+Sitemap: https://stondia.com/sitemap.xml
 
 # Crawl rules
 Crawl-Delay: 10

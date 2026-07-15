@@ -57,7 +57,7 @@ export async function sendEmail(to: string, subject: string, html: string) {
   }
 
   await transporter.sendMail({
-    from: `"Stone India Heritage" <${CONFIG.EMAIL_FROM}>`,
+    from: `"STONDIA" <${CONFIG.EMAIL_FROM}>`,
     to,
     subject,
     html,
@@ -84,7 +84,7 @@ function shell({
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="color-scheme" content="light">
   <meta name="format-detection" content="telephone=no,address=no,email=no,url=no">
-  <title>${title || "Stone India Heritage"}</title>
+  <title>${title || "STONDIA"}</title>
   <!--[if mso]>
   <noscript>
     <xml>
@@ -118,7 +118,7 @@ function shell({
               </tr>
             </table>
             <h1 style="margin:10px 0 0;font-size:26px;font-weight:400;letter-spacing:1px;color:#2c2416;font-family:Georgia,'Times New Roman',serif">
-              Stone India Heritage
+              STONDIA
             </h1>
             <p style="margin:2px 0 0;font-size:11px;letter-spacing:3.5px;text-transform:uppercase;color:#b8860b">
               Heritage Sandstone &amp; Architecture
@@ -137,7 +137,7 @@ function shell({
         <tr>
           <td style="padding:32px 0 24px;text-align:center">
             <p style="margin:0 0 6px;font-size:11px;color:#b8860b;letter-spacing:2.5px;text-transform:uppercase">
-              Stone India Heritage
+              STONDIA
             </p>
             <p style="margin:0 0 4px;font-size:12px;color:#7a7066;line-height:1.6">
               Village Keria, Post Salawa, Jodhpur — Rajasthan, India
@@ -147,10 +147,10 @@ function shell({
               &nbsp;·&nbsp;
               <a href="mailto:${CONFIG.EMAIL_TO}" style="color:#b8860b;text-decoration:none">${CONFIG.EMAIL_TO}</a>
               &nbsp;·&nbsp;
-              <a href="${CONFIG.FRONTEND_URL}" style="color:#b8860b;text-decoration:none">stoneindiaheritage.com</a>
+              <a href="${CONFIG.FRONTEND_URL}" style="color:#b8860b;text-decoration:none">stondia.com</a>
             </p>
             <p style="margin:20px 0 0;font-size:11px;color:#9c9288">
-              &copy; 2026 Stone India Heritage. All rights reserved.<br>
+              &copy; 2026 STONDIA. All rights reserved.<br>
               You are receiving this email because you opted in or interacted with our services.
             </p>
           </td>
@@ -190,8 +190,8 @@ function divider(): string {
 export function welcomeEmail(name: string): string {
   const safeName = escapeVal(name);
   return shell({
-    title: "Welcome to Stone India Heritage",
-    preview: `Welcome to Stone India Heritage, ${name}. Your account is ready.`,
+    title: "Welcome to STONDIA",
+    preview: `Welcome to STONDIA, ${name}. Your account is ready.`,
     children: `
       <div style="text-align:center;margin-bottom:28px">
         <div style="width:64px;height:64px;margin:0 auto;background:#e8dcc8;border-radius:50%;display:flex;align-items:center;justify-content:center">
@@ -200,7 +200,7 @@ export function welcomeEmail(name: string): string {
       </div>
       <h2 style="margin:0 0 6px;font-size:22px;font-weight:400;color:#2c2416;font-family:Georgia,serif">Welcome, ${safeName}</h2>
       <p style="margin:0 0 16px;color:#5c5248;font-size:15px;line-height:1.8">
-        Thank you for creating an account with <strong>Stone India Heritage</strong>.
+        Thank you for creating an account with <strong>STONDIA</strong>.
         You now have access to our complete collection of premium Rajasthan sandstone,
         natural stone slabs, and architectural stone products.
       </p>
@@ -244,7 +244,7 @@ export function welcomeEmail(name: string): string {
 export function contactConfirmationEmail(name: string): string {
   const safeName = escapeVal(name);
   return shell({
-    title: "Thank You — Stone India Heritage",
+    title: "Thank You — STONDIA",
     preview: `Dear ${name}, thank you for reaching out. We'll respond within one business day.`,
     children: `
       <div style="text-align:center;margin-bottom:24px">
@@ -254,7 +254,7 @@ export function contactConfirmationEmail(name: string): string {
       </div>
       <h2 style="margin:0 0 6px;font-size:22px;font-weight:400;color:#2c2416;text-align:center;font-family:Georgia,serif">Thank You, ${safeName}</h2>
       <p style="margin:0 0 8px;color:#5c5248;font-size:15px;line-height:1.8">
-        We have received your enquiry and appreciate your interest in Stone India Heritage.
+        We have received your enquiry and appreciate your interest in STONDIA.
       </p>
       <p style="margin:0 0 16px;color:#5c5248;font-size:15px;line-height:1.8">
         Our team will review your message and respond within <strong>one business day</strong>.
@@ -286,7 +286,7 @@ export function rfqConfirmationEmail(name: string, quoteRef?: string): string {
   const safeName = escapeVal(name);
   const safeRef = quoteRef ? escapeVal(quoteRef) : "";
   return shell({
-    title: "Quote Request Received — Stone India Heritage",
+    title: "Quote Request Received — STONDIA",
     preview: `Dear ${name}, your quote request has been received. Our export team will respond within 24 hours.`,
     children: `
       <div style="text-align:center;margin-bottom:24px">
@@ -355,7 +355,7 @@ export function rfqReplyEmail(reply: string, status: string): string {
   const color = statusColors[status] || "#b8860b";
 
   return shell({
-    title: `Quote Update — Stone India Heritage (${status})`,
+    title: `Quote Update — STONDIA (${status})`,
     preview: `Your quotation status has been updated to ${status}. View our response.`,
     children: `
       <div style="text-align:center;margin-bottom:24px">
@@ -392,8 +392,8 @@ export function rfqCompletedEmail(name: string, company?: string, quoteRef?: str
   const safeCompany = company ? escapeVal(company) : "";
   const safeRef = quoteRef ? escapeVal(quoteRef) : "";
   return shell({
-    title: "Quote Completed — Stone India Heritage",
-    preview: `Your quotation with Stone India Heritage has been completed.`,
+    title: "Quote Completed — STONDIA",
+    preview: `Your quotation with STONDIA has been completed.`,
     children: `
       <div style="text-align:center;margin-bottom:24px">
         <div style="width:72px;height:72px;margin:0 auto;background:#ecfdf5;border-radius:50%;display:flex;align-items:center;justify-content:center;border:2px solid #059669">
@@ -405,7 +405,7 @@ export function rfqCompletedEmail(name: string, company?: string, quoteRef?: str
       ${quoteRef ? `<p style="margin:0 0 16px;text-align:center;font-size:13px;color:#8c8278">Reference: <span style="font-family:monospace;color:#b8860b;font-size:14px">${safeRef}</span></p>` : ""}
       <p style="margin:0 0 8px;color:#5c5248;font-size:15px;line-height:1.8">Dear ${safeName},</p>
       <p style="margin:0 0 8px;color:#5c5248;font-size:15px;line-height:1.8">
-        We are pleased to inform you that your quotation with Stone India Heritage
+        We are pleased to inform you that your quotation with STONDIA
         has been marked as <strong style="color:#059669">Completed</strong>.
         ${company ? `Thank you for choosing us as your partner for ${safeCompany}.` : ""}
       </p>
@@ -432,8 +432,8 @@ export function rfqCancelledEmail(name: string, reason?: string, quoteRef?: stri
   const safeReason = reason ? escapeVal(reason) : "";
   const safeRef = quoteRef ? escapeVal(quoteRef) : "";
   return shell({
-    title: "Quote Cancelled — Stone India Heritage",
-    preview: `Your quotation with Stone India Heritage has been cancelled.`,
+    title: "Quote Cancelled — STONDIA",
+    preview: `Your quotation with STONDIA has been cancelled.`,
     children: `
       <div style="text-align:center;margin-bottom:24px">
         <div style="width:72px;height:72px;margin:0 auto;background:#fef2f2;border-radius:50%;display:flex;align-items:center;justify-content:center;border:2px solid #dc2626">
@@ -445,7 +445,7 @@ export function rfqCancelledEmail(name: string, reason?: string, quoteRef?: stri
       ${quoteRef ? `<p style="margin:0 0 16px;text-align:center;font-size:13px;color:#8c8278">Reference: <span style="font-family:monospace;color:#b8860b;font-size:14px">${safeRef}</span></p>` : ""}
       <p style="margin:0 0 8px;color:#5c5248;font-size:15px;line-height:1.8">Dear ${safeName},</p>
       <p style="margin:0 0 8px;color:#5c5248;font-size:15px;line-height:1.8">
-        We regret to inform you that your quotation with Stone India Heritage
+        We regret to inform you that your quotation with STONDIA
         has been marked as <strong style="color:#dc2626">Cancelled</strong>.
       </p>
       ${reason ? `<div style="background:#fef2f2;border-left:3px solid #dc2626;padding:14px 18px;margin:16px 0;border-radius:6px"><p style="margin:0;color:#7f1d1d;font-size:14px;line-height:1.6">${safeReason}</p></div>` : ""}
@@ -471,7 +471,7 @@ export function rfqCancelledEmail(name: string, reason?: string, quoteRef?: stri
 export function passwordResetOTPEmail(name: string, otp: string): string {
   const safeName = escapeVal(name);
   return shell({
-    title: "Stone India Heritage Password Reset OTP",
+    title: "STONDIA Password Reset OTP",
     preview: `Hi ${safeName}, use this OTP to reset your password. Valid for 10 minutes.`,
     children: `
       <div style="text-align:center;margin-bottom:24px">
@@ -484,7 +484,7 @@ export function passwordResetOTPEmail(name: string, otp: string): string {
         Hi ${safeName},
       </p>
       <p style="margin:0 0 8px;color:#5c5248;font-size:15px;line-height:1.8">
-        We received a request to reset the password for your Stone India Heritage account.
+        We received a request to reset the password for your STONDIA account.
         Use the verification code below to proceed.
       </p>
 
@@ -525,8 +525,8 @@ export function newsletterConfirmationEmail(name?: string, email?: string): stri
     : `${CONFIG.FRONTEND_URL}/contact`;
   const greeting = name ? `Dear ${safeName},` : "Hello,";
   return shell({
-    title: "You're Subscribed — Stone India Heritage",
-    preview: "Thank you for subscribing to Stone India Heritage updates.",
+    title: "You're Subscribed — STONDIA",
+    preview: "Thank you for subscribing to STONDIA updates.",
     children: `
       <div style="text-align:center;margin-bottom:24px">
         <div style="width:64px;height:64px;margin:0 auto;background:#e8dcc8;border-radius:50%;display:flex;align-items:center;justify-content:center">
@@ -536,7 +536,7 @@ export function newsletterConfirmationEmail(name?: string, email?: string): stri
       <h2 style="margin:0 0 6px;font-size:22px;font-weight:400;color:#2c2416;text-align:center;font-family:Georgia,serif">You're Subscribed</h2>
       <p style="margin:0 0 8px;color:#5c5248;font-size:15px;line-height:1.8">${greeting}</p>
       <p style="margin:0 0 8px;color:#5c5248;font-size:15px;line-height:1.8">
-        Thank you for subscribing to the <strong>Stone India Heritage</strong>
+        Thank you for subscribing to the <strong>STONDIA</strong>
         newsletter. You'll receive curated updates including:
       </p>
       <table role="presentation" cellpadding="0" cellspacing="0" width="100%" style="margin:16px 0">
@@ -568,7 +568,7 @@ export function newsletterConfirmationEmail(name?: string, email?: string): stri
       </p>
       ${divider()}
       <p style="margin:0;color:#8c8278;font-size:12px;text-align:center">
-        Welcome to the Stone India Heritage community.
+        Welcome to the STONDIA community.
       </p>
     `,
   });
@@ -592,7 +592,7 @@ export function adminNotificationEmail(type: string, data: Record<string, unknow
 
   return shell({
     title: `Admin Notification — ${type}`,
-    preview: `New ${type} received at Stone India Heritage.`,
+    preview: `New ${type} received at STONDIA.`,
     children: `
       <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px">
         <div style="width:40px;height:40px;background:#b8860b;border-radius:6px;display:flex;align-items:center;justify-content:center;color:#1a1208;font-size:18px;font-weight:700">!</div>

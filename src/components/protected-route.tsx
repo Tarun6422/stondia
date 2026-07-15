@@ -37,5 +37,6 @@ export function ProtectedRoute({ children, roles, redirectTo = "/login" }: Prote
     return <Navigate to="/" />;
   }
 
+  
   return <>{children}</>;
 }

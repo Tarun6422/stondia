@@ -272,7 +272,7 @@ function MobileAccordionItem({ item, onClose }: { item: MegaMenuItem; onClose: (
 function MobileAuthenticatedLinks() {
   const { user, loading } = useAuth();
   if (loading || !user) return null;
-  const isAdmin = user.role === "admin" || user.role === "ADMIN";
+  const isAdmin = user.role === "ADMIN";
   return (
     <>
       <SheetClose asChild>
@@ -415,7 +415,7 @@ function HeaderAuth() {
                   <User className="h-4 w-4" />
                   Profile
                 </Link>
-                {(user.role === "admin" || user.role === "ADMIN") && (
+                {user.role === "ADMIN" && (
                   <>
                     <div className="my-1 border-t border-border/40" />
                     <Link

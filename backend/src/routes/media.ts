@@ -175,6 +175,16 @@ router.get("/:id", async (req: Request, res: Response) => {
 /* ══════════════════════════════════════════════════════════════════ */
 router.post("/", authenticate, authorize("ADMIN"), async (req: Request, res: Response) => {
   const data = req.body;
+
+  // Build tags array — add file hash if provided for duplicate detection
+  const tags: string[] = data.tags || [];
+  if (data.hash) {
+    const hashTag = `hash:${data.hash}`;
+    if (!tags.includes(hashTag)) {
+      tags.push(hashTag);
+    }
+  }
+
   const media = await getMediaModel().create({
     data: {
       filename: data.filename,
@@ -185,7 +195,7 @@ router.post("/", authenticate, authorize("ADMIN"), async (req: Request, res: Res
       folder: data.folder || "uploads",
       alt: data.alt || null,
       caption: data.caption || null,
-      tags: data.tags || [],
+      tags,
       width: data.width || null,
       height: data.height || null,
       duration: data.duration || null,
@@ -214,6 +224,57 @@ router.put("/:id", authenticate, authorize("ADMIN"), async (req: Request, res: R
   });
   res.json(updated);
 });
+
+/* ══════════════════════════════════════════════════════════════════ */
+/*  PUT /api/media/:id/rename — rename a media file                  */
+/* ══════════════════════════════════════════════════════════════════ */
+router.put(
+  "/:id/rename",
+  authenticate,
+  authorize("ADMIN"),
+  async (req: Request, res: Response) => {
+    const m = getMediaModel();
+    const media = await m.findUnique({ where: { id: req.params.id as string } });
+    if (!media) throw new NotFoundError("Media");
+
+    const { originalName } = req.body;
+    if (!originalName?.trim()) {
+      return res.status(400).json({ message: "originalName is required" });
+    }
+
+    const updated = await m.update({
+      where: { id: req.params.id as string },
+      data: { originalName: originalName.trim() },
+    });
+    res.json(updated);
+  },
+);
+
+/* ══════════════════════════════════════════════════════════════════ */
+/*  POST /api/media/check-duplicate — check if file hash exists      */
+/* ══════════════════════════════════════════════════════════════════ */
+router.post(
+  "/check-duplicate",
+  authenticate,
+  authorize("ADMIN"),
+  async (req: Request, res: Response) => {
+    const { hash } = req.body;
+    if (!hash) {
+      return res.status(400).json({ message: "hash is required" });
+    }
+
+    // Store hash in tags array for easy lookup
+    const m = getMediaModel();
+    const existing = await m.findFirst({
+      where: { tags: { has: `hash:${hash}` } },
+    });
+
+    res.json({
+      exists: !!existing,
+      media: existing || null,
+    });
+  },
+);
 
 /* ══════════════════════════════════════════════════════════════════ */
 /*  PUT /api/media/:id/replace — replace the file while keeping ID   */
@@ -337,12 +398,12 @@ router.get(
       m.count({ where: { mimeType: "application/pdf" } }),
     ]);
 
-    const storageBytes = await getStorageUsage();
+    const storageBytes = (await getStorageUsage()) ?? 0;
 
     res.json({
       totalFiles,
-      totalSize: totalSize._sum.size || 0,
-      totalSizeFormatted: formatStorageBytes(totalSize._sum.size || 0),
+      totalSize: totalSize?._sum?.size ?? 0,
+      totalSizeFormatted: formatStorageBytes(totalSize?._sum?.size ?? 0),
       images,
       videos,
       pdfs,

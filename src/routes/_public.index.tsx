@@ -1,15 +1,15 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { motion, useScroll, useTransform } from "framer-motion";
-import { useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ArrowRight, ArrowUpRight, Leaf, ShieldCheck, Globe2, Gem } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Reveal, Counter } from "@/components/motion";
 import { ExportMap, TiltCard, TestimonialCarousel } from "@/components/animations";
 import { SectionHeading, CTASection } from "@/components/page-parts";
+import { ProductCardSkeleton } from "@/components/skeleton-cards";
 import {
   COMPANY,
   USPS,
-  PRODUCTS,
   PROJECTS,
   STATS,
   TESTIMONIALS,
@@ -17,6 +17,8 @@ import {
   COUNTRIES,
   SUSTAINABILITY_POINTS,
 } from "@/data/site";
+import { fetchFeaturedProducts } from "@/lib/products";
+import type { ApiProduct } from "@/lib/products";
 import hero from "@/assets/hero-sandstone.jpg";
 import factory from "@/assets/factory.jpg";
 import sustainability from "@/assets/sustainability.jpg";
@@ -118,6 +120,21 @@ function Home() {
   });
   const y = useTransform(scrollYProgress, [0, 1], ["0%", "22%"]);
   const scale = useTransform(scrollYProgress, [0, 1], [1, 1.15]);
+  const [featuredProducts, setFeaturedProducts] = useState<ApiProduct[]>([]);
+  const [productsLoading, setProductsLoading] = useState(true);
+
+  useEffect(() => {
+    let cancelled = false;
+    fetchFeaturedProducts().then((products) => {
+      if (!cancelled) {
+        setFeaturedProducts(products);
+        setProductsLoading(false);
+      }
+    }).catch(() => {
+      if (!cancelled) setProductsLoading(false);
+    });
+    return () => { cancelled = true; };
+  }, []);
 
   return (
     <>
@@ -192,8 +209,7 @@ function Home() {
         <div className="container-lux grid gap-12 lg:grid-cols-2 lg:items-center">
           <SectionHeading
             eyebrow="Company Introduction"
-            title="A heritage of stone, engineered for a global future"
-            intro="Stone India Heritage combines traditional Indian craftsmanship with modern manufacturing technology to deliver high-quality stone solutions for architects, builders, developers, landscape designers and international importers."
+            title="A heritage of stone, engineered for a global future"             intro="STONDIA combines traditional Indian craftsmanship with modern manufacturing technology to deliver high-quality stone solutions for architects, builders, developers, landscape designers and international importers."
           />
           <Reveal delay={0.1}>
             <div className="grid grid-cols-2 gap-px overflow-hidden rounded-lg border border-border bg-border">
@@ -228,34 +244,38 @@ function Home() {
           </div>
 
           <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {PRODUCTS.slice(0, 6).map((p, i) => (
-              <Reveal key={p.slug} delay={(i % 3) * 0.08}>
-                <Link
-                  to="/products/$slug"
-                  params={{ slug: p.slug }}
-                  className="hover-lift group block overflow-hidden rounded-lg border border-border bg-card"
-                >
-                  <div className="relative aspect-[4/3] overflow-hidden">
-                    <img
-                      src={p.image}
-                      alt={p.name}
-                      loading="lazy"
-                      className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
-                    />
-                    <span className="absolute left-4 top-4 rounded-full bg-background/90 px-3 py-1 text-xs font-medium text-foreground backdrop-blur">
-                      {p.category}
-                    </span>
-                  </div>
-                  <div className="p-6">
-                    <h3 className="font-serif text-xl text-foreground">{p.name}</h3>
-                    <p className="mt-1 text-sm text-muted-foreground">{p.tagline}</p>
-                    <span className="mt-4 inline-flex items-center gap-1 text-sm font-medium text-gold">
-                      View details <ArrowUpRight className="h-3.5 w-3.5" />
-                    </span>
-                  </div>
-                </Link>
-              </Reveal>
-            ))}
+            {productsLoading ? (
+              Array.from({ length: 6 }).map((_, i) => <ProductCardSkeleton key={i} />)
+            ) : (
+              featuredProducts.slice(0, 6).map((p, i) => (
+                <Reveal key={p.slug} delay={(i % 3) * 0.08}>
+                  <Link
+                    to="/product/$slug"
+                    params={{ slug: p.slug }}
+                    className="hover-lift group block overflow-hidden rounded-lg border border-border bg-card"
+                  >
+                    <div className="relative aspect-[4/3] overflow-hidden">
+                      <img
+                        src={p.mainImage || p.images?.[0] || "/placeholder.svg"}
+                        alt={p.name}
+                        loading="lazy"
+                        className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+                      />
+                      <span className="absolute left-4 top-4 rounded-full bg-background/90 px-3 py-1 text-xs font-medium text-foreground backdrop-blur">
+                        {p.category?.name || "Products"}
+                      </span>
+                    </div>
+                    <div className="p-6">
+                      <h3 className="font-serif text-xl text-foreground">{p.name}</h3>
+                      <p className="mt-1 text-sm text-muted-foreground">{p.metadata?.tagline || p.description?.slice(0, 100) || ""}</p>
+                      <span className="mt-4 inline-flex items-center gap-1 text-sm font-medium text-gold">
+                        View details <ArrowUpRight className="h-3.5 w-3.5" />
+                      </span>
+                    </div>
+                  </Link>
+                </Reveal>
+              ))
+            )}
           </div>
         </div>
       </section>

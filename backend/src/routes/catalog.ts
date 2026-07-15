@@ -4,6 +4,7 @@
 import { Router, Request, Response } from "express";
 import { prisma } from "../db.js";
 import { NotFoundError } from "../lib/errors.js";
+import { parseUserAgent } from "../lib/ua-parser.js";
 
 const router = Router();
 
@@ -157,13 +158,23 @@ router.get("/:id/download", async (req: Request, res: Response) => {
     data: { downloadCount: { increment: 1 } },
   });
 
-  // Log the download
+  // Parse user agent for enriched analytics
+  const ua = (req.headers["user-agent"] || "").slice(0, 255);
+  const parsed = parseUserAgent(ua);
+
+  // Log the download with enriched data
   await prisma.downloadLog
     .create({
       data: {
         downloadId: catalog.id,
         ip: (req.ip || req.socket.remoteAddress || "").slice(0, 45),
-        userAgent: (req.headers["user-agent"] || "").slice(0, 255),
+        userAgent: ua,
+        country: (req.headers["cf-ipcountry"] as string) || 
+                 (req.headers["x-vercel-ip-country"] as string) || 
+                 (req.headers["x-forwarded-for"] ? "Detected" : null),
+        browser: parsed.browser.slice(0, 50),
+        device: parsed.device.slice(0, 50),
+        referrer: (req.headers["referer"] || "").slice(0, 255) || null,
       },
     })
     .catch(() => {}); // fire-and-forget, don't block download

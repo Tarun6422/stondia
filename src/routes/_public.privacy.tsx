@@ -7,9 +7,9 @@ import { buildMeta, canonicalLink, jsonLdScript, breadcrumbSchema } from "@/lib/
 export const Route = createFileRoute("/_public/privacy")({
   head: () => ({
     meta: buildMeta({
-      title: "Privacy Policy — Stone India Heritage",
+      title: "Privacy Policy — STONDIA",
       description:
-        "How Stone India Heritage collects, uses and protects your personal information when you request quotes, download resources or contact our export team.",
+        "How STONDIA collects, uses and protects your personal information when you request quotes, download resources or contact our export team.",
       path: "/privacy",
     }),
     links: [canonicalLink("/privacy")],

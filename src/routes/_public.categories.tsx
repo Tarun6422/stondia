@@ -78,13 +78,13 @@ const FILTER_GROUPS = [
 export const Route = createFileRoute("/_public/categories")({
   head: () => ({
     meta: [
-      { title: "Stone Categories — Stone India Heritage" },
+      { title: "Stone Categories — STONDIA" },
       {
         name: "description",
         content:
           "Explore premium Rajasthan sandstone, granite, marble, limestone, paving, wall cladding and architectural natural stones for international projects.",
       },
-      { property: "og:title", content: "Stone Categories — Stone India Heritage" },
+      { property: "og:title", content: "Stone Categories — STONDIA" },
       {
         property: "og:description",
         content:
@@ -446,7 +446,7 @@ function CategoryCard({
           </div>
           <div className="mt-5 flex items-center gap-3">
             <Button asChild variant="gold" size="sm" className="flex-1">
-              <Link to="/products">Explore</Link>
+              <Link to="/products/$category" params={{ category: cat.name.toLowerCase().replace(/\s+/g, "-").replace(/s$/, "") }}>Explore</Link>
             </Button>
             <Button asChild variant="outline" size="sm" className="flex-1">
               <Link to="/quote">

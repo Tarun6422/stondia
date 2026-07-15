@@ -21,7 +21,7 @@ const API_BASE = import.meta.env.VITE_API_URL ?? "";
 export const Route = createFileRoute("/_public/downloads")({
   head: () => ({
     meta: buildMeta({
-      title: "Download Center — Stone India Heritage",
+      title: "Download Center — STONDIA",
       description:
         "Download premium natural stone catalogs, technical specification sheets, finish guides, sustainability reports, and shipping documentation for architects and importers.",
       path: "/downloads",

@@ -33,11 +33,11 @@ type RegisterData = z.infer<typeof registerSchema>;
 export const Route = createFileRoute("/_public/register")({
   head: () => ({
     meta: [
-      { title: "Create Account — Stone India Heritage" },
+      { title: "Create Account — STONDIA" },
       {
         name: "description",
         content:
-          "Create a Stone India Heritage account to request quotes, track orders, and access technical resources.",
+          "Create a STONDIA account to request quotes, track orders, and access technical resources.",
       },
     ],
   }),
@@ -105,13 +105,14 @@ function Register() {
     try {
       await register(parsed.data.name, parsed.data.email, parsed.data.password, parsed.data.phone);
       toast.success("Account created!", {
-        description: "Welcome to Stone India Heritage. Check your email for verification.",
+        description: "Welcome to STONDIA. Check your email for verification.",
       });
       navigate({ to: "/" });
     } catch (err) {
       const message =
         err instanceof ApiError ? err.message : "Something went wrong. Please try again.";
       setServerError(message);
+      toast.error("Registration failed", { description: message });
     } finally {
       setLoading(false);
     }

@@ -69,7 +69,7 @@ export function LoadingScreen() {
             animate={{ opacity: 1 }}
             transition={{ duration: 0.5, delay: 0.7 }}
           >
-            Stone India Heritage
+            STONDIA
           </motion.p>
         </motion.div>
       )}

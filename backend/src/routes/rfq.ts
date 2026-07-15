@@ -35,7 +35,7 @@ router.post("/", optionalAuth, validate(rfqSchema), async (req: Request, res: Re
   try {
     await sendEmail(
       data.email,
-      "Quote Request Received — Stone India Heritage",
+      "Quote Request Received — STONDIA",
       rfqConfirmationEmail(data.name),
     );
   } catch {
@@ -46,7 +46,7 @@ router.post("/", optionalAuth, validate(rfqSchema), async (req: Request, res: Re
   try {
     await sendEmail(
       CONFIG.EMAIL_TO,
-      "New Quote Request — Stone India Heritage",
+      "New Quote Request — STONDIA",
       adminNotificationEmail("Quote Request", {
         name: data.name,
         email: data.email,
@@ -134,7 +134,7 @@ router.put("/:id", authenticate, authorize("ADMIN"), async (req: Request, res: R
       try {
         await sendEmail(
           rfq.email,
-          `Quote Update — Stone India Heritage (${newStatus})`,
+          `Quote Update — STONDIA (${newStatus})`,
           rfqReplyEmail(req.body.adminReply, newStatus),
         );
       } catch {
@@ -145,7 +145,7 @@ router.put("/:id", authenticate, authorize("ADMIN"), async (req: Request, res: R
       try {
         await sendEmail(
           rfq.email,
-          "Quote Completed — Stone India Heritage",
+          "Quote Completed — STONDIA",
           rfqCompletedEmail(rfq.user?.name || rfq.email, rfq.company || undefined),
         );
       } catch {
@@ -156,7 +156,7 @@ router.put("/:id", authenticate, authorize("ADMIN"), async (req: Request, res: R
       try {
         await sendEmail(
           rfq.email,
-          "Quote Cancelled — Stone India Heritage",
+          "Quote Cancelled — STONDIA",
           rfqCancelledEmail(rfq.user?.name || rfq.email, req.body.adminReply || undefined),
         );
       } catch {
@@ -185,7 +185,7 @@ function rfqReplyEmail(reply: string, status: string): string {
 <div style="max-width:600px;margin:0 auto;padding:40px 24px">
   <div style="text-align:center;margin-bottom:32px">
     <div style="width:56px;height:56px;margin:0 auto 12px;background:#c9a84c;border-radius:4px;display:flex;align-items:center;justify-content:center;color:#2c2416;font-size:20px;font-weight:700">SH</div>
-    <h1 style="color:#2c2416;font-size:28px;margin:0">Stone India Heritage</h1>
+    <h1 style="color:#2c2416;font-size:28px;margin:0">STONDIA</h1>
   </div>
   <div style="background:#fff;border-radius:8px;padding:32px">
     <h2 style="color:#2c2416;font-size:22px;margin:0 0 8px">Quote Status: ${status}</h2>
@@ -195,7 +195,7 @@ function rfqReplyEmail(reply: string, status: string): string {
       If you have any questions regarding this quotation, simply reply to this email or contact our export team at <a href="mailto:${CONFIG.EMAIL_TO}" style="color:#c9a84c;text-decoration:none">${CONFIG.EMAIL_TO}</a>.
     </p>
   </div>
-  <p style="color:#8c8278;font-size:12px;text-align:center;margin-top:24px">Stone India Heritage — Premium Sandstone &amp; Architecture</p>
+  <p style="color:#8c8278;font-size:12px;text-align:center;margin-top:24px">STONDIA — Premium Sandstone &amp; Architecture</p>
 </div>
 </body></html>`;
 }

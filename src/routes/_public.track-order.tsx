@@ -11,7 +11,7 @@ import { buildMeta, canonicalLink, jsonLdScript, breadcrumbSchema } from "@/lib/
 export const Route = createFileRoute("/_public/track-order")({
   head: () => ({
     meta: buildMeta({
-      title: "Track Order — Stone India Heritage",
+      title: "Track Order — STONDIA",
       description:
         "Track the status of your natural stone shipment from our factory in Jodhpur to your destination port. Enter your order reference for real-time updates.",
       path: "/track-order",

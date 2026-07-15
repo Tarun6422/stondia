@@ -9,7 +9,7 @@ import { buildMeta, canonicalLink, jsonLdScript, breadcrumbSchema } from "@/lib/
 export const Route = createFileRoute("/_public/blog/")({
   head: () => ({
     meta: buildMeta({
-      title: "Journal — Stone India Heritage",
+      title: "Journal — STONDIA",
       description:
         "Insights on sandstone architecture, sustainable quarrying, heritage craftsmanship and natural stone project guides from India's premier sandstone exporter.",
       path: "/blog",

@@ -12,4 +12,24 @@ export default defineConfig({
     // nitro/vite builds from this
     server: { entry: "server" },
   },
+  vite: {
+    server: {
+      proxy: {
+        // Proxy all /api/* requests to the Express backend in development.
+        // This makes API calls same-origin from the browser's perspective,
+        // which is required for HttpOnly cookies with SameSite=Lax to work correctly.
+        "/api": {
+          target: "http://localhost:4000",
+          changeOrigin: true,
+          secure: false,
+        },
+        "/uploads": {
+          target: "http://localhost:4000",
+          changeOrigin: true,
+          secure: false,
+        },
+      },
+    },
+  },
 });
+

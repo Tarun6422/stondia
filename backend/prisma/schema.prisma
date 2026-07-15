@@ -54,15 +54,20 @@ model PasswordResetLog {
 }
 
 model Category {
-  id        String    @id @default(cuid())
-  name      String    @unique
-  slug      String    @unique
-  image     String?
-  featured  Boolean   @default(false)
-  order     Int       @default(0)
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-  products  Product[]
+  id            String    @id @default(cuid())
+  name          String    @unique
+  slug          String    @unique
+  image         String?   // legacy — kept for backward compatibility
+  coverImage    String?
+  bannerImage   String?
+  thumbnailImage String?
+  icon          String?
+  featured      Boolean   @default(false)
+  order         Int       @default(0)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  products      Product[]
+  structuredImages StructuredImage[] @relation("CategoryImages")
 
   @@map("categories")
 }
@@ -79,7 +84,11 @@ model Product {
   size            String?
   thickness       String?
   origin          String?
-  images          String[] @default([])
+  images          String[] @default([]) // legacy — kept for backward compatibility
+  mainImage       String?
+  thumbnailImage  String?
+  textureImage    String?
+  applicationImages String[] @default([])
   pdf             String?
   featured        Boolean  @default(false)
   stock           String   @default("In Stock")
@@ -88,9 +97,17 @@ model Product {
   applications    String?
   packingDetails  String?
   specs           Json?
+  /**
+   * Rich product metadata (variants, sizes, technical specs, features,
+   * project slugs, comparison data, downloads, etc.) stored as JSON.
+   * This allows the admin panel to manage all product data without
+   * requiring schema changes for each new field.
+   */
+  metadata        Json?
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
   category        Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  structuredImages StructuredImage[] @relation("ProductImages")
 
   @@index([categoryId])
   @@index([featured])
@@ -181,16 +198,43 @@ model Download {
 }
 
 model DownloadLog {
-  id         String   @id @default(cuid())
-  downloadId String
-  ip         String?
-  userAgent  String?
-  createdAt  DateTime @default(now())
-  download   Download @relation(fields: [downloadId], references: [id], onDelete: Cascade)
+  id            String    @id @default(cuid())
+  downloadId    String
+  ip            String?
+  userAgent     String?
+  country       String?
+  browser       String?
+  device        String?
+  referrer      String?
+  createdAt     DateTime  @default(now())
+  download      Download  @relation(fields: [downloadId], references: [id], onDelete: Cascade)
 
   @@index([downloadId])
   @@index([createdAt])
+  @@index([country])
+  @@index([browser])
+  @@index([device])
   @@map("download_logs")
+}
+
+model CatalogView {
+  id            String           @id @default(cuid())
+  catalogId     String
+  catalog       GeneratedCatalog @relation(fields: [catalogId], references: [id], onDelete: Cascade)
+  ip            String?
+  userAgent     String?
+  country       String?
+  browser       String?
+  device        String?
+  referrer      String?
+  createdAt     DateTime         @default(now())
+
+  @@index([catalogId])
+  @@index([createdAt])
+  @@index([country])
+  @@index([browser])
+  @@index([device])
+  @@map("catalog_views")
 }
 
 model Testimonial {
@@ -263,6 +307,8 @@ model Media {
   size          Int
   url           String
   folder        String   @default("uploads")
+  folderRef     MediaFolder? @relation(fields: [folderId], references: [id])
+  folderId      String?
   alt           String?
   caption       String?
   tags          String[] @default([])
@@ -273,9 +319,87 @@ model Media {
   updatedAt     DateTime @updatedAt
 
   @@index([folder])
+  @@index([folderId])
   @@index([mimeType])
   @@index([createdAt])
   @@map("media")
+}
+
+model MediaFolder {
+  id        String   @id @default(cuid())
+  name      String
+  slug      String   @unique
+  parentId  String?
+  parent    MediaFolder?  @relation("FolderHierarchy", fields: [parentId], references: [id])
+  children  MediaFolder[] @relation("FolderHierarchy")
+  media     Media[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([slug])
+  @@index([parentId])
+  @@map("media_folders")
+}
+
+model CatalogTemplate {
+  id         String             @id @default(cuid())
+  name       String
+  slug       String             @unique
+  description String?
+  type       String             // "master" | "category" | "product" | "brochure" | "technical" | "datasheet" | "guide" | "certificate"
+  icon       String?
+  defaultFields Json?           // default metadata fields for this template type
+  catalogs   GeneratedCatalog[]
+  createdAt  DateTime           @default(now())
+  updatedAt  DateTime           @updatedAt
+
+  @@index([slug])
+  @@index([type])
+  @@map("catalog_templates")
+}
+
+model QRCode {
+  id            String           @id @default(cuid())
+  catalogId     String
+  catalog       GeneratedCatalog @relation(fields: [catalogId], references: [id], onDelete: Cascade)
+  url           String           // the URL the QR code points to
+  imageUrl      String?          // URL of the generated QR code image
+  label         String?
+  scanCount     Int              @default(0)
+  lastScannedAt DateTime?
+  createdAt     DateTime         @default(now())
+  updatedAt     DateTime         @updatedAt
+
+  @@index([catalogId])
+  @@map("qr_codes")
+}
+
+model StructuredImage {
+  id            String    @id @default(cuid())
+  fileName      String
+  displayName   String?
+  url           String
+  imageType     String    // cover | banner | thumbnail | gallery | texture | project | application | catalogue_cover | seo
+  productCode   String?   // Product Code for easy lookup and organization
+  categoryId    String?
+  productId     String?
+  projectId     String?
+  altText       String?
+  sortOrder     Int       @default(0)
+  width         Int?
+  height        Int?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  category  Category?  @relation("CategoryImages", fields: [categoryId], references: [id], onDelete: Cascade)
+  product   Product?   @relation("ProductImages", fields: [productId], references: [id], onDelete: Cascade)
+
+  @@index([categoryId])
+  @@index([productId])
+  @@index([projectId])
+  @@index([imageType])
+  @@index([productCode])
+  @@map("structured_images")
 }
 
 model Setting {
@@ -294,14 +418,20 @@ model GeneratedCatalog {
   description   String?
   pdfUrl        String?
   coverImage    String?
+  tags          String[]         @default([])
   categoryId    String?
   productId     String?
-  status        String           @default("draft")  // "draft" | "published"
+  status        String           @default("draft")  // "draft" | "published" | "archived"
+  featured      Boolean          @default(false)
+  displayOrder  Int              @default(0)
   version       Int              @default(1)
   downloadCount Int              @default(0)
   lastDownloadAt DateTime?
   fileSize      String?
   metadata      Json?
+  templateId    String?
+  template      CatalogTemplate? @relation(fields: [templateId], references: [id])
+  qrCodes       QRCode[]
   createdAt     DateTime         @default(now())
   updatedAt     DateTime         @updatedAt
   versions      CatalogVersion[]
@@ -311,6 +441,8 @@ model GeneratedCatalog {
   @@index([categoryId])
   @@index([productId])
   @@index([status])
+  @@index([featured])
+  @@index([displayOrder])
   @@index([downloadCount])
   @@map("generated_catalogs")
 }

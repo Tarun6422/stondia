@@ -40,7 +40,8 @@ import { Route as PublicProjectsIndexRouteImport } from './routes/_public.projec
 import { Route as PublicProductsIndexRouteImport } from './routes/_public.products.index'
 import { Route as PublicBlogIndexRouteImport } from './routes/_public.blog.index'
 import { Route as PublicProjectsSlugRouteImport } from './routes/_public.projects.$slug'
-import { Route as PublicProductsSlugRouteImport } from './routes/_public.products.$slug'
+import { Route as PublicProductsCategoryRouteImport } from './routes/_public.products.$category'
+import { Route as PublicProductSlugRouteImport } from './routes/_public.product.$slug'
 import { Route as PublicBlogSlugRouteImport } from './routes/_public.blog.$slug'
 
 const AdminRoute = AdminRouteImport.update({
@@ -197,9 +198,14 @@ const PublicProjectsSlugRoute = PublicProjectsSlugRouteImport.update({
   path: '/projects/$slug',
   getParentRoute: () => PublicRoute,
 } as any)
-const PublicProductsSlugRoute = PublicProductsSlugRouteImport.update({
-  id: '/products/$slug',
-  path: '/products/$slug',
+const PublicProductsCategoryRoute = PublicProductsCategoryRouteImport.update({
+  id: '/products/$category',
+  path: '/products/$category',
+  getParentRoute: () => PublicRoute,
+} as any)
+const PublicProductSlugRoute = PublicProductSlugRouteImport.update({
+  id: '/product/$slug',
+  path: '/product/$slug',
   getParentRoute: () => PublicRoute,
 } as any)
 const PublicBlogSlugRoute = PublicBlogSlugRouteImport.update({
@@ -236,7 +242,8 @@ export interface FileRoutesByFullPath {
   '/track-order': typeof PublicTrackOrderRoute
   '/videos': typeof PublicVideosRoute
   '/blog/$slug': typeof PublicBlogSlugRoute
-  '/products/$slug': typeof PublicProductsSlugRoute
+  '/product/$slug': typeof PublicProductSlugRoute
+  '/products/$category': typeof PublicProductsCategoryRoute
   '/projects/$slug': typeof PublicProjectsSlugRoute
   '/blog/': typeof PublicBlogIndexRoute
   '/products/': typeof PublicProductsIndexRoute
@@ -270,7 +277,8 @@ export interface FileRoutesByTo {
   '/videos': typeof PublicVideosRoute
   '/': typeof PublicIndexRoute
   '/blog/$slug': typeof PublicBlogSlugRoute
-  '/products/$slug': typeof PublicProductsSlugRoute
+  '/product/$slug': typeof PublicProductSlugRoute
+  '/products/$category': typeof PublicProductsCategoryRoute
   '/projects/$slug': typeof PublicProjectsSlugRoute
   '/blog': typeof PublicBlogIndexRoute
   '/products': typeof PublicProductsIndexRoute
@@ -306,7 +314,8 @@ export interface FileRoutesById {
   '/_public/videos': typeof PublicVideosRoute
   '/_public/': typeof PublicIndexRoute
   '/_public/blog/$slug': typeof PublicBlogSlugRoute
-  '/_public/products/$slug': typeof PublicProductsSlugRoute
+  '/_public/product/$slug': typeof PublicProductSlugRoute
+  '/_public/products/$category': typeof PublicProductsCategoryRoute
   '/_public/projects/$slug': typeof PublicProjectsSlugRoute
   '/_public/blog/': typeof PublicBlogIndexRoute
   '/_public/products/': typeof PublicProductsIndexRoute
@@ -342,7 +351,8 @@ export interface FileRouteTypes {
     | '/track-order'
     | '/videos'
     | '/blog/$slug'
-    | '/products/$slug'
+    | '/product/$slug'
+    | '/products/$category'
     | '/projects/$slug'
     | '/blog/'
     | '/products/'
@@ -376,7 +386,8 @@ export interface FileRouteTypes {
     | '/videos'
     | '/'
     | '/blog/$slug'
-    | '/products/$slug'
+    | '/product/$slug'
+    | '/products/$category'
     | '/projects/$slug'
     | '/blog'
     | '/products'
@@ -411,7 +422,8 @@ export interface FileRouteTypes {
     | '/_public/videos'
     | '/_public/'
     | '/_public/blog/$slug'
-    | '/_public/products/$slug'
+    | '/_public/product/$slug'
+    | '/_public/products/$category'
     | '/_public/projects/$slug'
     | '/_public/blog/'
     | '/_public/products/'
@@ -642,11 +654,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PublicProjectsSlugRouteImport
       parentRoute: typeof PublicRoute
     }
-    '/_public/products/$slug': {
-      id: '/_public/products/$slug'
-      path: '/products/$slug'
-      fullPath: '/products/$slug'
-      preLoaderRoute: typeof PublicProductsSlugRouteImport
+    '/_public/products/$category': {
+      id: '/_public/products/$category'
+      path: '/products/$category'
+      fullPath: '/products/$category'
+      preLoaderRoute: typeof PublicProductsCategoryRouteImport
+      parentRoute: typeof PublicRoute
+    }
+    '/_public/product/$slug': {
+      id: '/_public/product/$slug'
+      path: '/product/$slug'
+      fullPath: '/product/$slug'
+      preLoaderRoute: typeof PublicProductSlugRouteImport
       parentRoute: typeof PublicRoute
     }
     '/_public/blog/$slug': {
@@ -686,7 +705,8 @@ interface PublicRouteChildren {
   PublicVideosRoute: typeof PublicVideosRoute
   PublicIndexRoute: typeof PublicIndexRoute
   PublicBlogSlugRoute: typeof PublicBlogSlugRoute
-  PublicProductsSlugRoute: typeof PublicProductsSlugRoute
+  PublicProductSlugRoute: typeof PublicProductSlugRoute
+  PublicProductsCategoryRoute: typeof PublicProductsCategoryRoute
   PublicProjectsSlugRoute: typeof PublicProjectsSlugRoute
   PublicBlogIndexRoute: typeof PublicBlogIndexRoute
   PublicProductsIndexRoute: typeof PublicProductsIndexRoute
@@ -720,7 +740,8 @@ const PublicRouteChildren: PublicRouteChildren = {
   PublicVideosRoute: PublicVideosRoute,
   PublicIndexRoute: PublicIndexRoute,
   PublicBlogSlugRoute: PublicBlogSlugRoute,
-  PublicProductsSlugRoute: PublicProductsSlugRoute,
+  PublicProductSlugRoute: PublicProductSlugRoute,
+  PublicProductsCategoryRoute: PublicProductsCategoryRoute,
   PublicProjectsSlugRoute: PublicProjectsSlugRoute,
   PublicBlogIndexRoute: PublicBlogIndexRoute,
   PublicProductsIndexRoute: PublicProductsIndexRoute,

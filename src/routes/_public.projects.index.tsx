@@ -8,9 +8,9 @@ import { buildMeta, canonicalLink, jsonLdScript, breadcrumbSchema } from "@/lib/
 export const Route = createFileRoute("/_public/projects/")({
   head: () => ({
     meta: buildMeta({
-      title: "Projects — Stone India Heritage",
+      title: "Projects — STONDIA",
       description:
-        "Explore luxury villas, hotels, temples, and government projects delivered worldwide with premium Rajasthan sandstone from Stone India Heritage.",
+        "Explore luxury villas, hotels, temples, and government projects delivered worldwide with premium Rajasthan sandstone from STONDIA.",
       path: "/projects",
     }),
     links: [canonicalLink("/projects")],

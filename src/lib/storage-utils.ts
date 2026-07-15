@@ -152,6 +152,84 @@ export function compressImage(
 }
 
 /**
+ * Generate a SHA-256 hash of a file's contents using the browser's
+ * SubtleCrypto API. Used for duplicate detection.
+ */
+export async function getFileHash(file: File): Promise<string> {
+  const buffer = await file.arrayBuffer();
+  const hashBuffer = await crypto.subtle.digest("SHA-256", buffer);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  return hashArray.map((b) => b.toString(16).padStart(2, "0")).join("");
+}
+
+/**
+ * Generate a small thumbnail from an image file using Canvas.
+ * Returns a Blob suitable for upload.
+ */
+export function generateThumbnail(
+  file: File,
+  options: { size?: number; quality?: number } = {},
+): Promise<Blob> {
+  return new Promise((resolve, reject) => {
+    const { size = 200, quality = 0.7 } = options;
+
+    if (!file.type.startsWith("image/")) {
+      return reject(new Error("Thumbnails only supported for images"));
+    }
+
+    const img = new Image();
+    const url = URL.createObjectURL(file);
+
+    img.onload = () => {
+      URL.revokeObjectURL(url);
+
+      let { width, height } = img;
+
+      // Fit within a square of `size` while maintaining aspect ratio
+      if (width > height) {
+        if (width > size) {
+          height = Math.round(height * (size / width));
+          width = size;
+        }
+      } else {
+        if (height > size) {
+          width = Math.round(width * (size / height));
+          height = size;
+        }
+      }
+
+      const canvas = document.createElement("canvas");
+      canvas.width = Math.max(1, width);
+      canvas.height = Math.max(1, height);
+
+      const ctx = canvas.getContext("2d");
+      if (!ctx) {
+        reject(new Error("Canvas not available"));
+        return;
+      }
+
+      ctx.drawImage(img, 0, 0, width, height);
+
+      canvas.toBlob(
+        (blob) => {
+          if (blob) resolve(blob);
+          else reject(new Error("Thumbnail generation failed"));
+        },
+        "image/webp",
+        quality,
+      );
+    };
+
+    img.onerror = () => {
+      URL.revokeObjectURL(url);
+      reject(new Error("Failed to load image for thumbnail generation"));
+    };
+
+    img.src = url;
+  });
+}
+
+/**
  * Validate a file before upload.
  * Returns error message or null if valid.
  */

@@ -29,8 +29,14 @@ import {
   AlertCircle,
   Star,
   Clock,
+  BookOpen,
+  QrCode,
+  Eye,
+  Monitor,
+  Globe,
+  BarChart3,
 } from "lucide-react";
-import { useDashboard, useCategories } from "./admin-hooks";
+import { useDashboard, useCategories, useCatalogGeneratorAnalytics, useEnhancedCatalogAnalytics } from "./admin-hooks";
 import { StatCard, StatCardSkeleton, AnimatedCount } from "./data-table";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
@@ -65,9 +71,10 @@ function CustomTooltip({ active, payload, label }: any) {
 }
 
 /* ── Dashboard Overview ── */
-export function DashboardOverview() {
+export function DashboardOverview({ onNavigate }: { onNavigate?: (section: string) => void }) {
   const { data, isLoading, isError } = useDashboard();
   const { data: catData } = useCategories();
+  const { data: catalogAnalytics } = useCatalogGeneratorAnalytics();
 
   const categoryChartData = useMemo(() => {
     if (!catData?.data?.length) return [];
@@ -146,6 +153,23 @@ export function DashboardOverview() {
               label="Downloads"
               value={<AnimatedCount value={stats?.downloads ?? 0} />}
               icon={<Download className="h-5 w-5" />}
+            />
+            <StatCard
+              label="Catalogs"
+              value={<AnimatedCount value={catalogAnalytics?.totalCatalogs ?? 0} />}
+              icon={<BookOpen className="h-5 w-5" />}
+              trend={`${catalogAnalytics?.publishedCatalogs ?? 0} published`}
+              trendUp
+            />
+            <StatCard
+              label="Catalog Downloads"
+              value={<AnimatedCount value={catalogAnalytics?.totalDownloads ?? 0} />}
+              icon={<Download className="h-5 w-5" />}
+            />
+            <StatCard
+              label="Featured Catalogs"
+              value={<AnimatedCount value={catalogAnalytics?.featuredCatalogs ?? 0} />}
+              icon={<QrCode className="h-5 w-5" />}
             />
             <StatCard
               label="RFQs"
@@ -280,30 +304,30 @@ export function DashboardOverview() {
         {/* Quick Links */}
         <ChartCard title="Quick Actions">
           <div className="space-y-2 pt-2">
-            <Link
-              to="/admin/products"
-              className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-muted-foreground transition-colors hover:bg-muted/50 hover:text-foreground"
+            <button
+              onClick={() => onNavigate?.("products")}
+              className="w-full flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-muted-foreground transition-colors hover:bg-muted/50 hover:text-foreground"
             >
               <Package className="h-4 w-4 text-gold" /> Manage Products
-            </Link>
-            <Link
-              to="/admin/projects"
-              className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-muted-foreground transition-colors hover:bg-muted/50 hover:text-foreground"
+            </button>
+            <button
+              onClick={() => onNavigate?.("projects")}
+              className="w-full flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-muted-foreground transition-colors hover:bg-muted/50 hover:text-foreground"
             >
               <Building2 className="h-4 w-4 text-gold" /> Manage Projects
-            </Link>
-            <Link
-              to="/admin/blogs"
-              className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-muted-foreground transition-colors hover:bg-muted/50 hover:text-foreground"
+            </button>
+            <button
+              onClick={() => onNavigate?.("blogs")}
+              className="w-full flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-muted-foreground transition-colors hover:bg-muted/50 hover:text-foreground"
             >
               <Newspaper className="h-4 w-4 text-gold" /> Manage Blogs
-            </Link>
-            <Link
-              to="/admin/rfqs"
-              className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-muted-foreground transition-colors hover:bg-muted/50 hover:text-foreground"
+            </button>
+            <button
+              onClick={() => onNavigate?.("rfqs")}
+              className="w-full flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-muted-foreground transition-colors hover:bg-muted/50 hover:text-foreground"
             >
               <FileText className="h-4 w-4 text-gold" /> View RFQs
-            </Link>
+            </button>
           </div>
         </ChartCard>
       </div>
@@ -409,7 +433,297 @@ export function DashboardOverview() {
           </div>
         </div>
       </div>
+
+      {/* ════════════════════════════════════════════════════════════ */}
+      {/*  ENHANCED CATALOG ANALYTICS WIDGETS                         */}
+      {/* ════════════════════════════════════════════════════════════ */}
+      <CatalogAnalyticsSection />
     </div>
+  );
+}
+
+/* ── Catalog Analytics Section ── */
+function CatalogAnalyticsSection() {
+  const { data: enhanced, isLoading } = useEnhancedCatalogAnalytics();
+
+  if (isLoading) {
+    return (
+      <div className="grid gap-6 lg:grid-cols-2 xl:grid-cols-3">
+        {Array.from({ length: 6 }).map((_, i) => (
+          <div key={i} className="rounded-xl border border-border/60 bg-card p-5">
+            <Skeleton className="h-5 w-32 mb-4" />
+            <Skeleton className="h-[200px] w-full" />
+          </div>
+        ))}
+      </div>
+    );
+  }
+
+  if (!enhanced) return null;
+
+  const downloadTrendData = enhanced.downloadTrend || [];
+  const viewTrendData = enhanced.viewTrend || [];
+
+  return (
+    <>
+      {/* Section title */}
+      <div className="flex items-center gap-3 border-b border-border/40 pb-3">
+        <BarChart3 className="h-5 w-5 text-gold" />
+        <h2 className="font-serif text-xl text-foreground">Catalog Analytics</h2>
+        <a
+          href="/api/admin/catalog/analytics/export/csv"
+          className="ml-auto inline-flex items-center gap-1.5 rounded-lg border border-gold/30 px-3 py-1.5 text-xs font-medium text-gold transition-colors hover:bg-gold/10"
+        >
+          <Download className="h-3.5 w-3.5" />
+          Export CSV
+        </a>
+      </div>
+
+      {/* Summary stat cards */}
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <StatCard
+          label="Total Views"
+          value={<AnimatedCount value={enhanced.summary?.totalViews ?? 0} />}
+          icon={<Eye className="h-5 w-5" />}
+          trend={`${enhanced.summary?.todayViews ?? 0} today`}
+          trendUp
+        />
+        <StatCard
+          label="Total Downloads"
+          value={<AnimatedCount value={enhanced.summary?.totalDownloads ?? 0} />}
+          icon={<Download className="h-5 w-5" />}
+        />
+        <StatCard
+          label="Published Catalogs"
+          value={<AnimatedCount value={enhanced.summary?.publishedCatalogs ?? 0} />}
+          icon={<BookOpen className="h-5 w-5" />}
+        />
+        <StatCard
+          label="Featured"
+          value={<AnimatedCount value={enhanced.summary?.featuredCatalogs ?? 0} />}
+          icon={<Star className="h-5 w-5" />}
+        />
+      </div>
+
+      <div className="grid gap-6 lg:grid-cols-2 xl:grid-cols-3">
+        {/* Download Trend */}
+        <ChartCard title="Downloads by Month">
+          {downloadTrendData.length > 0 ? (
+            <ResponsiveContainer width="100%" height={200}>
+              <BarChart data={downloadTrendData}>
+                <XAxis dataKey="month" tick={{ fontSize: 10 }} axisLine={false} tickLine={false} />
+                <YAxis hide />
+                <Tooltip content={<CustomTooltip />} />
+                <Bar dataKey="downloads" fill="var(--gold)" radius={[4, 4, 0, 0]} maxBarSize={28} />
+              </BarChart>
+            </ResponsiveContainer>
+          ) : (
+            <div className="flex h-[200px] items-center justify-center text-sm text-muted-foreground">
+              No download data yet
+            </div>
+          )}
+        </ChartCard>
+
+        {/* View Trend */}
+        <ChartCard title="Views by Month">
+          {viewTrendData.length > 0 ? (
+            <ResponsiveContainer width="100%" height={200}>
+              <BarChart data={viewTrendData}>
+                <XAxis dataKey="month" tick={{ fontSize: 10 }} axisLine={false} tickLine={false} />
+                <YAxis hide />
+                <Tooltip content={<CustomTooltip />} />
+                <Bar dataKey="views" fill="#3B82F6" radius={[4, 4, 0, 0]} maxBarSize={28} />
+              </BarChart>
+            </ResponsiveContainer>
+          ) : (
+            <div className="flex h-[200px] items-center justify-center text-sm text-muted-foreground">
+              No view data yet
+            </div>
+          )}
+        </ChartCard>
+
+        {/* Device Breakdown */}
+        <ChartCard title="Device Breakdown">
+          {enhanced.deviceBreakdown?.length > 0 ? (
+            <ResponsiveContainer width="100%" height={200}>
+              <PieChart>
+                <Pie
+                  data={enhanced.deviceBreakdown}
+                  cx="50%"
+                  cy="50%"
+                  innerRadius={40}
+                  outerRadius={70}
+                  dataKey="value"
+                  nameKey="name"
+                  paddingAngle={3}
+                >
+                  {enhanced.deviceBreakdown.map((_: any, i: number) => (
+                    <Cell key={i} fill={PIE_COLORS[i % PIE_COLORS.length]} />
+                  ))}
+                </Pie>
+                <Tooltip content={<CustomTooltip />} />
+              </PieChart>
+            </ResponsiveContainer>
+          ) : (
+            <div className="flex h-[200px] items-center justify-center text-sm text-muted-foreground">
+              No device data yet
+            </div>
+          )}
+        </ChartCard>
+
+        {/* Browser Breakdown */}
+        <ChartCard title="Browser Breakdown">
+          {enhanced.browserBreakdown?.length > 0 ? (
+            <div className="space-y-2">
+              {enhanced.browserBreakdown.slice(0, 6).map((b: any, i: number) => {
+                const total = enhanced.browserBreakdown.reduce((s: number, x: any) => s + x.value, 0);
+                const pct = total > 0 ? Math.round((b.value / total) * 100) : 0;
+                return (
+                  <div key={b.name} className="flex items-center gap-3">
+                    <Monitor className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+                    <span className="text-sm text-foreground flex-1">{b.name}</span>
+                    <div className="h-2 w-24 rounded-full bg-muted overflow-hidden">
+                      <div
+                        className="h-full rounded-full"
+                        style={{
+                          width: `${pct}%`,
+                          backgroundColor: PIE_COLORS[i % PIE_COLORS.length],
+                        }}
+                      />
+                    </div>
+                    <span className="text-xs text-muted-foreground w-10 text-right">
+                      {pct}%
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+          ) : (
+            <div className="flex h-[200px] items-center justify-center text-sm text-muted-foreground">
+              No browser data yet
+            </div>
+          )}
+        </ChartCard>
+
+        {/* Country Breakdown */}
+        <ChartCard title="Country Breakdown">
+          {enhanced.countryBreakdown?.length > 0 ? (
+            <div className="space-y-2 max-h-[220px] overflow-y-auto">
+              {enhanced.countryBreakdown.slice(0, 10).map((c: any, i: number) => (
+                <div key={c.name} className="flex items-center gap-3">
+                  <Globe className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+                  <span className="text-sm text-foreground flex-1">{c.name}</span>
+                  <span className="text-xs font-medium text-foreground">
+                    {c.value.toLocaleString()}
+                  </span>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="flex h-[200px] items-center justify-center text-sm text-muted-foreground">
+              No country data yet
+            </div>
+          )}
+        </ChartCard>
+
+        {/* Top Products */}
+        <ChartCard title="Top Products by Downloads">
+          {enhanced.topProducts?.length > 0 ? (
+            <div className="space-y-2 max-h-[220px] overflow-y-auto">
+              {enhanced.topProducts.slice(0, 5).map((p: any, i: number) => (
+                <div
+                  key={p.id}
+                  className="flex items-center justify-between rounded-lg border border-border/40 px-3 py-2"
+                >
+                  <div className="min-w-0 flex-1">
+                    <p className="text-sm font-medium text-foreground truncate">
+                      {p.productName || p.title}
+                    </p>
+                    <p className="text-xs text-muted-foreground">{p.type} catalog</p>
+                  </div>
+                  <span className="text-xs font-medium text-gold ml-2">
+                    {p.downloadCount} DLs
+                  </span>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="flex h-[200px] items-center justify-center text-sm text-muted-foreground">
+              No product data yet
+            </div>
+          )}
+        </ChartCard>
+      </div>
+
+      {/* Popular PDFs & Recent Downloads Row */}
+      <div className="grid gap-6 lg:grid-cols-2">
+        {/* Popular PDFs */}
+        <div className="rounded-xl border border-border/60 bg-card">
+          <div className="flex items-center justify-between border-b border-border/60 px-6 py-4">
+            <h3 className="font-serif text-base text-foreground">Popular PDFs</h3>
+            <span className="text-xs text-muted-foreground">Top 10</span>
+          </div>
+          <div className="divide-y divide-border/40">
+            {enhanced.popularPDFs?.length > 0 ? (
+              enhanced.popularPDFs.slice(0, 8).map((p: any) => (
+                <div
+                  key={p.id}
+                  className="flex items-center justify-between px-6 py-3 transition-colors hover:bg-muted/20"
+                >
+                  <div className="min-w-0 flex-1">
+                    <p className="text-sm font-medium text-foreground truncate">{p.title}</p>
+                    <p className="text-xs text-muted-foreground">{p.type} · {p.fileSize || "—"}</p>
+                  </div>
+                  <Badge variant="outline" className="shrink-0 ml-2">
+                    {p.downloadCount} DLs
+                  </Badge>
+                </div>
+              ))
+            ) : (
+              <p className="px-6 py-8 text-center text-sm text-muted-foreground">
+                No popular PDFs yet
+              </p>
+            )}
+          </div>
+        </div>
+
+        {/* Recent Activity */}
+        <div className="rounded-xl border border-border/60 bg-card">
+          <div className="flex items-center justify-between border-b border-border/60 px-6 py-4">
+            <h3 className="font-serif text-base text-foreground">Recent Downloads</h3>
+            <span className="text-xs text-muted-foreground">Latest 50</span>
+          </div>
+          <div className="divide-y divide-border/40 max-h-[400px] overflow-y-auto">
+            {enhanced.recentDownloads?.length > 0 ? (
+              enhanced.recentDownloads.slice(0, 15).map((r: any) => (
+                <div
+                  key={r.id}
+                  className="flex items-center justify-between px-6 py-2.5 transition-colors hover:bg-muted/20"
+                >
+                  <div className="min-w-0 flex-1">
+                    <p className="text-sm text-foreground truncate">
+                      {r.download?.title || "Unknown"}
+                    </p>
+                    <p className="flex items-center gap-2 text-[10px] text-muted-foreground">
+                      {r.createdAt && (
+                        <span>{format(new Date(r.createdAt), "MMM d, HH:mm")}</span>
+                      )}
+                      {r.device && <span>· {r.device}</span>}
+                      {r.browser && <span>· {r.browser}</span>}
+                      {r.country && <span>· {r.country}</span>}
+                    </p>
+                  </div>
+                </div>
+              ))
+            ) : (
+              <p className="px-6 py-8 text-center text-sm text-muted-foreground">
+                No download activity yet
+              </p>
+            )}
+          </div>
+        </div>
+      </div>
+    </>
   );
 }
 

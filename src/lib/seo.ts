@@ -7,12 +7,12 @@ import type { MetaDescriptor, LinkDescriptor, ScriptDescriptor } from "@tanstack
 /* ------------------------------------------------------------------ */
 /*  Shared config                                                      */
 /* ------------------------------------------------------------------ */
-const SITE_URL = "https://stoneindiaheritage.com";
-const SITE_NAME = "Stone India Heritage";
+const SITE_URL = "https://stondia.com";
+const SITE_NAME = "STONDIA";
 const SITE_DESC =
   "Premium manufacturer and global exporter of Rajasthan Sandstone and architectural natural stone. Heritage craftsmanship, sustainable quarrying and export-quality precision.";
 const OG_IMAGE = "/og-image.jpg";
-const TWITTER_HANDLE = "@StoneIndia";
+const TWITTER_HANDLE = "@Stondia";
 
 /* ------------------------------------------------------------------ */
 /*  JSON-LD schemas                                                    */
@@ -24,12 +24,12 @@ export function orgSchema() {
     "@context": "https://schema.org",
     "@type": ["Organization", "LocalBusiness"],
     name: SITE_NAME,
-    alternateName: "Stone India",
+    alternateName: "STONDIA",
     description: SITE_DESC,
     url: SITE_URL,
     logo: `${SITE_URL}/logo.png`,
     image: `${SITE_URL}${OG_IMAGE}`,
-    email: "exports@stoneindiaheritage.com",
+    email: "exports@stondia.com",
     telephone: "+91 98290 00000",
     address: {
       "@type": "PostalAddress",
@@ -39,10 +39,10 @@ export function orgSchema() {
       addressCountry: "IN",
     },
     sameAs: [
-      "https://facebook.com/stoneindiaheritage",
-      "https://instagram.com/stoneindiaheritage",
-      "https://linkedin.com/company/stoneindiaheritage",
-      "https://youtube.com/@stoneindiaheritage",
+      "https://facebook.com/stondia",
+      "https://instagram.com/stondia",
+      "https://linkedin.com/company/stondia",
+      "https://youtube.com/@stondia",
     ],
     foundingDate: "1986",
     numberOfEmployees: { "@type": "QuantitativeValue", minValue: 200, maxValue: 500 },
@@ -241,7 +241,7 @@ function buildKeywords(title: string): string {
     "sandstone exporter",
     "architectural stone",
     "heritage stone",
-    "stone India",
+    "stondia",
   ];
   const words = title
     .replace(/[—–-]/g, " ")

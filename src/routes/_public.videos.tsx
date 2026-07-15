@@ -73,7 +73,7 @@ import { buildMeta, canonicalLink, jsonLdScript, breadcrumbSchema } from "@/lib/
 export const Route = createFileRoute("/_public/videos")({
   head: () => ({
     meta: buildMeta({
-      title: "Media Center — Videos & Documentary | Stone India Heritage",
+      title: "Media Center — Videos & Documentary | STONDIA",
       description:
         "Explore our video library featuring quarry tours, manufacturing processes, craftsmanship stories, and the complete factory documentary about Rajasthan sandstone.",
       path: "/videos",
@@ -271,7 +271,7 @@ const VIDEOS: VideoEntry[] = [
     id: "v13",
     title: "Corporate Overview 2026",
     description:
-      "An overview of Stone India Heritage — our quarries, factory, team, and global footprint across 35+ countries.",
+      "An overview of STONDIA — our quarries, factory, team, and global footprint across 35+ countries.",
     category: "Corporate",
     duration: "4:15",
     image: worksite01,
@@ -1186,7 +1186,7 @@ function Videos() {
               <div className="rounded-2xl border border-gold/10 bg-gradient-to-br from-muted/50 to-card p-8 text-center md:p-12">
                 <p className="eyebrow">Full Documentary Series</p>
                 <h3 className="mt-3 font-serif text-2xl text-foreground md:text-3xl">
-                  The Complete Stone India Heritage Story
+                  The Complete STONDIA Story
                 </h3>
                 <p className="mx-auto mt-3 max-w-lg text-sm text-muted-foreground">
                   From ancient quarry beds to global architectural landmarks — experience the entire

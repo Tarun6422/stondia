@@ -26,11 +26,13 @@ import {
   Paperclip,
   Download as DownloadIcon,
   Reply,
+  Images,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { DataTable, type Column, type PaginationMeta } from "./data-table";
 import { CrudDialog, type FieldDef } from "./crud-dialog";
+import { ProductMediaManager } from "./product-media-manager";
 import * as hooks from "./admin-hooks";
 import { useAuth } from "@/lib/auth-context";
 import { format } from "date-fns";
@@ -162,6 +164,7 @@ export function ProductsModule() {
   const [sort, setSort] = useState<string>("newest");
   const [dialogOpen, setDialogOpen] = useState(false);
   const [viewOpen, setViewOpen] = useState(false);
+  const [mediaOpen, setMediaOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [selected, setSelected] = useState<any>(null);
   const [form, setForm] = useState<Record<string, any>>({});
@@ -178,6 +181,9 @@ export function ProductsModule() {
       name: "",
       description: "",
       categoryId: "",
+      productCode: "",
+      mainImage: "",
+      thumbnailImage: "",
       featured: false,
       stock: "In Stock",
       images: [],
@@ -191,6 +197,9 @@ export function ProductsModule() {
       name: item.name,
       description: item.description,
       categoryId: item.categoryId,
+      productCode: item.productCode || "",
+      mainImage: item.mainImage || "",
+      thumbnailImage: item.thumbnailImage || "",
       featured: item.featured,
       stock: item.stock,
       subCategory: item.subCategory || "",
@@ -199,6 +208,11 @@ export function ProductsModule() {
       origin: item.origin || "",
     });
     setDialogOpen(true);
+  }, []);
+
+  const openMedia = useCallback((item: any) => {
+    setSelected(item);
+    setMediaOpen(true);
   }, []);
 
   const handleSubmit = useCallback(() => {
@@ -213,6 +227,33 @@ export function ProductsModule() {
   const columns: Column<any>[] = useMemo(
     () => [
       {
+        key: "productCode",
+        label: "Code",
+        render: (p) => (                    <span className="font-mono text-xs font-medium text-gold/80">
+            {p.productCode || "—"}
+          </span>
+        ),
+      },
+      {
+        key: "image",
+        label: "",
+        render: (p) => (
+          <div className="flex items-center">
+            {p.mainImage || p.images?.[0] ? (
+              <img
+                src={p.mainImage || p.images[0]}
+                alt={p.name}
+                className="h-9 w-9 rounded-md object-cover shrink-0"
+              />
+            ) : (
+              <span className="grid h-9 w-9 shrink-0 place-items-center rounded-md bg-muted text-xs text-muted-foreground">
+                —
+              </span>
+            )}
+          </div>
+        ),
+      },
+      {
         key: "name",
         label: "Name",
         sortable: true,
@@ -223,6 +264,15 @@ export function ProductsModule() {
         label: "Category",
         render: (p) => <span className="text-muted-foreground">{p.category?.name || "—"}</span>,
         hideOnMobile: true,
+      },
+      {
+        key: "images",
+        label: "Images",
+        render: (p) => (
+          <span className="text-xs text-muted-foreground">
+            {p.images?.length || 0} Images
+          </span>
+        ),
       },
       {
         key: "stock",
@@ -278,9 +328,12 @@ export function ProductsModule() {
 
   const fields: FieldDef[] = [
     { name: "name", label: "Name", required: true },
+    { name: "productCode", label: "Product Code (leave blank to auto-generate from category)" },
     { name: "slug", label: "Slug (leave blank to auto-generate)" },
     { name: "categoryId", label: "Category", type: "select", options: catOptions, required: true },
-    { name: "images", label: "Product Images", type: "images" },
+    { name: "mainImage", label: "Main Image", type: "image" },
+    { name: "thumbnailImage", label: "Thumbnail Image", type: "image" },
+    { name: "images", label: "Gallery Images", type: "images" },
     { name: "description", label: "Description", type: "textarea" },
     { name: "subCategory", label: "Sub Category" },
     { name: "finish", label: "Finish" },
@@ -337,10 +390,9 @@ export function ProductsModule() {
 
       {viewOpen && selected && (
         <ViewDialog open={viewOpen} onOpenChange={setViewOpen} title={selected.name}>
-          <div className="space-y-3 text-sm">
-            {selected.images?.[0] && (
+          <div className="space-y-3 text-sm">              {(selected.mainImage || selected.images?.[0]) && (
               <img
-                src={selected.images[0]}
+                src={selected.mainImage || selected.images[0]}
                 alt={selected.name}
                 className="w-full h-48 object-cover rounded-lg"
               />
@@ -377,9 +429,43 @@ export function ProductsModule() {
               <span className="text-muted-foreground">Description:</span>
               <p className="text-foreground mt-1">{selected.description}</p>
             </div>
+            {/* Media management */}
+            <div className="border-t border-border/40 pt-3">
+              <Button
+                variant="gold"
+                size="sm"
+                onClick={() => {
+                  setViewOpen(false);
+                  setMediaOpen(true);
+                }}
+              >
+                <Images className="h-4 w-4 mr-1" />
+                Manage Media
+              </Button>
+            </div>
           </div>
         </ViewDialog>
       )}
+
+      {/* Product Media Manager Dialog */}
+      <CrudDialog
+        open={mediaOpen}
+        onOpenChange={setMediaOpen}
+        title={`Media — ${selected?.name || ""}`}
+        description={`Manage images for ${selected?.productCode ? selected.productCode + " — " : ""}${selected?.name || ""}`}
+        fields={[]}
+        formData={{}}
+        onChange={() => {}}
+        onSubmit={() => {}}
+        size="full"
+      >
+        {selected && (
+          <ProductMediaManager
+            productId={selected.id}
+            productCode={selected.productCode}
+          />
+        )}
+      </CrudDialog>
 
       <ConfirmDelete
         open={deleteOpen}
@@ -2313,6 +2399,11 @@ export { MediaLibraryModule } from "./media-library";
 /*  CATALOG GENERATOR MODULE                                         */
 /* ══════════════════════════════════════════════════════════════════ */
 export { CatalogGeneratorModule } from "./catalog-generator";
+
+/* ══════════════════════════════════════════════════════════════════ */
+/*  CATALOG TEMPLATES MODULE                                         */
+/* ══════════════════════════════════════════════════════════════════ */
+export { CatalogTemplatesModule } from "./catalog-templates";
 
 export function SettingsModule() {
   const { data, isLoading, isError } = hooks.useSettings();

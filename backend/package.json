@@ -1,5 +1,5 @@
 {
-  "name": "stone-india-heritage-api",
+  "name": "stondia-api",
   "version": "1.0.0",
   "private": true,
   "type": "module",
@@ -14,7 +14,7 @@
     "lint": "eslint ."
   },
   "dependencies": {
-    "@prisma/client": "^6.6.0",
+    "@prisma/client": "^6.19.3",
     "bcryptjs": "^3.0.2",
     "compression": "^1.8.0",
     "cors": "^2.8.5",
@@ -26,6 +26,7 @@
     "multer": "^2.0.0",
     "nodemailer": "^7.0.2",
     "pdfkit": "^0.15.2",
+    "prisma": "^6.19.3",
     "qrcode": "^1.5.4",
     "zod": "^3.24.2"
   },
@@ -40,7 +41,6 @@
     "@types/nodemailer": "^6.4.17",
     "@types/pdfkit": "^0.17.6",
     "@types/qrcode": "^1.5.5",
-    "prisma": "^6.6.0",
     "tsx": "^4.23.0",
     "typescript": "^5.8.3"
   },

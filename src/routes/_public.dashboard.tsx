@@ -20,7 +20,7 @@ import { Reveal } from "@/components/motion";
 export const Route = createFileRoute("/_public/dashboard")({
   head: () => ({
     meta: [
-      { title: "My Dashboard — Stone India Heritage" },
+      { title: "My Dashboard — STONDIA" },
       { name: "description", content: "Your personal dashboard." },
     ],
   }),
@@ -190,8 +190,8 @@ function DashboardPage() {
               </span>
             </Link>
 
-            {/* Admin link (admin/dealer only) */}
-            {(isAdmin || user.role === "DEALER") && (
+            {/* Admin link (admin only) */}
+            {isAdmin && (
               <Link
                 to="/admin"
                 className="group rounded-xl border border-gold/20 bg-gradient-to-br from-gold/5 to-transparent p-6 transition-all hover:shadow-elegant"
@@ -208,6 +208,7 @@ function DashboardPage() {
                 </span>
               </Link>
             )}
+
 
             {/* Architect-specific link */}
             {isArchitect && (

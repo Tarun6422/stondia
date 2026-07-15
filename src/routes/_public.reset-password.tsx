@@ -8,8 +8,8 @@ export const Route = createFileRoute("/_public/reset-password")({
   }),
   head: () => ({
     meta: [
-      { title: "Reset Password — Stone India Heritage" },
-      { name: "description", content: "Reset your Stone India Heritage account password." },
+      { title: "Reset Password — STONDIA" },
+      { name: "description", content: "Reset your STONDIA account password." },
     ],
   }),
   component: ResetPasswordRedirect,

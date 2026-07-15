@@ -82,5 +82,5 @@ export const api = {
 
   patch: <T>(path: string, body?: Record<string, unknown>) => request<T>("PATCH", path, body),
 
-  delete: <T>(path: string) => request<T>("DELETE", path),
+  delete: <T>(path: string, body?: Record<string, unknown>) => request<T>("DELETE", path, body),
 };

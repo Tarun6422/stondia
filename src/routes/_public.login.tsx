@@ -19,11 +19,11 @@ type LoginData = z.infer<typeof loginSchema>;
 export const Route = createFileRoute("/_public/login")({
   head: () => ({
     meta: [
-      { title: "Sign In — Stone India Heritage" },
+      { title: "Sign In — STONDIA" },
       {
         name: "description",
         content:
-          "Sign in to your Stone India Heritage account to manage quotes, track orders, and download resources.",
+          "Sign in to your STONDIA account to manage quotes, track orders, and download resources.",
       },
     ],
   }),
@@ -45,7 +45,7 @@ function Login() {
   const verified = search.verified === "success";
 
   const validateField = (name: keyof LoginData, value: string) => {
-    const result = loginSchema.safeParse({ [name]: value });
+    const result = loginSchema.partial().safeParse({ [name]: value });
     if (!result.success) {
       const fieldError = result.error.issues.find((i) => i.path[0] === name);
       setErrors((prev) => ({ ...prev, [name]: fieldError?.message }));
@@ -101,6 +101,7 @@ function Login() {
       const message =
         err instanceof ApiError ? err.message : "Something went wrong. Please try again.";
       setServerError(message);
+      toast.error("Sign in failed", { description: message });
     } finally {
       setLoading(false);
     }
